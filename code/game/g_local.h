@@ -11,7 +11,7 @@
 // the "gameversion" client command will print this plus compile date
 //qlone
 //#define	GAMEVERSION	"baseq3"
-#define	GAMEVERSION	"qlone"
+#define	GAMEVERSION	"kftag"
 //qlone
 
 #define BODY_QUEUE_SIZE		8
