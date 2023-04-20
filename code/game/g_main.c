@@ -66,6 +66,7 @@ vmCvar_t	pmove_msec;
 vmCvar_t	g_listEntity;
 vmCvar_t	g_instagib;
 vmCvar_t	g_railJump;
+vmCvar_t	g_railJumpDamage;
 //qlone
 vmCvar_t	g_doReady;
 vmCvar_t	g_freezeTag;
@@ -205,6 +206,7 @@ static cvarTable_t gameCvarTable[] = {
 	{ &g_freezeTag, "freezeTag", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_grapple, "g_grapple", "0", 0, 0, qfalse },
 	{ &g_railJump, "g_railJump", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_railJumpDamage, "g_railJumpDamage", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_noSelfDamage, "g_noSelfDamage", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_specLock, "g_specLock", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_startAmmoMG, "g_startAmmoMG", "50", 0, 0, qfalse },

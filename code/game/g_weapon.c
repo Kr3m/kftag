@@ -621,7 +621,7 @@ void G_RailgunRadiusDamage (vec3_t origin, gentity_t *ent) {
 	float damage, radius, distMax, dist, points;
 
 	// use the same values as the Rocket Launcher
-	damage = 150;
+	damage = 100;
 	radius = 120;
 
 	// max distance to trigger the damage
@@ -641,7 +641,11 @@ void G_RailgunRadiusDamage (vec3_t origin, gentity_t *ent) {
 	dist = VectorLength( v );
 
 	if ( dist < distMax ) {
-		points = damage * ( 1.0 - dist / radius );
+		if( g_railJumpDamage.integer ) {
+			points = g_railJumpDamage.integer * ( 1.0 - dist / radius );
+		} else {
+			points = damage * ( 1.0 - dist / radius );
+		}		
 		if( CanDamage (ent, origin) ) {
 			VectorSubtract (ent->r.currentOrigin, origin, dir);
 			// push the center of mass higher than the origin so players
