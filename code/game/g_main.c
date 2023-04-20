@@ -66,9 +66,6 @@ vmCvar_t	pmove_msec;
 vmCvar_t	g_listEntity;
 vmCvar_t	g_instagib;
 vmCvar_t	g_railJump;
-vmCvar_t	g_noSelfDamage;
-vmCvar_t	g_startArmor;
-vmCvar_t	g_startHealth;
 //qlone
 vmCvar_t	g_doReady;
 vmCvar_t	g_freezeTag;
