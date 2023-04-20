@@ -621,7 +621,7 @@ void G_RailgunRadiusDamage (vec3_t origin, gentity_t *ent) {
 	float damage, radius, distMax, dist, points;
 
 	// use the same values as the Rocket Launcher
-	damage = 100;
+	damage = 150;
 	radius = 120;
 
 	// max distance to trigger the damage
