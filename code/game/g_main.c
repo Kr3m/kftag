@@ -69,6 +69,29 @@ vmCvar_t	g_railJump;
 vmCvar_t	g_noSelfDamage;
 vmCvar_t	g_startArmor;
 vmCvar_t	g_startHealth;
+//qlone
+vmCvar_t	g_doReady;
+vmCvar_t	g_freezeTag;
+vmCvar_t	g_grapple;
+vmCvar_t	g_noSelfDamage;
+vmCvar_t	g_specLock;
+vmCvar_t	g_startAmmoMG;
+vmCvar_t	g_startAmmoSG;
+vmCvar_t	g_startAmmoGL;
+vmCvar_t	g_startAmmoRL;
+vmCvar_t	g_startAmmoLG;
+vmCvar_t	g_startAmmoRG;
+vmCvar_t	g_startAmmoPG;
+vmCvar_t	g_startAmmoBFG;
+vmCvar_t	g_startArmor;
+vmCvar_t	g_startHealth;
+vmCvar_t	g_tossWeapon;
+vmCvar_t	g_wpflags;
+vmCvar_t	g_removeammo;
+vmCvar_t	g_removeitem;
+vmCvar_t	g_removepowerup;
+vmCvar_t	g_removeweapon;
+//qlone
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -81,41 +104,14 @@ vmCvar_t	g_singlePlayer;
 vmCvar_t	g_enableDust;
 vmCvar_t	g_enableBreath;
 vmCvar_t	g_proxMineTimeout;
+vmCvar_t	g_startAmmoNG;
+vmCvar_t	g_startAmmoPL;
+vmCvar_t	g_startAmmoCG;
 //qlone - freezetag
 #else
 vmCvar_t	g_enableBreath;
 //qlone - freezetag
 #endif
-
-//qlone
-vmCvar_t	g_doReady;
-vmCvar_t	g_freezeTag;
-vmCvar_t	g_grapple;
-vmCvar_t	g_railJump;
-vmCvar_t	g_noSelfDamage;
-vmCvar_t	g_specLock;
-vmCvar_t	g_startAmmoMG;
-vmCvar_t	g_startAmmoSG;
-vmCvar_t	g_startAmmoGL;
-vmCvar_t	g_startAmmoRL;
-vmCvar_t	g_startAmmoLG;
-vmCvar_t	g_startAmmoRG;
-vmCvar_t	g_startAmmoPG;
-vmCvar_t	g_startAmmoBFG;
-#ifdef MISSIONPACK
-vmCvar_t	g_startAmmoNG;
-vmCvar_t	g_startAmmoPL;
-vmCvar_t	g_startAmmoCG;
-#endif
-vmCvar_t	g_startArmor;
-vmCvar_t	g_startHealth;
-vmCvar_t	g_tossWeapon;
-vmCvar_t	g_wpflags;
-vmCvar_t	g_removeammo;
-vmCvar_t	g_removeitem;
-vmCvar_t	g_removepowerup;
-vmCvar_t	g_removeweapon;
-//qlone
 
 
 static cvarTable_t gameCvarTable[] = {
