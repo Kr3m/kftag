@@ -64,6 +64,11 @@ vmCvar_t	g_unlagged;
 vmCvar_t	pmove_fixed;
 vmCvar_t	pmove_msec;
 vmCvar_t	g_listEntity;
+vmCvar_t	g_instagib;
+vmCvar_t	g_railJump;
+vmCvar_t	g_noSelfDamage;
+vmCvar_t	g_startArmor;
+vmCvar_t	g_startHealth;
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -86,6 +91,7 @@ vmCvar_t	g_enableBreath;
 vmCvar_t	g_doReady;
 vmCvar_t	g_freezeTag;
 vmCvar_t	g_grapple;
+vmCvar_t	g_railJump;
 vmCvar_t	g_noSelfDamage;
 vmCvar_t	g_specLock;
 vmCvar_t	g_startAmmoMG;
@@ -205,6 +211,7 @@ static cvarTable_t gameCvarTable[] = {
 	{ &g_doReady, "g_doReady", "0", 0, 0, qfalse },
 	{ &g_freezeTag, "freezeTag", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_grapple, "g_grapple", "0", 0, 0, qfalse },
+	{ &g_railJump, "g_railJump", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_noSelfDamage, "g_noSelfDamage", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_specLock, "g_specLock", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_startAmmoMG, "g_startAmmoMG", "50", 0, 0, qfalse },

@@ -857,6 +857,7 @@ extern	vmCvar_t	g_proxMineTimeout;
 extern	vmCvar_t	g_doReady;
 extern	vmCvar_t	g_freezeTag;
 extern	vmCvar_t	g_grapple;
+extern	vmCvar_t	g_railJump;
 extern	vmCvar_t	g_noSelfDamage;
 extern	vmCvar_t	g_specLock;
 extern	vmCvar_t	g_startAmmoMG;
