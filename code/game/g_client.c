@@ -976,6 +976,9 @@ void ClientSpawn(gentity_t *ent) {
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
 	qboolean isSpectator;
+	//qlone
+	int		health;
+	//qlone
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -1110,14 +1113,16 @@ void ClientSpawn(gentity_t *ent) {
 	client->ps.ammo[WP_GAUNTLET] = -1;
 	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
 
-	// health will count down towards max_health
-	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
-	//qlone - custom health
-	if ( g_startHealth.integer > 0 ) {
-		client->ps.stats[STAT_HEALTH] += g_startHealth.integer;
-		if ( client->ps.stats[STAT_HEALTH] > client->ps.stats[STAT_MAX_HEALTH] * 2 )
-			client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] * 2;
-		ent->health = client->ps.stats[STAT_HEALTH];
+	//qlone
+	if (!g_startHealth.integer) {
+	//qlone
+		// health will count down towards max_health
+		ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
+	//qlone
+	}
+	else {
+		health = g_startHealth.integer > 200 ? 200 : g_startHealth.integer;
+		ent->health = client->ps.stats[STAT_HEALTH] = health;
 	}
 	//qlone - custom health
 
