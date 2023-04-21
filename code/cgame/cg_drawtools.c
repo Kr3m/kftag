@@ -205,6 +205,10 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 	trap_R_SetColor( NULL );
 }
 
+void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color ) {
+	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
+}
+
 
 // new font renderer
 

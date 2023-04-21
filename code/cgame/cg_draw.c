@@ -2332,8 +2332,16 @@ CG_DrawFollow
 static qboolean CG_DrawFollow( void ) {
 
 	const char	*name;
+	qboolean following;
 
 	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+		return qfalse;
+	}
+
+	following = ((!cg.demoPlayback && (cg.snap->ps.pm_flags & PMF_FOLLOW)) ||
+               (cg.demoPlayback && (cg_playback_follow == -1) && 
+                (cg.snap->ps.pm_flags  & PMF_FOLLOW)));
+	if (!following) {
 		return qfalse;
 	}
 
@@ -2347,6 +2355,61 @@ static qboolean CG_DrawFollow( void ) {
 }
 
 
+
+/*
+=================
+CG_DrawLast
+=================
+*/
+int CG_DrawLast( qboolean really_draw ) {
+  vec4_t          color;
+  int team;
+  int count;
+  int team_count;
+  int is_frozen;
+  int i;
+  int last;
+  clientInfo_t* ci;
+  
+  // don't draw if not a team game
+  if (cgs.gametype < GT_TEAM) {
+    return -1;
+  }
+  
+  is_frozen = (1 << PW_BATTLESUIT);
+  team = cg.snap->ps.persistant[PERS_TEAM];
+  if (team == TEAM_SPECTATOR) {
+    return -1;
+  }
+  count = 0;
+  team_count = 0;
+  for (i = 0; i < cgs.maxclients; i++) {
+    ci = &cgs.clientinfo[i];
+    if ((ci->infoValid) && (ci->team == team)) {
+      if (ci->health > 0) {
+        count++;
+        last = i;
+      }
+      team_count++;
+    }
+  }
+  if ((count != 1) || (team_count == 1)) {
+    return -1;
+  }
+  
+  if (!really_draw) {
+    return last;
+  }
+  
+  color[0] = 1;
+  color[1] = 0;
+  color[2] = 0;
+  color[3] = 1;
+  
+
+  CG_DrawBigStringColor( 320 - 4 * 8, 36, "LAST", color );
+  return -1;
+}
 
 /*
 =================
@@ -2652,6 +2715,10 @@ static void CG_Draw2D( stereoFrame_t stereoFrame )
 	if ( !CG_DrawFollow() ) {
 		CG_DrawWarmup();
 	}
+
+  	if (!following) {
+    		CG_DrawLast(qtrue);
+  	}
 
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();

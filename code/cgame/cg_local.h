@@ -1337,6 +1337,8 @@ void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader 
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars );
 
+void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color );
+
 int CG_DrawStrlen( const char *str );
 
 float *CG_FadeColor( int startMsec, int totalMsec );
