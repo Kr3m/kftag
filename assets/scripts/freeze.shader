@@ -33,3 +33,29 @@ freezeMarkShader
 		alphagen vertex
 	}
 }
+
+spawnShader
+{
+        deformVertexes wave 100 sin 3 0 0 0
+        {
+                map menu/art/fx_grn.tga
+                blendfunc GL_ONE GL_ONE
+                tcGen environment
+                tcmod rotate 30
+                //tcMod turb 0 0.2 0 .2
+                tcmod scroll 1 .1
+        }
+}
+
+iceTrail
+{
+        
+        nopicmip                        // make sure a border remains
+        entityMergable          // allow all the sprites to be merged together
+        {
+                clampmap gfx/damage/blood_spurt.tga
+                blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+                rgbGen          vertex
+                alphaGen        vertex
+        }
+}
