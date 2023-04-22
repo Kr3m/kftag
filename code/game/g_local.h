@@ -327,6 +327,7 @@ struct gclient_s {
 #endif
 
 	char		*areabits;
+	unsigned int hook_release_time;
 
 	// unlagged
 	clientHistory_t	history[ NUM_CLIENT_HISTORY ];
@@ -854,6 +855,14 @@ extern	vmCvar_t	g_enableDust;
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
+//freeze
+extern	vmCvar_t	hook_enable;
+extern  vmCvar_t	hook_delaytime;
+extern  vmCvar_t	hook_holdtime;
+extern  vmCvar_t	hook_speed;
+extern  vmCvar_t	hook_speedpull;
+extern  vmCvar_t	hook_damage;
+//freeze
 //qlone
 extern	vmCvar_t	g_doReady;
 extern	vmCvar_t	g_freezeTag;

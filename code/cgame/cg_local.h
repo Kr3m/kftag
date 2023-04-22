@@ -1133,6 +1133,10 @@ typedef struct {
 	cgMedia_t		media;
 	vec4_t			crosshairColor;
 
+	//hook
+	unsigned int	hook_speedpull;
+  	unsigned int	hook_delaytime;
+
 	float			fov;		// clamped cg_fov value
 	float			zoomFov;	// clamped cg_zoomFov value
 

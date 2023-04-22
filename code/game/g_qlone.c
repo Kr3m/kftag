@@ -196,6 +196,35 @@ void G_SetInfiniteAmmo ( gclient_t *client ) {
 void Weapon_GrapplingHook_Fire( gentity_t *ent );
 
 void Hook_Fire( gentity_t *ent ) {
+	gclient_t	*client;
+	usercmd_t	*ucmd;
+
+	if (hook_enable.integer == 0) {
+		return;
+	}
+
+	client = ent->client;
+	if ( client->ps.weapon == WP_GRAPPLING_HOOK ) {
+		return;
+	}
+	if ( client->ps.pm_type != PM_NORMAL ) {
+		return;
+	}
+
+	ucmd = &client->pers.cmd;
+	if ( client->hook && !( ucmd->buttons & 32 ) ) {
+		Weapon_HookFree( client->hook );
+	}
+	if ( !client->hook && ( ucmd->buttons & 32 ) ) {
+		if ( ent->timestamp > level.time) { //timestamp holds time fired + hook_delaytime<
+			return;
+		}
+		client->fireHeld = qfalse;
+		Weapon_GrapplingHook_Fire( ent );
+	}
+}
+
+/* void Hook_Fire( gentity_t *ent ) {
 	gclient_t       *client;
 	usercmd_t       *ucmd;
 
@@ -215,7 +244,7 @@ void Hook_Fire( gentity_t *ent ) {
 		client->fireHeld = qfalse;
 		Weapon_GrapplingHook_Fire( ent );
 	}
-}
+} */
 
 /* void G_RailgunRadiusDamage (vec3_t origin, gentity_t *ent) {
 	int i;

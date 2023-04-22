@@ -90,6 +90,14 @@ vmCvar_t	g_removeitem;
 vmCvar_t	g_removepowerup;
 vmCvar_t	g_removeweapon;
 //qlone
+//freeze
+vmCvar_t	hook_enable;
+//vmCvar_t	hook_delaytime; in bg_pmove
+vmCvar_t	hook_holdtime;
+vmCvar_t	hook_speed;
+//vmCvar_t	hook_speedpull; in bg_pmove
+vmCvar_t	hook_damage;
+//freeze
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -217,6 +225,14 @@ static cvarTable_t gameCvarTable[] = {
 	{ &g_startAmmoRG, "g_startAmmoRG", "10", 0, 0, qfalse },
 	{ &g_startAmmoPG, "g_startAmmoPG", "30", 0, 0, qfalse },
 	{ &g_startAmmoBFG, "g_startAmmoBFG", "15", 0, 0, qfalse },
+	//freeze
+	{ &hook_enable, "hook_enable", "0", 0, 0, qtrue, qfalse },
+	{ &hook_delaytime, "hook_delaytime", "400", CVAR_SERVERINFO, 0, qtrue, qfalse },
+	{ &hook_holdtime, "hook_holdtime", "0", 0, 0, qtrue, qfalse },
+	{ &hook_speed, "hook_speed", "800", 0, 0, qtrue, qfalse },
+	{ &hook_speedpull, "hook_speedpull", "800", CVAR_SERVERINFO, 0, qtrue, qfalse },
+	{ &hook_damage, "hook_damage", "0", 0, 0, qfalse, qfalse },
+	//freeze
 #ifdef MISSIONPACK
 	{ &g_startAmmoNG, "g_startAmmoNG", "20", 0, 0, qfalse },
 	{ &g_startAmmoPL, "g_startAmmoPL", "10", 0, 0, qfalse },

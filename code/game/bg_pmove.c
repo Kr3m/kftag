@@ -7,6 +7,9 @@
 #include "bg_public.h"
 #include "bg_local.h"
 
+vmCvar_t hook_delaytime;
+vmCvar_t hook_speedpull;
+
 pmove_t		*pm;
 pml_t		pml;
 
@@ -662,7 +665,7 @@ static void PM_GrappleMove( void ) {
 	if (vlen <= 100)
 		VectorScale(vel, 10 * vlen, vel);
 	else
-		VectorScale(vel, 800, vel);
+		VectorScale(vel, hook_speedpull.integer, vel);
 
 	VectorCopy(vel, pm->ps->velocity);
 

@@ -677,22 +677,34 @@ void Weapon_GrapplingHook_Fire (gentity_t *ent)
 		fire_grapple (ent, muzzle, forward);
 
 	ent->client->fireHeld = qtrue;
+  
+  	if (hook_holdtime.integer > 0) {
+    	ent->client->hook_release_time = hook_holdtime.integer + level.time;
+  	} else {
+    	ent->client->hook_release_time = 0;
+  	}
 }
 
 
 void Weapon_HookFree (gentity_t *ent)
 {
 //qlone - grapple hook
-	ent->parent->timestamp = level.time;
+	//ent->parent->timestamp = level.time;
+	ent->parent->timestamp = level.time + hook_delaytime.integer;
 //qlone - grapple hook
 	ent->parent->client->hook = NULL;
 	ent->parent->client->ps.pm_flags &= ~PMF_GRAPPLE_PULL;
+	ent->parent->client->hook_release_time = 0;
 	G_FreeEntity( ent );
 }
 
 
 void Weapon_HookThink (gentity_t *ent)
 {
+	if ((ent->parent->client->hook != ent) || (ent->parent->inuse == qfalse)) {
+		G_FreeEntity(ent);
+	}
+
 	if (ent->enemy) {
 		vec3_t v, oldorigin;
 
@@ -706,6 +718,7 @@ void Weapon_HookThink (gentity_t *ent)
 	}
 
 	VectorCopy( ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
+  	ent->nextthink = level.time + FRAMETIME;
 }
 
 
