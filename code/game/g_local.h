@@ -891,6 +891,7 @@ extern	vmCvar_t	g_removeitem;
 extern	vmCvar_t	g_removepowerup;
 extern	vmCvar_t	g_removeweapon;
 //qlone
+extern	vmCvar_t	g_spawnProtection;
 
 void	trap_Print( const char *text );
 void	trap_Error( const char *text );
