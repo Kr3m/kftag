@@ -206,7 +206,11 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 
 	// add the "ready" marker for intermission exiting
 	if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << score->client ) ) {
+		if ( !Q_Isfreeze( score-> client ))
 		CG_DrawString( iconx, y, "READY", color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_FORCE_COLOR );
+		else {
+			CG_DrawString( iconx, y, "FROZEN", color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_FORCE_COLOR );
+		}
 	}
 
 	// set bounds for scoreboard clicks
