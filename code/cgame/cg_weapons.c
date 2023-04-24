@@ -694,8 +694,10 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->trailRadius = 64;
 		MAKERGB( weaponInfo->missileDlightColor, 1, 0.75f, 0 );
 		cgs.media.grappleShader = trap_R_RegisterShader( "grappleRope");
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grapple/grapfire.wav", qfalse );
-		weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/grapple/grappull.wav", qfalse );
+		//weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grapple/contact.wav", qfalse );
+		//weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/grapple/firingsound.wav", qfalse);
+		weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/grapple/firingsound.wav", qfalse );
+		weaponInfo->loopFireSound = qtrue;		
                 //cgs.media.lightningShader = trap_R_RegisterShader( "lightningBoltNew");
 		break;
 
