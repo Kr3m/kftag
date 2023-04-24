@@ -2087,6 +2087,13 @@ static void CG_ScanForCrosshairEntity( void ) {
 	CG_Trace( &trace, start, vec3_origin, vec3_origin, end, 
 		cg.snap->ps.clientNum, CONTENTS_SOLID|CONTENTS_BODY );
 	if ( trace.entityNum >= MAX_CLIENTS ) {
+		entityState_t	*es;
+
+		es = &cg_entities[ trace.entityNum ].currentState;
+		if ( es->powerups & ( 1 << PW_BATTLESUIT ) ) {
+			cg.crosshairClientNum = es->otherEntityNum;
+			cg.crosshairClientTime = cg.time;
+		}
 		return;
 	}
 
