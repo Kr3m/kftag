@@ -556,7 +556,9 @@ static void CG_DrawSelectedPlayerHead( rectDef_t *rect, qboolean draw2D, qboolea
   	// if they are deferred, draw a cross out
   	if ( ci->deferred ) {
   		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cgs.media.deferShader );
-  	}
+  	} else if ( Q_Isfreeze( ci - cgs.clientinfo ) ) {
+		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cgs.media.noammoShader);
+	}
   }
 
 }
@@ -1291,6 +1293,12 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 
 			xx = rect->x + 1;
 			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
+
+				if ( Q_Isfreeze( ci - cgs.clientinfo ) ) {
+					CG_DrawPic( xx, y, PIC_WIDTH, PIC_WIDTH, cgs.media.noammoShader );
+					break;
+				}
+				
 				if (ci->powerups & (1 << j)) {
 
 					item = BG_FindItemForPowerup( j );

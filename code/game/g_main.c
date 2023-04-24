@@ -99,6 +99,8 @@ vmCvar_t	hook_speed;
 vmCvar_t	hook_damage;
 //freeze
 vmCvar_t	g_spawnProtection;
+vmCvar_t	g_autoThawTime;
+vmCvar_t	g_thawTime;
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -235,6 +237,8 @@ static cvarTable_t gameCvarTable[] = {
 	{ &hook_damage, "hook_damage", "0", 0, 0, qfalse, qfalse },
 	//freeze
 	{ &g_spawnProtection, "g_spawnProtection", "0", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_autoThawTime, "g_autoThawTime", "60", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_thawTime, "g_thawTime", "60", CVAR_ARCHIVE, 0, qfalse },
 #ifdef MISSIONPACK
 	{ &g_startAmmoNG, "g_startAmmoNG", "20", 0, 0, qfalse },
 	{ &g_startAmmoPL, "g_startAmmoPL", "10", 0, 0, qfalse },

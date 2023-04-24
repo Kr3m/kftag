@@ -385,6 +385,8 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 	if ( ci->deferred ) {
 		trap_R_SetColor ( NULL );
 		CG_DrawPic( x, y, w, h, cgs.media.deferShader );
+	} else if ( Q_Isfreeze( clientNum ) ) {
+		CG_DrawPic( x, y, w, h, cgs.media.noammoShader);
 	}
 }
 
@@ -1059,6 +1061,11 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 				xx = x + w - TINYCHAR_WIDTH;
 			}
 			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
+				if ( Q_Isfreeze( ci - cgs.clientinfo ) ) {
+					CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, cgs.media.noammoShader);
+					break;
+				}
+
 				if (ci->powerups & (1 << j)) {
 
 					item = BG_FindItemForPowerup( j );

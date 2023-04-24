@@ -151,9 +151,9 @@ static void Body_Explode( gentity_t *self ) {
 		if ( is_spectator( e->client ) ) continue;
 		if ( !self->count ) {
 			if ( g_dmflags.integer & 1024 || g_gametype.integer == GT_CTF ) {
-				self->count = level.time + 2000;
+				self->count = level.time + g_thawTime.value * 1000;
 			} else {
-				self->count = level.time + 3000;
+				self->count = level.time + g_thawTime.value * 1000;
 			}
 			G_Sound( self, CHAN_AUTO, self->noise_index );
 
@@ -314,7 +314,7 @@ static void Body_think( gentity_t *self ) {
 	if ( level.intermissiontime || level.intermissionQueued ) {
 		return;
 	}
-	if ( level.time - self->timestamp > 150000 || ( ( g_dmflags.integer & 1024 || g_gametype.integer == GT_CTF ) && level.time - self->timestamp > 60000 ) ) {
+	if ( level.time - self->timestamp > 150000 || ( ( g_dmflags.integer & 1024 || g_gametype.integer == GT_CTF ) && level.time - self->timestamp > g_autoThawTime.value * 1000 ) ) {
 		player_free( self->target_ent );
 		TossBody( self );
 		return;
