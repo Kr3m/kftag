@@ -53,7 +53,7 @@ void G_LoadMap( const char *map )
 
 qboolean ParseMapRotation( void ) 
 {
-	char buf[ 4096 ];
+	char buf[ 8192 ];
 	char cvar[ 256 ];
 	char map[ 256 ];
 	char *s;
@@ -190,7 +190,7 @@ __rescan:
 		reqIndex = 1;
 
 	trap_Cvar_Set( SV_ROTATION, va( "%i", reqIndex ) );
-	trap_Cvar_Set( "g_restarted", "1" );
+//	trap_Cvar_Set( "g_restarted", "1" );
 	G_LoadMap( map );
 
 	return qtrue;
