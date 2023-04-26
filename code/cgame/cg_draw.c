@@ -2410,7 +2410,8 @@ int CG_DrawLast( qboolean really_draw ) {
 	color[2] = 0;
 	color[3] = 1;
 
-	CG_DrawBigStringColor( 320 - 4 * 8, 36, "LAST", color );
+	//CG_DrawBigStringColor( 320 - 4 * 8, 36, "LAST", color );
+	CG_DrawString( 320, 36, "LAST", color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 4, DS_CENTER | DS_PROPORTIONAL);
 	return -1;
 }
 
