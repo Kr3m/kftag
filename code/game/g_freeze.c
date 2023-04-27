@@ -610,7 +610,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 #ifdef MISSIONPACK
 	case MOD_JUICED:
 #endif
-	case MOD_GRAPPLE:
+	//case MOD_GRAPPLE:
 		return;
 	}
 
