@@ -819,7 +819,6 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	if ( client && ( client->ps.eFlags & EF_SPAWNPROTECTION )) {
-		client->spawnProtectionTime = level.time + (g_spawnProtection.integer * 1000);
 		if ( client->spawnProtectionTime <= level.time ) {
 			client->ps.eFlags &= ~EF_SPAWNPROTECTION;
 		}

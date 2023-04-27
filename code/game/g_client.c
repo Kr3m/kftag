@@ -985,22 +985,6 @@ void ClientSpawn(gentity_t *ent) {
 
 	trap_UnlinkEntity( ent );
 
-	//check spawn protection
-	/* ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
-	CopyToBodyQue( ent );
-	if ( ent->client->respawnTime + g_spawnProtection.integer*1000 > level.time) {
-		ent->client->spawnProtection = qtrue;
-	} else {
-		ent->client->spawnProtection = qfalse;
-	} */
-
-	/* if ( client && ( client->ps.eFlags & EF_SPAWNPROTECTION )) {
-		client->spawnProtectionTime = level.time + (g_spawnProtection.integer * 1000);
-		if ( client->spawnProtectionTime <= level.time ) {
-			client->ps.eFlags &= ~EF_SPAWNPROTECTION;
-		}
-	} */
-
 	isSpectator = client->sess.sessionTeam == TEAM_SPECTATOR;
 	// find a spawn point
 	// do it before setting health back up, so farthest
@@ -1112,15 +1096,6 @@ void ClientSpawn(gentity_t *ent) {
 	ent->waterlevel = 0;
 	ent->watertype = 0;
 	ent->flags = 0;
-
-	client->hook = NULL;
-	if ( ent->client->spawnProtectionTime >= level.time ) {
-		ent->s.eFlags |= EF_SPAWNPROTECTION;
-		ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
-	} else {
-		ent->s.eFlags &= ~EF_SPAWNPROTECTION;
-		ent->client->ps.eFlags &= EF_SPAWNPROTECTION;
-	}
 	
 	VectorCopy (playerMins, ent->r.mins);
 	VectorCopy (playerMaxs, ent->r.maxs);
@@ -1227,7 +1202,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	}
 
-	if ( g_spawnProtection.integer ) {
+	if ( g_spawnProtection.integer > 0 ) {
 		ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
 		ent->client->spawnProtectionTime = level.time + ( g_spawnProtection.integer * 1000 );
 	}

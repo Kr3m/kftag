@@ -881,7 +881,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	if ( targ->client->respawnTime + g_spawnProtection.integer*1000 > level.time && ( attacker != targ ) ) {
+	/* if ( targ->client->respawnTime + g_spawnProtection.integer*1000 > level.time && ( attacker != targ ) ) {
+		return;
+	} */
+
+	if ( targ && targ->client && targ->client->ps.eFlags & EF_SPAWNPROTECTION ) {
 		return;
 	}
 
