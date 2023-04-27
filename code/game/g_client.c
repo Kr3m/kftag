@@ -986,16 +986,17 @@ void ClientSpawn(gentity_t *ent) {
 	trap_UnlinkEntity( ent );
 
 	//check spawn protection
-	ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
+	/* ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
 	CopyToBodyQue( ent );
 	if ( ent->client->respawnTime + g_spawnProtection.integer*1000 > level.time) {
 		ent->client->spawnProtection = qtrue;
 	} else {
 		ent->client->spawnProtection = qfalse;
-	}
+	} */
 
 	if ( client && ( client->ps.eFlags & EF_SPAWNPROTECTION )) {
-		if ( client->spawnProtection ) {
+		client->spawnProtectionTime = level.time + (g_spawnProtection.integer * 1000);
+		if ( client->spawnProtectionTime <= level.time ) {
 			client->ps.eFlags &= ~EF_SPAWNPROTECTION;
 		}
 	}
@@ -1113,7 +1114,7 @@ void ClientSpawn(gentity_t *ent) {
 	ent->flags = 0;
 
 	client->hook = NULL;
-	if ( ent->client->spawnProtection ) {
+	if ( ent->client->spawnProtectionTime >= level.time ) {
 		ent->s.eFlags |= EF_SPAWNPROTECTION;
 		ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
 	} else {
