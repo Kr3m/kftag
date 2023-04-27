@@ -994,12 +994,12 @@ void ClientSpawn(gentity_t *ent) {
 		ent->client->spawnProtection = qfalse;
 	} */
 
-	if ( client && ( client->ps.eFlags & EF_SPAWNPROTECTION )) {
+	/* if ( client && ( client->ps.eFlags & EF_SPAWNPROTECTION )) {
 		client->spawnProtectionTime = level.time + (g_spawnProtection.integer * 1000);
 		if ( client->spawnProtectionTime <= level.time ) {
 			client->ps.eFlags &= ~EF_SPAWNPROTECTION;
 		}
-	}
+	} */
 
 	isSpectator = client->sess.sessionTeam == TEAM_SPECTATOR;
 	// find a spawn point
@@ -1227,6 +1227,11 @@ void ClientSpawn(gentity_t *ent) {
 
 	}
 
+	if ( g_spawnProtection.integer ) {
+		ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
+		ent->client->spawnProtectionTime = level.time + ( g_spawnProtection.integer * 1000 );
+	}
+	
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
