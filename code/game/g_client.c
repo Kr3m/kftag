@@ -1204,7 +1204,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	if ( g_spawnProtection.integer > 0 ) {
 		ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
-		ent->client->spawnProtectionTime = level.time + ( g_spawnProtection.integer * 1000 );
+		ent->client->spawnProtectionTime = ent->client->respawnTime + ( g_spawnProtection.integer * 1000 );		
 	}
 	
 	// run a client frame to drop exactly to the floor,
