@@ -994,6 +994,12 @@ void ClientSpawn(gentity_t *ent) {
 		ent->client->spawnProtection = qfalse;
 	}
 
+	if ( client && ( client->ps.eFlags & EF_SPAWNPROTECTION )) {
+		if ( client->spawnProtection ) {
+			client->ps.eFlags &= ~EF_SPAWNPROTECTION;
+		}
+	}
+
 	isSpectator = client->sess.sessionTeam == TEAM_SPECTATOR;
 	// find a spawn point
 	// do it before setting health back up, so farthest
