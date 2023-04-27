@@ -2240,15 +2240,6 @@ static void G_RunFrame( int levelTime ) {
 		G_UnTimeShiftAllClients( NULL );
 	}
 
-	//check spawn protection
-	ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
-	CopyToBodyQue( ent );
-	if ( ent->client->respawnTime + g_spawnProtection.integer*1000 > level.time) {
-		ent->client->spawnProtection = qtrue;
-	} else {
-		ent->client->spawnProtection = qfalse;
-	}
-
 	// perform final fixups on the players
 	ent = &g_entities[0];
 	for (i = 0 ; i < level.maxclients ; i++, ent++ ) {

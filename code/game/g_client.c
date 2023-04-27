@@ -985,6 +985,15 @@ void ClientSpawn(gentity_t *ent) {
 
 	trap_UnlinkEntity( ent );
 
+	//check spawn protection
+	ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
+	CopyToBodyQue( ent );
+	if ( ent->client->respawnTime + g_spawnProtection.integer*1000 > level.time) {
+		ent->client->spawnProtection = qtrue;
+	} else {
+		ent->client->spawnProtection = qfalse;
+	}
+
 	isSpectator = client->sess.sessionTeam == TEAM_SPECTATOR;
 	// find a spawn point
 	// do it before setting health back up, so farthest

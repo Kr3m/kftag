@@ -1591,7 +1591,7 @@ static void PM_Weapon( void ) {
 	}
 
 	// spawn protection
-	if ( pm->ps->eFlags |= EF_SPAWNPROTECTION == qtrue ) {
+	if ( pm->ps->eFlags &= EF_SPAWNPROTECTION ) {
 		return;
 	}
 
