@@ -1096,6 +1096,15 @@ void ClientSpawn(gentity_t *ent) {
 	ent->waterlevel = 0;
 	ent->watertype = 0;
 	ent->flags = 0;
+
+	client->hook = NULL;
+	if ( ent->client->spawnProtection ) {
+		ent->s.eFlags |= EF_SPAWNPROTECTION;
+		ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
+	} else {
+		ent->s.eFlags &= ~EF_SPAWNPROTECTION;
+		ent->client->ps.eFlags &= EF_SPAWNPROTECTION;
+	}
 	
 	VectorCopy (playerMins, ent->r.mins);
 	VectorCopy (playerMaxs, ent->r.maxs);
