@@ -2149,6 +2149,13 @@ static void CG_DrawCrosshairNames( void ) {
 	w = CG_Text_Width(name, 0.3f, 0);
 	CG_Text_Paint( 320 - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
 #else
+	if ( cg.snap->ps.eFlags & EF_SPAWNPROTECTION ) {
+		color[0] = 1;
+		color[1] = 0;
+		color[2] = 0;
+		color[3] = 1;
+		CG_DrawString( 320, 72, "SPAWN PROTECTION", color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
+	}
 	color[3] *= 0.5f;
 	CG_DrawString( 320, 174, name, color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
 #endif
