@@ -2155,7 +2155,7 @@ static void CG_DrawCrosshairNames( void ) {
 		hcolor[1] = 0;
 		hcolor[2] = 0;
 		hcolor[3] = 1;
-		CG_DrawString( 320, 0, "SPAWN PROTECTION", hcolor, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
+		CG_DrawString( 320, 6, "SPAWN PROTECTION", hcolor, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
 	}
 	color[3] *= 0.5f;
 	CG_DrawString( 320, 174, name, color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
@@ -2419,7 +2419,7 @@ int CG_DrawLast( qboolean really_draw ) {
 	color[3] = 1;
 
 	//CG_DrawBigStringColor( 320 - 4 * 8, 36, "LAST", color );
-	CG_DrawString( 320, 20, "LAST", color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 4, DS_CENTER | DS_PROPORTIONAL);
+	CG_DrawString( 320, 26, "LAST", color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 4, DS_CENTER | DS_PROPORTIONAL);
 	return -1;
 }
 
