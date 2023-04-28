@@ -1591,9 +1591,9 @@ static void PM_Weapon( void ) {
 	}
 
 	// spawn protection
-	if ( pm->ps->eFlags & EF_SPAWNPROTECTION ) {
+	/* if ( pm->ps->eFlags & EF_SPAWNPROTECTION ) {
 		return;
-	}
+	} */
 
 	// change weapon if time
 	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
