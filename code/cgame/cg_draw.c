@@ -2155,7 +2155,7 @@ static void CG_DrawCrosshairNames( void ) {
 		hcolor[1] = 0;
 		hcolor[2] = 0;
 		hcolor[3] = 1;
-		CG_DrawString( 320, 72, "SPAWN PROTECTION", hcolor, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
+		CG_DrawString( 320, 10, "SPAWN PROTECTION", hcolor, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
 	}
 	color[3] *= 0.5f;
 	CG_DrawString( 320, 174, name, color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
