@@ -315,6 +315,11 @@ static void Body_think( gentity_t *self ) {
 		return;
 	}
 	if ( level.time - self->timestamp > 150000 || ( ( g_dmflags.integer & 1024 || g_gametype.integer == GT_CTF ) && level.time - self->timestamp > (g_autoThawTime.value * 1000) ) ) {
+		gentity_t	*tent;
+		tent = G_TempEntity( self->r.currentOrigin, EV_GIB_PLAYER );
+		if ( self->freezeState ) {
+			tent->s.eventParm = 255;
+		}
 		player_free( self->target_ent );
 		TossBody( self );
 		return;
@@ -348,6 +353,10 @@ static void Body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	}
 
 	if ( self->freezeState && !g_blood.integer ) {
+		tent = G_TempEntity( self->r.currentOrigin, EV_GIB_PLAYER );
+		if ( self->freezeState ) {
+			tent->s.eventParm = 255;
+		}
 		player_free( self->target_ent );
 		TossBody( self );
 		return;
