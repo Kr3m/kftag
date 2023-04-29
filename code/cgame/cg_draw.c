@@ -2149,14 +2149,16 @@ static void CG_DrawCrosshairNames( void ) {
 	color[3] *= 0.5f;
 	w = CG_Text_Width(name, 0.3f, 0);
 	CG_Text_Paint( 320 - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
-#else	
-	if ( cg_entities[cg.crosshairClientNum].currentState.eFlags & EF_SPAWNPROTECTION ) {
-		hcolor[0] = 1;
-		hcolor[1] = 0;
-		hcolor[2] = 0;
-		hcolor[3] = 1;
-		CG_DrawString( 320, 6, "SPAWN PROTECTION", hcolor, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
-	}
+#else
+	if( cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR) {
+		if ( cg_entities[cg.crosshairClientNum].currentState.eFlags & EF_SPAWNPROTECTION ) {
+			hcolor[0] = 1;
+			hcolor[1] = 0;
+			hcolor[2] = 0;
+			hcolor[3] = 1;
+			CG_DrawString( 320, 6, "SPAWN PROTECTION", hcolor, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
+		}
+	}	
 	color[3] *= 0.5f;
 	CG_DrawString( 320, 174, name, color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
 #endif
