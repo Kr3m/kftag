@@ -255,9 +255,9 @@ void CG_ScoreboardClick( void )
 			continue;
 		}
 
-		if ( !cg.demoPlayback ) {
+		/* if ( !cg.demoPlayback ) {
 			trap_SendClientCommand( va( "follow %i", score->client ) );
-		}
+		} */
 	}
 }
 
