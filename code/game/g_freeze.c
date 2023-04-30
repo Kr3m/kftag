@@ -693,13 +693,13 @@ void team_wins( int team ) {
 	int	i;
 	gentity_t	*e;
 	char	*teamstr;
-	gentity_t	*spawnPoint;
+	//gentity_t	*spawnPoint;
 	int	j;
 	int	flight;
 	gclient_t	*cl;
 	gentity_t	*te;
 
-	spawnPoint = SelectRandomDeathmatchSpawnPoint();
+	//spawnPoint = SelectRandomDeathmatchSpawnPoint();
 	for ( i = 0; i < g_maxclients.integer; i++ ) {
 		e = g_entities + i;
 		cl = e->client;
@@ -750,7 +750,7 @@ void team_wins( int team ) {
 
 		cl->ps.stats[ STAT_ARMOR ] = 0;
 
-		if ( !( g_dmflags.integer & 1024 ) ) G_UseTargets( spawnPoint, e );
+		//if ( !( g_dmflags.integer & 1024 ) ) G_UseTargets( spawnPoint, e );
 		cl->ps.weapon = 1;
 		for ( j = WP_NUM_WEAPONS - 1; j > 0; j-- ) {
 			if ( cl->ps.stats[ STAT_WEAPONS ] & ( 1 << j ) ) {
