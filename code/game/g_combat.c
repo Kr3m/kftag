@@ -881,9 +881,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	/* if ( targ->client->respawnTime + g_spawnProtection.integer*1000 > level.time && ( attacker != targ ) ) {
-		return;
-	} */
+	/*
+	============
+	SPAWN PROTECTION
+	============
+	*/
 
 	if ( targ && targ->client && targ->client->ps.eFlags & EF_SPAWNPROTECTION ) {
 		return;
@@ -893,11 +895,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	/* if ( attacker->client->respawnTime + g_spawnProtection.integer*1000 > level.time && ( attacker != targ ) && !targ->freezeState ) {
-		attacker->client->spawnProtection = qtrue;
-	} else {
-		attacker->client->spawnProtection = qfalse;
-	} */
+	//end spawn protection
 
 	// the intermission has allready been qualified for, so don't
 	// allow any extra scoring
