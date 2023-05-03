@@ -1093,6 +1093,47 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	return ret_y;
 }
 
+/*
+=================
+CG_DrawFrozen
+=================
+*/
+static float CG_DrawFrozen( float y ) {
+	char          *s;
+	int            w;
+	int            hour, mins, err;
+	float          dV;
+	clientInfo_t*  ci;
+	vec4_t         color = {0.19f, 0.81f, 0.98f, 0.60f};
+	static int     count = 0;
+	static qtime_t clock;
+
+	ci = cgs.clientinfo + cg.snap->ps.clientNum;
+	if (ci->health == 0) {
+		//s = va ("%d%%", ci->armor);
+		int thawPerc = CG_GetPercentThawed( 30000, 60000 );
+		s = va ("%d%%", thawPerc);
+	} else {
+		return y;
+	}
+
+	CG_DrawString( cgs.screenXmax - 4, y + 2, s, color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_RIGHT | DS_PROPORTIONAL );
+
+	return y + BIGCHAR_HEIGHT + 4;
+}
+
+/*
+=====================
+CG_GetPercentThawed
+
+=====================
+*/
+static int CG_GetPercentThawed(float thawTime, float playerTime)
+{
+	// float thawPerc = thawTime / playerTime;
+	return thawTime / playerTime * 100;
+}
+
 
 /*
 =====================
@@ -1124,6 +1165,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if ( cg_drawAttacker.integer ) {
 		y = CG_DrawAttacker( y );
 	}
+	y = CG_DrawFrozen(y);
 }
 
 
