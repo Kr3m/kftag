@@ -1036,12 +1036,9 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 
 			CG_GetColorForHealth( ci->health, ci->armor, hcolor );
 
-			//Com_sprintf (st, sizeof(st), "%3i %3i", ci->health,	ci->armor);
 			if (ci->health == 0) { // frozen so armor is countdown
-				//CG_GetColorForHealth( ci->health, ci->armor, hcolor );
 				Com_sprintf(st, sizeof(st), "  %3i  ", ci->armor);
 			} else {
-				CG_GetColorForHealth( ci->health, ci->armor, hcolor );
 				Com_sprintf (st, sizeof(st), "%3i %3i", ci->health,	ci->armor);
 			}
 

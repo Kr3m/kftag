@@ -314,7 +314,7 @@ static void Body_think( gentity_t *self ) {
 	if ( level.intermissiontime || level.intermissionQueued ) {
 		return;
 	}
-	if ( level.time - self->timestamp > 150000 || ( ( g_dmflags.integer & 1024 || g_gametype.integer == GT_CTF ) && level.time - self->timestamp > (g_autoThawTime.value * 1000) ) ) {
+	if ( level.time - self->timestamp > 150000 || ( ( g_dmflags.integer & 1024 || g_gametype.integer == GT_CTF ) && level.time - self->timestamp >= ( g_autoThawTime.integer * 1000 ) ) ) {
 		gentity_t	*tent;
 		tent = G_TempEntity( self->r.currentOrigin, EV_GIB_PLAYER );
 		if ( self->freezeState ) {
