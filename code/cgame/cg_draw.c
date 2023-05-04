@@ -1110,8 +1110,7 @@ static float CG_DrawFrozen( float y ) {
 
 	ci = cgs.clientinfo + cg.snap->ps.clientNum;
 	if (ci->health == 0) {
-		//s = va ("%d%%", ci->armor);
-		int thawPerc = CG_GetPercentThawed( 30000, 60000 );
+		int thawPerc = CG_GetPercentThawed( cg.snap->ps.persistant[PERS_FREEZETIME] + ( cgs.autoThawTime * 1000 ), cg.time );
 		s = va ("%d%%", thawPerc);
 	} else {
 		return y;
@@ -1128,10 +1127,9 @@ CG_GetPercentThawed
 
 =====================
 */
-static int CG_GetPercentThawed(float thawTime, float playerTime)
+static int CG_GetPercentThawed(float thawTime, float levelTime)
 {
-	// float thawPerc = thawTime / playerTime;
-	return thawTime / playerTime * 100;
+	return levelTime / thawTime * 100;
 }
 
 

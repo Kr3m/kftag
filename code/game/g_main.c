@@ -237,7 +237,7 @@ static cvarTable_t gameCvarTable[] = {
 	{ &hook_damage, "hook_damage", "0", 0, 0, qfalse, qfalse },
 	//freeze
 	{ &g_spawnProtection, "g_spawnProtection", "0", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_autoThawTime, "g_autoThawTime", "60", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_autoThawTime, "g_autoThawTime", "60", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
 	{ &g_thawTime, "g_thawTime", "60", CVAR_ARCHIVE, 0, qfalse },
 #ifdef MISSIONPACK
 	{ &g_startAmmoNG, "g_startAmmoNG", "20", 0, 0, qfalse },

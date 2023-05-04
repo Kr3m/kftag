@@ -1137,6 +1137,9 @@ typedef struct {
 	unsigned int	hook_speedpull;
   	unsigned int	hook_delaytime;
 
+	//auto thaw time
+	unsigned int	autoThawTime;
+
 	float			fov;		// clamped cg_fov value
 	float			zoomFov;	// clamped cg_zoomFov value
 
