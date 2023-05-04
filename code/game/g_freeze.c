@@ -632,7 +632,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 	self->health = GIB_HEALTH;
-	self->client->ps.persistant[ PERS_FREEZETIME ] = self->timestamp;
+	self->client->ps.persistant[ PERS_FREEZETIME ] = level.time;
 
 	if ( attacker->client && self != attacker && NearbyBody( self ) ) {
 		attacker->client->ps.persistant[ PERS_DEFEND_COUNT ]++;

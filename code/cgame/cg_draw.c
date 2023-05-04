@@ -1110,8 +1110,9 @@ static float CG_DrawFrozen( float y ) {
 
 	ci = cgs.clientinfo + cg.snap->ps.clientNum;
 	if (ci->health == 0) {
-		int thawPerc = CG_GetPercentThawed( cg.snap->ps.persistant[PERS_FREEZETIME] + ( cgs.autoThawTime * 1000 ), cg.time );
+		int thawPerc = CG_GetPercentThawed( abs( cg.snap->ps.persistant[ PERS_FREEZETIME ] + ( cgs.autoThawTime * 1000 ) ), cg.time );
 		s = va ("%d%%", thawPerc);
+		//s = va ("%d%%", cg.snap->ps.persistant[PERS_FREEZETIME] );
 	} else {
 		return y;
 	}
@@ -1129,7 +1130,7 @@ CG_GetPercentThawed
 */
 static int CG_GetPercentThawed(float thawTime, float levelTime)
 {
-	return levelTime / thawTime * 100;
+	return thawTime / levelTime * 100;
 }
 
 
