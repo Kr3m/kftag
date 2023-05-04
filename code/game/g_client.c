@@ -1206,7 +1206,12 @@ void ClientSpawn(gentity_t *ent) {
 		ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
 		ent->client->spawnProtectionTime = ent->client->respawnTime + ( g_spawnProtection.integer * 1000 );		
 	}
-	
+
+	/* if ( g_freezeTag.integer && ent->freezeState ) {
+		int thawTime = ent->client->respawnTime + ( g_autoThawTime.integer * 1000);
+		ent->client->freezeTime = ClientThawPercentage(thawTime, level.time);
+	} */
+
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
@@ -1222,7 +1227,6 @@ void ClientSpawn(gentity_t *ent) {
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
 }
-
 
 /*
 ===========

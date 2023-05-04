@@ -140,6 +140,7 @@ void CG_ParseServerinfo( void ) {
 	cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
 	cgs.hook_delaytime = atoi(Info_ValueForKey(info, "hook_delaytime"));
 	cgs.hook_speedpull = atoi(Info_ValueForKey(info, "hook_speedpull"));
+	cgs.autoThawTime = atoi( Info_ValueForKey( info, "g_autoThawTime") );
 	mapname = Info_ValueForKey( info, "mapname" );
 	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
 	Q_strncpyz( cgs.redTeam, Info_ValueForKey( info, "g_redTeam" ), sizeof(cgs.redTeam) );

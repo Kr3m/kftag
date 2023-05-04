@@ -824,6 +824,13 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 	}
 
+	if ( client && g_entities[ client->ps.clientNum ].freezeState) {
+		gentity_t *self;
+		int thawTime = self->count + ( g_autoThawTime.integer * 1000 );
+		client->freezeTime = ClientThawPercentage(level.time, thawTime);
+		client->ps.persistant[ PERS_FREEZETIME ] = client->freezeTime;
+	}
+
 	// check for inactivity timer, but never drop the local client of a non-dedicated server
 	if ( !ClientInactivityTimer( client ) ) {
 		return;
@@ -1028,6 +1035,16 @@ void ClientThink_real( gentity_t *ent ) {
 	ClientTimerActions( ent, msec );
 }
 
+/*
+===========
+ClientThawPercentage
+============
+*/
+
+int ClientThawPercentage(float thawTime, float levelTime)
+{
+	return thawTime / levelTime * 100;
+}
 
 /*
 ==================

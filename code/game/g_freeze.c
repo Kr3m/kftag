@@ -301,7 +301,7 @@ static void TossBody( gentity_t *self ) {
 }
 
 static void Body_think( gentity_t *self ) {
-	self->nextthink = level.time + FRAMETIME;
+	self->nextthink = level.time + FRAMETIME;	
 
 	if ( !self->target_ent || !self->target_ent->client || !self->target_ent->inuse ) {
 		Body_free( self );
@@ -315,7 +315,7 @@ static void Body_think( gentity_t *self ) {
 		return;
 	}
 	if ( level.time - self->timestamp > 150000 || ( ( g_dmflags.integer & 1024 || g_gametype.integer == GT_CTF ) && level.time - self->timestamp >= ( g_autoThawTime.integer * 1000 ) ) ) {
-		gentity_t	*tent;
+		gentity_t	*tent;		
 		tent = G_TempEntity( self->r.currentOrigin, EV_GIB_PLAYER );
 		if ( self->freezeState ) {
 			tent->s.eventParm = 255;
@@ -632,7 +632,6 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 	self->health = GIB_HEALTH;
-	self->client->ps.persistant[ PERS_FREEZETIME ] = level.time;
 
 	if ( attacker->client && self != attacker && NearbyBody( self ) ) {
 		attacker->client->ps.persistant[ PERS_DEFEND_COUNT ]++;
