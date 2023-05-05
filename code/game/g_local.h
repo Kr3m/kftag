@@ -10,7 +10,7 @@
 
 // the "gameversion" client command will print this plus compile date
 //#define	GAMEVERSION	"baseq3"
-#define	GAMEVERSION	"kftag-beta002"
+#define	GAMEVERSION	"kftag-beta003"
 
 #define BODY_QUEUE_SIZE		8
 
@@ -319,6 +319,7 @@ struct gclient_s {
 	//spawn protection
 	int			spawnProtectionTime;
 	int			freezeTime;
+	int			freezePercentage;
 
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;

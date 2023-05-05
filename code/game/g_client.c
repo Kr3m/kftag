@@ -1208,7 +1208,7 @@ void ClientSpawn(gentity_t *ent) {
 	}
 
 	/* if ( g_freezeTag.integer && ent->freezeState ) {
-		int thawTime = ent->client->respawnTime + ( g_autoThawTime.integer * 1000);
+		int thawTime = ent->timestamp + ( g_autoThawTime.integer * 1000);
 		ent->client->freezeTime = ClientThawPercentage(thawTime, level.time);
 	} */
 
