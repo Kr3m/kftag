@@ -497,8 +497,7 @@ static void CopyToBody( gentity_t *ent ) {
 	body->s.powerups = 1 << PW_BATTLESUIT;
 	body->s.number = body - g_entities;
 	body->timestamp = level.time;
-	body->physicsObject = qtrue;
-	ent->client->freezeTime = level.time + ( g_autoThawTime.integer * 1000 );
+	body->physicsObject = qtrue;	
 
 	G_SetOrigin( body, ent->r.currentOrigin );
 	body->s.pos.trType = TR_GRAVITY;

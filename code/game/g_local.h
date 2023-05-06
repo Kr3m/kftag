@@ -318,7 +318,7 @@ struct gclient_s {
 	int			timeResidual;
 	//spawn protection
 	int			spawnProtectionTime;
-	int			freezeTime;
+	unsigned long	freezeTime;
 	int			freezePercentage;
 
 #ifdef MISSIONPACK

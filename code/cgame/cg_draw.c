@@ -1108,10 +1108,14 @@ static float CG_DrawFrozen( float y ) {
 	static int     count = 0;
 	static qtime_t clock;
 
-	//CG_ScanForCrosshairEntity();
-
 	ci = cgs.clientinfo + cg.snap->ps.clientNum;
-	//ci = cgs.clientinfo + cg.crosshairClientNum;
+	CG_ScanForCrosshairEntity();
+
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+		if ( cg_entities[cg.crosshairClientNum].snapShotTime <= cg.time ) {
+			s = va ("FROZEN: %d%%", cg.snap->ps.persistant[ PERS_FREEZETIME ]);
+		}		
+	}
 	if (ci->health == 0) {
 		s = va ("FROZEN: %d%%", cg.snap->ps.persistant[ PERS_FREEZETIME ]);
 	} else {
