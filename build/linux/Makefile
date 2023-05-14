@@ -24,7 +24,7 @@ endif
 -include Makefile.local
 
 ifndef MOD
-MOD=qlone
+MOD=kftag
 endif
 
 ifeq ($(COMPILE_PLATFORM),cygwin)
