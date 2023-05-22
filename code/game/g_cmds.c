@@ -763,7 +763,8 @@ void Cmd_Team_f( gentity_t *ent ) {
 		case TEAM_SPECTATOR:
 			trap_SendServerCommand( ent-g_entities, "print \"Spectator team\n\"" );
 			break;
-		default: break; //qlone - avoid compiler warnings
+		default:
+			break;
 		}
 		return;
 	}
@@ -981,7 +982,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	int			j;
 	gentity_t	*other;
 	int			color;
-	char		name[64];
+	char		name[64 + 64 + 12]; // name + location + formatting
 	// don't let text be too long for malicious reasons
 	char		text[MAX_SAY_TEXT];
 	char		location[64];

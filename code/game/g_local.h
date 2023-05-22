@@ -9,8 +9,7 @@
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-//#define	GAMEVERSION	"baseq3"
-#define	GAMEVERSION	"kftag-beta004"
+#define	GAMEVERSION	"kftag-beta005"
 
 #define BODY_QUEUE_SIZE		8
 
@@ -60,7 +59,7 @@ struct gentity_s {
 
 	qboolean	inuse;
 
-	/*qlone //const*/ char	*classname;			// set in QuakeEd
+	char		*classname;			// set in QuakeEd
 	int			spawnflags;			// set in QuakeEd
 
 	qboolean	neverFree;			// if true, FreeEntity will only unlink
@@ -807,7 +806,7 @@ extern	vmCvar_t	g_mapname;
 extern	vmCvar_t	sv_fps;
 extern	vmCvar_t	g_dedicated;
 extern	vmCvar_t	g_cheats;
-extern	vmCvar_t	g_maxclients;			// allow this many total, including spectators
+extern 	vmCvar_t	g_maxclients;			// allow this many total, including spectators
 extern	vmCvar_t	g_maxGameClients;		// allow this many active
 //extern	vmCvar_t	g_restarted;
 
@@ -1103,6 +1102,9 @@ void	trap_BotResetWeaponState(int weaponstate);
 int		trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child);
 
 void	trap_SnapVector( float *v );
+
+// Rail jumping
+void G_RailgunRadiusDamage (vec3_t origin, gentity_t *ent);
 
 // extension interface
 

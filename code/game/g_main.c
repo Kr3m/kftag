@@ -132,7 +132,7 @@ static cvarTable_t gameCvarTable[] = {
 	// noset vars
 	{ NULL, "gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 	{ NULL, "gamedate", __DATE__ , CVAR_ROM, 0, qfalse  },
-//	{ &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
+	//{ &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
 	{ &g_mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 	{ &sv_fps, "sv_fps", "30", CVAR_ARCHIVE, 0, qfalse  },
 
@@ -329,12 +329,13 @@ void QDECL G_Printf( const char *fmt, ... ) {
 	char		text[BIG_INFO_STRING];
 	int			len;
 
-	va_start (argptr, fmt);
+	va_start( argptr, fmt );
 	len = ED_vsprintf( text, fmt, argptr );
-	va_end (argptr);
+	va_end( argptr );
 
-	if ( len <= 4095 ) // 1.32b/c max print buffer size
-		trap_Print( text );
+	text[4095] = '\0'; // truncate to 1.32b/c max print buffer size
+
+	trap_Print( text );
 }
 
 
@@ -1327,20 +1328,18 @@ Print to the logfile with a time stamp if it is open
 void QDECL G_LogPrintf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		string[BIG_INFO_STRING];
-	int			min, tens, sec, len, n;
+	int			min, tsec, sec, len, n;
 
-	sec = level.time / 1000;
-
+	tsec = level.time / 100;
+	sec = tsec / 10;
+	tsec %= 10;
 	min = sec / 60;
 	sec -= min * 60;
-	tens = sec / 10;
-	sec -= tens * 10;
 
-	Com_sprintf( string, sizeof(string), "%3i:%i%i ", min, tens, sec );
-	len = (int)strlen( string );
+	len = Com_sprintf( string, sizeof( string ), "%3i:%02i.%i ", min, sec, tsec );
 
 	va_start( argptr, fmt );
-	ED_vsprintf( string + len , fmt,argptr );
+	ED_vsprintf( string + len, fmt,argptr );
 	va_end( argptr );
 
 	n = (int)strlen( string );
@@ -1757,12 +1756,20 @@ static void G_WarmupEnd( void )
 				ent->think = RespawnItem;
 				ent->nextthink = level.time + t;
 			} else {
+				t = FRAMETIME;
 				if ( ent->activator ) {
 					ent->activator = NULL;
 					ent->think = RespawnItem;
 				}
 				ent->nextthink = level.time + FRAMETIME;
 			}
+			if ( ent->random ) {
+				t += (crandom() * ent->random) * 1000;
+				if ( t < FRAMETIME ) {
+					t = FRAMETIME;
+				}
+			}
+			ent->nextthink = level.time + t;
 
 		} else if ( ent->s.eType == ET_MISSILE ) {
 			// remove all launched missiles

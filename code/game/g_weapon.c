@@ -549,17 +549,17 @@ void weapon_railgun_fire( gentity_t *ent ) {
 	// unlagged
 	G_UndoTimeShiftFor( ent );
 
-
-	// link back in any entities we unlinked
-	for ( i = 0 ; i < unlinked ; i++ ) {
-		trap_LinkEntity( unlinkedEntities[i] );
-	}
-
 	//qlone - rail jumping
 	if (g_railJump.integer) {
 		G_RailgunRadiusDamage(trace.endpos, ent);
 	}
 	//qlone - rail jumping
+
+
+	// link back in any entities we unlinked
+	for ( i = 0 ; i < unlinked ; i++ ) {
+		trap_LinkEntity( unlinkedEntities[i] );
+	}
 
 	// the final trace endpos will be the terminal point of the rail trail
 

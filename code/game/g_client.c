@@ -1126,6 +1126,15 @@ void ClientSpawn(gentity_t *ent) {
 	}
 	//qlone - custom health
 
+	//qlone - custom armor
+    if ( g_startArmor.integer > 0 ) {
+		client->ps.stats[ STAT_ARMOR ] += g_startArmor.integer;
+		if ( client->ps.stats[ STAT_ARMOR ] > client->ps.stats[ STAT_MAX_HEALTH ] * 2 ) {
+			client->ps.stats[ STAT_ARMOR ] = client->ps.stats[ STAT_MAX_HEALTH ] * 2;
+		}
+	}
+	//qlone - custom armor
+
 	G_SetOrigin( ent, spawn_origin );
 	VectorCopy( spawn_origin, client->ps.origin );
 

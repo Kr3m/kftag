@@ -628,7 +628,7 @@ typedef enum {
 #define MAX_ITEM_MODELS 4
 
 typedef struct gitem_s {
-	/*qlone //const*/ char	*classname;	// spawning name
+	char		*classname;	// spawning name
 	char		*pickup_sound;
 	char		*world_model[MAX_ITEM_MODELS];
 

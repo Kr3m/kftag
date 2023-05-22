@@ -9,8 +9,7 @@ set gamedir=..\..\..\..\code\game
 set uidir=..\..\..\..\code\q3_ui
 
 set tooldir=%~dp0tools\
-rem set pk3=%~dp0pak8a.pk3
-set pk3=qln0.pk3
+set pk3=%~dp0pak8a.pk3
 
 set cc1=%tooldir%q3lcc -DQ3_VM -DCGAME  -S -Wf-g -I%cgamedir% -I%gamedir% %1
 set cc2=%tooldir%q3lcc -DQ3_VM -DQAGAME -S -Wf-g -I%gamedir% %1
@@ -110,8 +109,6 @@ cd vm\game
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\ai_dmq3.c
 @if errorlevel 1 goto quit
-%cc2% %gamedir%\ai_freeze.c
-@if errorlevel 1 goto quit
 %cc2% %gamedir%\ai_main.c
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\ai_team.c
@@ -138,8 +135,6 @@ cd vm\game
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\g_combat.c
 @if errorlevel 1 goto quit
-%cc2% %gamedir%\g_freeze.c
-@if errorlevel 1 goto quit
 %cc2% %gamedir%\g_items.c
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\g_mem.c
@@ -149,8 +144,6 @@ cd vm\game
 %cc2% %gamedir%\g_missile.c
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\g_mover.c
-@if errorlevel 1 goto quit
-%cc2% %gamedir%\g_qlone.c
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\g_rotation.c
 @if errorlevel 1 goto quit
@@ -297,9 +290,9 @@ copy vm\cgame\cgame.jts vm
 %tooldir%7za.exe a -tzip -mx=9 -mpass=8 -mfb=255 -- %pk3% vm\*.*
 rem rmdir /S /Q vm
 
-rem cd ..\..\assets
-rem @if errorlevel 1 goto quit
-rem %tooldir%7za.exe a -tzip -mx=9 -mpass=8 -mfb=255 -r -- %pk3% *.*
+cd ..\..\assets
+@if errorlevel 1 goto quit
+%tooldir%7za.exe a -tzip -mx=9 -mpass=8 -mfb=255 -r -- %pk3% *.*
 
 :quit
 pause
