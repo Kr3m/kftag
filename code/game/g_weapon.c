@@ -126,7 +126,20 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
 	}
 
 //qlone - freezetag
-	damage = 50 * s_quadFactor;
+	/*
+	============
+	SPAWN PROTECTION
+	============
+	*/
+
+	if ( ent->client->ps.eFlags & EF_SPAWNPROTECTION ) {
+		damage = 0;
+		//return;
+	} else {
+		damage = 50 * s_quadFactor;
+	}
+
+	//end spawn protection
 	G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_GAUNTLET );
 
 	return qtrue;
@@ -321,7 +334,21 @@ static qboolean ShotgunPellet( const vec3_t start, const vec3_t end, gentity_t *
 		}
 
 		if ( traceEnt->takedamage ) {
-			damage = DEFAULT_SHOTGUN_DAMAGE * s_quadFactor;
+			/*
+			============
+			SPAWN PROTECTION
+			============
+			*/
+
+			if ( ent->client->ps.eFlags & EF_SPAWNPROTECTION ) {
+				damage = 0;
+				//return;
+			} else {
+				damage = DEFAULT_SHOTGUN_DAMAGE * s_quadFactor;
+			}
+
+			//end spawn protection
+			//damage = DEFAULT_SHOTGUN_DAMAGE * s_quadFactor;
 #ifdef MISSIONPACK
 			if ( traceEnt->client && traceEnt->client->invulnerabilityTime > level.time ) {
 				if (G_InvulnerabilityEffect( traceEnt, forward, tr.endpos, impactpoint, bouncedir )) {
@@ -754,7 +781,20 @@ void Weapon_LightningFire( gentity_t *ent ) {
 	gentity_t	*traceEnt, *tent;
 	int			damage, i, passent;
 
-	damage = 8 * s_quadFactor;
+	/*
+	============
+	SPAWN PROTECTION
+	============
+	*/
+
+	if ( ent->client->ps.eFlags & EF_SPAWNPROTECTION ) {
+		damage = 0;
+		//return;
+	} else {
+		damage = 8 * s_quadFactor;
+	}
+
+	//end spawn protection
 
 	passent = ent->s.number;
 

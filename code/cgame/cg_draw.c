@@ -2740,6 +2740,7 @@ static void CG_Draw2D( stereoFrame_t stereoFrame )
 	if (!following) {
 		CG_DrawLast(qtrue);
 	}
+	CG_DrawSpawnProtection();
 
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();
@@ -2990,4 +2991,18 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 
 	// draw status bar and other floating elements
  	CG_Draw2D( stereoView );
+}
+
+/*
+CG_DrawSpawnProtection
+*/
+void CG_DrawSpawnProtection( void ) {
+	vec4_t	hcolor;
+	if ( cg_entities[cg.crosshairClientNum].currentState.eFlags & EF_SPAWNPROTECTION ) {
+		hcolor[0] = 1;
+		hcolor[1] = 0;
+		hcolor[2] = 0;
+		hcolor[3] = 1;
+		CG_DrawString( 320, 6, "SPAWN PROTECTION", hcolor, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_CENTER | DS_PROPORTIONAL );
+	}
 }

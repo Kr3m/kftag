@@ -887,13 +887,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	============
 	*/
 
-	if ( targ && targ->client && targ->client->ps.eFlags & EF_SPAWNPROTECTION ) {
+	/* if ( targ && targ->client && targ->client->ps.eFlags & EF_SPAWNPROTECTION ) {
 		return;
 	}
 
 	if ( attacker && attacker->client && attacker->client->ps.eFlags & EF_SPAWNPROTECTION ) {
 		return;
-	}
+	} */
 
 	//end spawn protection
 
