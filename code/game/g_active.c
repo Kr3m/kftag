@@ -396,12 +396,20 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 #ifdef MISSIONPACK
 	int			maxHealth;
 #endif
+	int			i;
 
 	client = ent->client;
 	client->timeResidual += msec;
 
 	while ( client->timeResidual >= 1000 ) {
 		client->timeResidual -= 1000;
+
+		//release hook if over time
+		if(( client->hook_release_time > 0 ) && ( client->hook )) {
+			if( level.time > client->hook_release_time ) {
+				Weapon_HookFree(client->hook);
+			}
+		}
 
 		// regenerate
 #ifdef MISSIONPACK
