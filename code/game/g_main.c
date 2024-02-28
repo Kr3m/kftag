@@ -93,12 +93,12 @@ vmCvar_t	g_removepowerup;
 vmCvar_t	g_removeweapon;
 //qlone
 //freeze
-vmCvar_t	hook_enable;
-//vmCvar_t	hook_delaytime; in bg_pmove
-vmCvar_t	hook_holdtime;
-vmCvar_t	hook_speed;
-//vmCvar_t	hook_speedpull; in bg_pmove
-vmCvar_t	hook_damage;
+//vmCvar_t	g_grapple;
+//vmCvar_t	g_grappleDelayTime; in bg_pmove
+vmCvar_t	g_grappleHoldTime;
+vmCvar_t	g_grappleSpeed;
+//vmCvar_t	g_grapplePull; in bg_pmove
+vmCvar_t	g_grappleDamage;
 //freeze
 vmCvar_t	g_spawnProtection;
 vmCvar_t	g_autoThawTime;
@@ -233,12 +233,12 @@ static cvarTable_t gameCvarTable[] = {
 	{ &g_startAmmoPG, "g_startAmmoPG", "30", 0, 0, qfalse },
 	{ &g_startAmmoBFG, "g_startAmmoBFG", "15", 0, 0, qfalse },
 	//freeze
-	{ &hook_enable, "hook_enable", "0", 0, 0, qtrue, qfalse },
-	{ &hook_delaytime, "hook_delaytime", "400", CVAR_SERVERINFO, 0, qtrue, qfalse },
-	{ &hook_holdtime, "hook_holdtime", "0", 0, 0, qtrue, qfalse },
-	{ &hook_speed, "hook_speed", "800", 0, 0, qtrue, qfalse },
-	{ &hook_speedpull, "hook_speedpull", "800", CVAR_SERVERINFO, 0, qtrue, qfalse },
-	{ &hook_damage, "hook_damage", "0", 0, 0, qfalse, qfalse },
+	{ &g_grapple, "g_grapple", "0", 0, 0, qtrue, qfalse },
+	{ &g_grappleDelayTime, "g_grappleDelayTime", "400", CVAR_SERVERINFO, 0, qtrue, qfalse },
+	{ &g_grappleHoldTime, "g_grappleHoldTime", "0", 0, 0, qtrue, qfalse },
+	{ &g_grappleSpeed, "g_grappleSpeed", "800", 0, 0, qtrue, qfalse },
+	{ &g_grapplePull, "g_grapplePull", "800", CVAR_SERVERINFO, 0, qtrue, qfalse },
+	{ &g_grappleDamage, "g_grappleDamage", "0", 0, 0, qfalse, qfalse },
 	//freeze
 	{ &g_spawnProtection, "g_spawnProtection", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_autoThawTime, "g_autoThawTime", "60", CVAR_ARCHIVE, 0, qfalse },

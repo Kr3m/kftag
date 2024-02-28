@@ -1134,8 +1134,8 @@ typedef struct {
 	vec4_t			crosshairColor;
 
 	//hook
-	unsigned int	hook_speedpull;
-  	unsigned int	hook_delaytime;
+	unsigned int	g_grapplePull;
+  	unsigned int	g_grappleDelayTime;
 
 	float			fov;		// clamped cg_fov value
 	float			zoomFov;	// clamped cg_zoomFov value

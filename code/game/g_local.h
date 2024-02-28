@@ -326,7 +326,7 @@ struct gclient_s {
 #endif
 
 	char		*areabits;
-	unsigned int hook_release_time;
+	unsigned int grapple_release_time;
 
 	// unlagged
 	clientHistory_t	history[ NUM_CLIENT_HISTORY ];
@@ -855,17 +855,16 @@ extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
 //freeze
-extern	vmCvar_t	hook_enable;
-extern  vmCvar_t	hook_delaytime;
-extern  vmCvar_t	hook_holdtime;
-extern  vmCvar_t	hook_speed;
-extern  vmCvar_t	hook_speedpull;
-extern  vmCvar_t	hook_damage;
+extern	vmCvar_t	g_grapple;
+extern  vmCvar_t	g_grappleDelayTime;
+extern  vmCvar_t	g_grappleHoldTime;
+extern  vmCvar_t	g_grappleSpeed;
+extern  vmCvar_t	g_grapplePull;
+extern  vmCvar_t	g_grappleDamage;
 //freeze
 //qlone
 extern	vmCvar_t	g_doReady;
 extern	vmCvar_t	g_freezeTag;
-extern	vmCvar_t	g_grapple;
 extern	vmCvar_t	g_railJump;
 extern	vmCvar_t	g_railJumpDamage;
 extern	vmCvar_t	g_fastRail;

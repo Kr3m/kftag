@@ -405,8 +405,8 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		client->timeResidual -= 1000;
 
 		//release hook if over time
-		if(( client->hook_release_time > 0 ) && ( client->hook )) {
-			if( level.time > client->hook_release_time ) {
+		if(( client->grapple_release_time > 0 ) && ( client->hook )) {
+			if( level.time > client->grapple_release_time ) {
 				Weapon_HookFree(client->hook);
 			}
 		}

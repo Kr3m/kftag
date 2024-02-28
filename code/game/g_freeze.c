@@ -892,7 +892,7 @@ void Weapon_GrapplingHook_Fire(	gentity_t *ent );
 	gclient_t	*client;
 	usercmd_t	*ucmd;
 
-	if (hook_enable.integer == 0) {
+	if (g_grapple.integer == 0) {
 		return;
 	}
 
@@ -909,7 +909,7 @@ void Weapon_GrapplingHook_Fire(	gentity_t *ent );
 		Weapon_HookFree( client->hook );
 	}
 	if ( !client->hook && ( ucmd->buttons & 32 ) ) {
-		if ( ent->timestamp > level.time) { //timestamp holds time fired + hook_delaytime<
+		if ( ent->timestamp > level.time) { //timestamp holds time fired + g_grappleDelayTime<
 			return;
 		}
 		client->fireHeld = qfalse;

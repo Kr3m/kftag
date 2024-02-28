@@ -720,10 +720,10 @@ void Weapon_GrapplingHook_Fire (gentity_t *ent)
 
 	ent->client->fireHeld = qtrue;
   
-  	if (hook_holdtime.integer > 0) {
-    	ent->client->hook_release_time = hook_holdtime.integer + level.time;
+  	if (g_grappleHoldTime.integer > 0) {
+    	ent->client->grapple_release_time = g_grappleHoldTime.integer + level.time;
   	} else {
-    	ent->client->hook_release_time = 0;
+    	ent->client->grapple_release_time = 0;
   	}
 }
 
@@ -732,11 +732,11 @@ void Weapon_HookFree (gentity_t *ent)
 {
 //qlone - grapple hook
 	//ent->parent->timestamp = level.time;
-	ent->parent->timestamp = level.time + hook_delaytime.integer;
+	ent->parent->timestamp = level.time + g_grappleDelayTime.integer;
 //qlone - grapple hook
 	ent->parent->client->hook = NULL;
 	ent->parent->client->ps.pm_flags &= ~PMF_GRAPPLE_PULL;
-	ent->parent->client->hook_release_time = 0;
+	ent->parent->client->grapple_release_time = 0;
 	G_FreeEntity( ent );
 }
 

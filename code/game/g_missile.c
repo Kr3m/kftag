@@ -721,7 +721,7 @@ gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
 	hook->clipmask = MASK_SHOT;
 	hook->parent = self;
 	hook->target_ent = NULL;
-	hook->damage = hook_damage.integer;
+	hook->damage = g_grappleDamage.integer;
 
 	// missile owner
 	hook->s.clientNum = self->s.clientNum;
@@ -739,7 +739,7 @@ gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
 	VectorCopy( start, hook->s.pos.trBase );
 	SnapVector( hook->s.pos.trBase );			// save net bandwidth
 	//VectorScale( dir, 800, hook->s.pos.trDelta );
-	VectorScale( dir, hook_speed.integer, hook->s.pos.trDelta );
+	VectorScale( dir, g_grappleSpeed.integer, hook->s.pos.trDelta );
 	SnapVector( hook->s.pos.trDelta );			// save net bandwidth
 	VectorCopy (start, hook->r.currentOrigin);
 
