@@ -209,7 +209,9 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 		if ( !Q_Isfreeze( score-> client ))
 		CG_DrawString( iconx, y, "READY", color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_FORCE_COLOR );
 		else {
-			CG_DrawString( iconx, y, "FROZEN", color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_FORCE_COLOR );
+			if ( ci->team != TEAM_SPECTATOR ) {
+				CG_DrawString( iconx, y, "FROZEN", color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_FORCE_COLOR );
+			}
 		}
 	}
 

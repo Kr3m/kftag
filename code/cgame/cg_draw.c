@@ -385,9 +385,9 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 	if ( ci->deferred ) {
 		trap_R_SetColor ( NULL );
 		CG_DrawPic( x, y, w, h, cgs.media.deferShader );
-	} else if ( Q_Isfreeze( clientNum ) ) {
+	} /* else if ( Q_Isfreeze( clientNum ) ) {
 		CG_DrawPic( x, y, w, h, cgs.media.noammoShader);
-	}
+	} */
 }
 
 /*
