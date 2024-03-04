@@ -9,7 +9,7 @@
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION	"kftag-beta004"
+#define	GAMEVERSION	"kftag"
 
 #define BODY_QUEUE_SIZE		8
 
