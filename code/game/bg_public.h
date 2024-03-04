@@ -172,6 +172,7 @@ typedef struct {
 	// for fixed msec Pmove
 	int			pmove_fixed;
 	int			pmove_msec;
+	int			grapplePullSpeed;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame

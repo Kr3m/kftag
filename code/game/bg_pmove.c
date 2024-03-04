@@ -9,7 +9,7 @@
 
 //qlone
 // thanx to Mr Pants "Excessive" mod
-int trap_Cvar_VariableIntegerValue(const char * var_name);
+/* int trap_Cvar_VariableIntegerValue(const char * var_name);
 const char *CG_ConfigString(int index);
 int getCvarInt(const char * name) {
 #ifdef CGAME
@@ -17,7 +17,7 @@ int getCvarInt(const char * name) {
 #else
 	return trap_Cvar_VariableIntegerValue(name);
 #endif
-}
+} */
 //qlone
 
 pmove_t		*pm;
@@ -665,7 +665,6 @@ PM_GrappleMove
 static void PM_GrappleMove( void ) {
 	vec3_t vel, v;
 	float vlen;
-	int grapplePull = getCvarInt("g_grapplePull");
 
 	VectorScale(pml.forward, -16, v);
 	VectorAdd(pm->ps->grapplePoint, v, v);
@@ -676,7 +675,7 @@ static void PM_GrappleMove( void ) {
 	if (vlen <= 100)
 		VectorScale(vel, 10 * vlen, vel);
 	else
-		VectorScale(vel, grapplePull, vel);
+		VectorScale(vel, pm->grapplePullSpeed, vel);
 
 	VectorCopy(vel, pm->ps->velocity);
 
