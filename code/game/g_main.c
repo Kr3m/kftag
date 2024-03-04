@@ -22,16 +22,10 @@ gclient_t		g_clients[MAX_CLIENTS];
 	#include "g_cvar.h"
 #undef DECLARE_G_CVAR
 
-static cvarTable_t gameCvarTable[] = {
-	// don't override the cheat state set by the system
-	{ &g_cheats, "sv_cheats", "", 0, 0, qfalse },
-
+static cvarTable_t gameCvarTable[] = {	
 	// noset vars
 	{ NULL, "gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 	{ NULL, "gamedate", __DATE__ , CVAR_ROM, 0, qfalse  },
-	//{ &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
-	{ &g_mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
-	{ &sv_fps, "sv_fps", "30", CVAR_ARCHIVE, 0, qfalse  },
 
 #define G_CVAR_LIST
 	#include "g_cvar.h"

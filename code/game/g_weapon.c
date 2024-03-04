@@ -12,6 +12,7 @@ static	vec3_t	muzzle_origin; // for hitscan weapon trace
 
 #define NUM_NAILSHOTS 15
 
+
 /*
 ===============
 CalcMuzzlePointOrigin
@@ -963,7 +964,6 @@ FireWeapon
 ===============
 */
 void FireWeapon( gentity_t *ent ) {
-
 	if ( ent->client->ps.powerups[PW_QUAD] ) {
 		s_quadFactor = g_quadfactor.value;
 	} else {
