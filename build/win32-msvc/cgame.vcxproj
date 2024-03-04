@@ -134,10 +134,8 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName)$(TargetExt) "$(QUAKE3DIR)\$(MODDIR)\$(TargetName)$(TargetExt)"
-
-
-copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName).pdb "$(QUAKE3DIR)\$(MODDIR)\$(TargetName).pdb"</Command>
+      <Command>copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName)$(ARCHL)$(TargetExt) "$(QUAKE3DIR)\$(MODDIR)
+copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName).pdb "$(QUAKE3DIR)\$(MODDIR)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -163,6 +161,7 @@ copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName).pdb "$(QUAKE3DIR)\$(MOD
     <ClCompile Include="..\..\code\cgame\cg_effects.c" />
     <ClCompile Include="..\..\code\cgame\cg_ents.c" />
     <ClCompile Include="..\..\code\cgame\cg_event.c" />
+    <ClCompile Include="..\..\code\cgame\cg_freeze.c" />
     <ClCompile Include="..\..\code\cgame\cg_info.c" />
     <ClCompile Include="..\..\code\cgame\cg_localents.c" />
     <ClCompile Include="..\..\code\cgame\cg_main.c" />
@@ -184,7 +183,6 @@ copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName).pdb "$(QUAKE3DIR)\$(MOD
     <ClCompile Include="..\..\code\game\q_shared.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\code\cgame\cg_cvar.h" />
     <ClInclude Include="..\..\code\cgame\cg_local.h" />
     <ClInclude Include="..\..\code\cgame\cg_public.h" />
     <ClInclude Include="..\..\code\cgame\tr_types.h" />

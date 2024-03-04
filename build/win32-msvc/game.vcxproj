@@ -134,10 +134,8 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName)$(TargetExt) "$(QUAKE3DIR)\$(MODDIR)\$(TargetName)$(TargetExt)"
-
-
-copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName).pdb "$(QUAKE3DIR)\$(MODDIR)\$(TargetName).pdb"</Command>
+      <Command>copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName)$(ARCHL)$(TargetExt) "$(QUAKE3DIR)\$(MODDIR)
+copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName).pdb "$(QUAKE3DIR)\$(MODDIR)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -161,6 +159,7 @@ copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName).pdb "$(QUAKE3DIR)\$(MOD
     <ClCompile Include="..\..\code\game\ai_cmd.c" />
     <ClCompile Include="..\..\code\game\ai_dmnet.c" />
     <ClCompile Include="..\..\code\game\ai_dmq3.c" />
+    <ClCompile Include="..\..\code\game\ai_freeze.c" />
     <ClCompile Include="..\..\code\game\ai_main.c" />
     <ClCompile Include="..\..\code\game\ai_team.c" />
     <ClCompile Include="..\..\code\game\ai_vcmd.c" />
@@ -179,12 +178,14 @@ copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName).pdb "$(QUAKE3DIR)\$(MOD
     <ClCompile Include="..\..\code\game\g_client.c" />
     <ClCompile Include="..\..\code\game\g_cmds.c" />
     <ClCompile Include="..\..\code\game\g_combat.c" />
+    <ClCompile Include="..\..\code\game\g_freeze.c" />
     <ClCompile Include="..\..\code\game\g_items.c" />
     <ClCompile Include="..\..\code\game\g_main.c" />
     <ClCompile Include="..\..\code\game\g_mem.c" />
     <ClCompile Include="..\..\code\game\g_misc.c" />
     <ClCompile Include="..\..\code\game\g_missile.c" />
     <ClCompile Include="..\..\code\game\g_mover.c" />
+    <ClCompile Include="..\..\code\game\g_qlone.c" />
     <ClCompile Include="..\..\code\game\g_rotation.c" />
     <ClCompile Include="..\..\code\game\g_session.c" />
     <ClCompile Include="..\..\code\game\g_spawn.c" />
@@ -220,7 +221,6 @@ copy $(ProjectDir)$(ARCH)\$(Configuration)\$(TargetName).pdb "$(QUAKE3DIR)\$(MOD
     <ClInclude Include="..\..\code\game\bg_public.h" />
     <ClInclude Include="..\..\code\game\botlib.h" />
     <ClInclude Include="..\..\code\game\chars.h" />
-    <ClInclude Include="..\..\code\game\g_cvar.h" />
     <ClInclude Include="..\..\code\game\g_local.h" />
     <ClInclude Include="..\..\code\game\g_public.h" />
     <ClInclude Include="..\..\code\game\g_rankings.h" />
