@@ -1,4 +1,4 @@
-PK3 = zz-patch02.pk3
+PK3 = pak00.pk3
 
 basedir = ../../code
 
