@@ -12,7 +12,6 @@ static	vec3_t	muzzle_origin; // for hitscan weapon trace
 
 #define NUM_NAILSHOTS 15
 
-
 /*
 ===============
 CalcMuzzlePointOrigin
@@ -732,6 +731,7 @@ void Weapon_HookFree (gentity_t *ent)
 {
 //qlone - grapple hook
 	//ent->parent->timestamp = level.time;
+
 	ent->parent->timestamp = level.time + g_grappleDelayTime.integer;
 //qlone - grapple hook
 	ent->parent->client->hook = NULL;

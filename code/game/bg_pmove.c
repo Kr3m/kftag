@@ -7,8 +7,7 @@
 #include "bg_public.h"
 #include "bg_local.h"
 
-vmCvar_t g_grappleDelayTime;
-vmCvar_t g_grapplePull;
+//vmCvar_t g_grapplePull;
 
 /* //qlone
 // thanx to Mr Pants "Excessive" mod
@@ -668,6 +667,8 @@ PM_GrappleMove
 static void PM_GrappleMove( void ) {
 	vec3_t vel, v;
 	float vlen;
+
+	vmCvar_t g_grapplePull;
 
 	VectorScale(pml.forward, -16, v);
 	VectorAdd(pm->ps->grapplePoint, v, v);
