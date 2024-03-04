@@ -7,9 +7,7 @@
 #include "bg_public.h"
 #include "bg_local.h"
 
-//vmCvar_t g_grapplePull;
-
-/* //qlone
+//qlone
 // thanx to Mr Pants "Excessive" mod
 int trap_Cvar_VariableIntegerValue(const char * var_name);
 const char *CG_ConfigString(int index);
@@ -20,7 +18,7 @@ int getCvarInt(const char * name) {
 	return trap_Cvar_VariableIntegerValue(name);
 #endif
 }
-//qlone */
+//qlone
 
 pmove_t		*pm;
 pml_t		pml;
@@ -667,8 +665,7 @@ PM_GrappleMove
 static void PM_GrappleMove( void ) {
 	vec3_t vel, v;
 	float vlen;
-
-	vmCvar_t g_grapplePull;
+	int grapplePull = getCvarInt("g_grapplePull");
 
 	VectorScale(pml.forward, -16, v);
 	VectorAdd(pm->ps->grapplePoint, v, v);
@@ -679,7 +676,7 @@ static void PM_GrappleMove( void ) {
 	if (vlen <= 100)
 		VectorScale(vel, 10 * vlen, vel);
 	else
-		VectorScale(vel, g_grapplePull.integer, vel);
+		VectorScale(vel, grapplePull, vel);
 
 	VectorCopy(vel, pm->ps->velocity);
 
