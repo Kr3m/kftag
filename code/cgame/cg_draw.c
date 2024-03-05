@@ -2006,6 +2006,63 @@ CROSSHAIR
 ================================================================================
 */
 
+/*
+=================
+CG_SetCrosshairColor
+=================
+*/
+static void CG_SetCrosshairColor( void ) {
+	static int		colorNum;
+	static char		colorStr;
+	static float	*colors[] = {
+		colorBlack,
+		colorRed,
+		colorGreen,
+		colorYellow,
+		colorBlue,	
+		colorCyan,
+		colorMagenta,
+		colorWhite,
+		colorOrange,
+		colorPink
+	};
+
+	colorNum = cg_crosshairColor.integer;
+	/* colorStr = cg_crosshairColor.string;
+
+	switch (colorStr)
+	{
+	case 'black': colorNum = 0;
+		break;
+	case 'red': colorNum = 1;
+		break;
+	case 'green': colorNum = 2;
+		break;
+	case 'yellow': colorNum = 3;
+		break;
+	case 'blue': colorNum = 4;
+		break;
+	case 'cyan': colorNum = 5;
+		break;
+	case 'magenta': colorNum = 6;
+		break;
+	case 'white': colorNum = 7;
+		break;
+	case 'orange': colorNum = 8;
+		break;
+	
+	default: colorNum = 7;
+		break;
+	} */
+
+	if ( colorNum > 10 || colorNum < 0 ) { // if it's 0, then set to yellow
+		colorNum = 7;
+	}
+	colorNum = ( colorNum ) % ARRAY_LEN( colors );
+
+	trap_R_SetColor( colors[colorNum] );
+}
+
 
 /*
 =================
@@ -2037,13 +2094,8 @@ static void CG_DrawCrosshair( void ) {
 
 		CG_ColorForHealth( hcolor );
 		trap_R_SetColor( hcolor );
-	}
-	else if ( cgs.crosshairColor[3] > 0.0f )
-	{
-		trap_R_SetColor( cgs.crosshairColor );
-	}	 
-	else {
-		trap_R_SetColor( NULL );
+	} else {
+		CG_SetCrosshairColor();
 	}
 
 	w = h = cg_crosshairSize.value;
