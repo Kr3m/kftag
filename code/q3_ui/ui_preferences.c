@@ -20,11 +20,11 @@ GAME OPTIONS MENU
 #define ART_FX_BASE				"menu/art/fx_base"
 #define ART_FX_BLUE				"menu/art/fx_blue"
 #define ART_FX_CYAN				"menu/art/fx_cyan"
-#define ART_FX_GREEN			"menu/art/fx_grn"
+#define ART_FX_GREEN				"menu/art/fx_grn"
 #define ART_FX_RED				"menu/art/fx_red"
 #define ART_FX_TEAL				"menu/art/fx_teal"
-#define ART_FX_WHITE			"menu/art/fx_white"
-#define ART_FX_YELLOW			"menu/art/fx_yel"
+#define ART_FX_WHITE				"menu/art/fx_white"
+#define ART_FX_YELLOW				"menu/art/fx_yel"
 
 #define PREFERENCES_X_POS		360
 
@@ -52,8 +52,8 @@ typedef struct {
 	menubitmap_s		framel;
 	menubitmap_s		framer;
 
-	menulist_s			crosshair;
-	menulist_s			crosshaircolor;
+	menulist_s		crosshair;
+	menulist_s		crosshaircolor;
 	menuradiobutton_s	simpleitems;
 	menuradiobutton_s	brass;
 	menuradiobutton_s	wallmarks;
@@ -62,14 +62,14 @@ typedef struct {
 	menuradiobutton_s	highqualitysky;
 	menuradiobutton_s	synceveryframe;
 	menuradiobutton_s	forcemodel;
-	menulist_s			drawteamoverlay;
+	menulist_s		drawteamoverlay;
 	menuradiobutton_s	allowdownload;
 	menubitmap_s		back;
 
-	qhandle_t			crosshairShader[NUM_CROSSHAIRS];
+	qhandle_t		crosshairShader[NUM_CROSSHAIRS];
 
-	qhandle_t			fxBasePic;
-	qhandle_t			fxPic[8];
+	qhandle_t		fxBasePic;
+	qhandle_t		fxPic[8];
 } preferences_t;
 
 static preferences_t s_preferences;
@@ -87,9 +87,7 @@ static preferences_t s_preferences;
 If any number isn't in the UI table to assign, it will always map to WHITE
 */
 static int gamecodetoui[] = {4,2,3,0,5,1,6,7};
-//static int uitogamecode[] = {5,7,3,4,2,6,8};
-//static int gamecodetoui[] = {0,1,2,3,4,5,6,7};
-static int uitogamecode[] = {1,2,3,4,5,6,7,0};
+static int uitogamecode[] = {1,2,3,4,6,5,7,0};
 static float *uiSliderColors[] = {
 	colorRed,
 	colorGreen,
@@ -116,7 +114,7 @@ static void Preferences_SetMenuItems( void ) {
 
 	s_preferences.crosshair.curvalue		= (int)trap_Cvar_VariableValue( "cg_drawCrosshair" ) % NUM_CROSSHAIRS;
 
-	c = (int)trap_Cvar_VariableValue( "cg_crosshairColor" );
+	c = (int)trap_Cvar_VariableValue( "cg_crosshairColor" ) - 1;
 	if ( c == -1 ) { // keep it to YELLOW
 		c = 6;
 	}
@@ -127,14 +125,14 @@ static void Preferences_SetMenuItems( void ) {
 	}
 	uiSliderColorIndex = s_preferences.crosshaircolor.curvalue = gamecodetoui[c];
 
-	s_preferences.simpleitems.curvalue		= trap_Cvar_VariableValue( "cg_simpleItems" ) != 0;
-	s_preferences.brass.curvalue			= trap_Cvar_VariableValue( "cg_brassTime" ) != 0;
-	s_preferences.wallmarks.curvalue		= trap_Cvar_VariableValue( "cg_marks" ) != 0;
+	s_preferences.simpleitems.curvalue	= trap_Cvar_VariableValue( "cg_simpleItems" ) != 0;
+	s_preferences.brass.curvalue		= trap_Cvar_VariableValue( "cg_brassTime" ) != 0;
+	s_preferences.wallmarks.curvalue	= trap_Cvar_VariableValue( "cg_marks" ) != 0;
 	s_preferences.identifytarget.curvalue	= trap_Cvar_VariableValue( "cg_drawCrosshairNames" ) != 0;
 	s_preferences.dynamiclights.curvalue	= trap_Cvar_VariableValue( "r_dynamiclight" ) != 0;
 	s_preferences.highqualitysky.curvalue	= trap_Cvar_VariableValue ( "r_fastsky" ) == 0;
 	s_preferences.synceveryframe.curvalue	= trap_Cvar_VariableValue( "r_swapinterval" ) != 0;
-	s_preferences.forcemodel.curvalue		= trap_Cvar_VariableValue( "cg_forcemodel" ) != 0;
+	s_preferences.forcemodel.curvalue	= trap_Cvar_VariableValue( "cg_forcemodel" ) != 0;
 	s_preferences.drawteamoverlay.curvalue	= Com_Clamp( 0, 3, trap_Cvar_VariableValue( "cg_drawTeamOverlay" ) );
 	s_preferences.allowdownload.curvalue	= trap_Cvar_VariableValue( "cl_allowDownload" ) != 0;
 }
@@ -221,8 +219,8 @@ Crosshair_Draw
 static void Crosshair_Draw( void *self ) {
 	menulist_s	*s;
 	float		*color;
-	int			x, y;
-	int			style;
+	int		x, y;
+	int		style;
 	qboolean	focus;
 
 	s = (menulist_s *)self;
@@ -326,31 +324,31 @@ static void Preferences_MenuInit( void ) {
 	y = 144;
 	s_preferences.crosshair.generic.type		= MTYPE_TEXT;
 	s_preferences.crosshair.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT|QMF_NODEFAULTINIT|QMF_OWNERDRAW;
-	s_preferences.crosshair.generic.x			= PREFERENCES_X_POS;
-	s_preferences.crosshair.generic.y			= y;
+	s_preferences.crosshair.generic.x		= PREFERENCES_X_POS;
+	s_preferences.crosshair.generic.y		= y;
 	s_preferences.crosshair.generic.name		= "Crosshair:";
 	s_preferences.crosshair.generic.callback	= Preferences_Event;
 	s_preferences.crosshair.generic.ownerdraw	= Crosshair_Draw;
-	s_preferences.crosshair.generic.id			= ID_CROSSHAIR;
-	s_preferences.crosshair.generic.top			= y - 4;
+	s_preferences.crosshair.generic.id		= ID_CROSSHAIR;
+	s_preferences.crosshair.generic.top		= y - 4;
 	s_preferences.crosshair.generic.bottom		= y + 20;
 	s_preferences.crosshair.generic.left		= PREFERENCES_X_POS - ( ( strlen(s_preferences.crosshair.generic.name) + 1 ) * SMALLCHAR_WIDTH );
 	s_preferences.crosshair.generic.right		= PREFERENCES_X_POS + 48;
 
 	y += BIGCHAR_HEIGHT+2+4;
-	s_preferences.crosshaircolor.generic.type	  = MTYPE_SPINCONTROL;
-	s_preferences.crosshaircolor.generic.flags	  = QMF_NODEFAULTINIT;
-	s_preferences.crosshaircolor.generic.x	      = PREFERENCES_X_POS - 24;
-	s_preferences.crosshaircolor.generic.y	      = y;
-	s_preferences.crosshaircolor.generic.name	  = "Crosshair Color:";
-	s_preferences.crosshaircolor.generic.callback = Preferences_Event;
+	s_preferences.crosshaircolor.generic.type	= MTYPE_SPINCONTROL;
+	s_preferences.crosshaircolor.generic.flags	= QMF_NODEFAULTINIT;
+	s_preferences.crosshaircolor.generic.x		= PREFERENCES_X_POS - 24;
+	s_preferences.crosshaircolor.generic.y		= y;
+	s_preferences.crosshaircolor.generic.name	= "Crosshair Color:";
+	s_preferences.crosshaircolor.generic.callback	= Preferences_Event;
 	s_preferences.crosshaircolor.generic.ownerdraw	= CrosshairColor_Draw;
-	s_preferences.crosshaircolor.generic.id	      = ID_CROSSHAIRCOLOR;
-	s_preferences.crosshaircolor.generic.top	  = y - 4;
-	s_preferences.crosshaircolor.generic.bottom	  = y + 20;
-	s_preferences.crosshaircolor.generic.left	  = PREFERENCES_X_POS - ( ( (int)strlen(s_preferences.crosshaircolor.generic.name) + 1 ) * SMALLCHAR_WIDTH );
-	s_preferences.crosshaircolor.generic.right	  = PREFERENCES_X_POS + 48;
-	s_preferences.crosshaircolor.numitems	      = 8;
+	s_preferences.crosshaircolor.generic.id		= ID_CROSSHAIRCOLOR;
+	s_preferences.crosshaircolor.generic.top	= y - 4;
+	s_preferences.crosshaircolor.generic.bottom	= y + 20;
+	s_preferences.crosshaircolor.generic.left	= PREFERENCES_X_POS - ( ( (int)strlen(s_preferences.crosshaircolor.generic.name) + 1 ) * SMALLCHAR_WIDTH );
+	s_preferences.crosshaircolor.generic.right	= PREFERENCES_X_POS + 48;
+	s_preferences.crosshaircolor.numitems		= 8;
 
 	y += BIGCHAR_HEIGHT+24;
 	s_preferences.simpleitems.generic.type        = MTYPE_RADIOBUTTON;
