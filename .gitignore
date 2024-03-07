@@ -1,4 +1,5 @@
 build/linux-qvm/pak00.pk3
+build/linux-qvm/zz-patch04.pk3
 build/linux-qvm/vm/
 code/.vscode/
 build/win32-msvc/.vs/
