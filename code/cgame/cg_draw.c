@@ -2013,7 +2013,6 @@ CG_SetCrosshairColor
 */
 static void CG_SetCrosshairColor( void ) {
 	static int		colorNum;
-	static char		colorStr;
 	static float	*colors[] = {
 		colorBlack,
 		colorRed,
@@ -2028,34 +2027,7 @@ static void CG_SetCrosshairColor( void ) {
 	};
 
 	colorNum = cg_crosshairColor.integer;
-	/* colorStr = cg_crosshairColor.string;
-
-	switch (colorStr)
-	{
-	case 'black': colorNum = 0;
-		break;
-	case 'red': colorNum = 1;
-		break;
-	case 'green': colorNum = 2;
-		break;
-	case 'yellow': colorNum = 3;
-		break;
-	case 'blue': colorNum = 4;
-		break;
-	case 'cyan': colorNum = 5;
-		break;
-	case 'magenta': colorNum = 6;
-		break;
-	case 'white': colorNum = 7;
-		break;
-	case 'orange': colorNum = 8;
-		break;
-	
-	default: colorNum = 7;
-		break;
-	} */
-
-	if ( colorNum > 10 || colorNum < 0 ) { // if it's 0, then set to yellow
+	if ( colorNum > 9 || colorNum < 0 ) { // if it's larger than 9 or less than 0, set it to white
 		colorNum = 7;
 	}
 	colorNum = ( colorNum ) % ARRAY_LEN( colors );
