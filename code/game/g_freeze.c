@@ -147,7 +147,7 @@ static void Body_Explode( gentity_t *self ) {
 		if ( e->health < 1 ) continue;
 		if ( e->client->sess.sessionTeam != self->spawnflags ) continue;
 		VectorSubtract( self->s.pos.trBase, e->s.pos.trBase, point );
-		if ( VectorLength( point ) > 100 ) continue;
+		if ( VectorLength( point ) > g_thawRadius.integer ) continue;
 		if ( is_spectator( e->client ) ) continue;
 		if ( !self->count ) {
 			if ( g_dmflags.integer & 1024 || g_gametype.integer == GT_CTF ) {
@@ -164,7 +164,7 @@ static void Body_Explode( gentity_t *self ) {
 			} else if ( self->activator->health < 1 ) {
 			} else {
 				VectorSubtract( self->s.pos.trBase, self->activator->s.pos.trBase, point );
-				if ( VectorLength( point ) > 100 ) {
+				if ( VectorLength( point ) > g_thawRadius.integer ) {
 				} else if ( is_spectator( self->activator->client ) ) {
 				} else {
 					e = self->activator;
