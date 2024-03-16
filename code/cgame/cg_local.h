@@ -496,6 +496,10 @@ typedef struct {
 
 	int			time;			// this is the time value that the client
 								// is rendering at.
+
+	//freeze
+	int			freezeTime;
+	//freeze
 	int			oldTime;		// time at last frame, used for missile trails and prediction checking
 
 	int			physicsTime;	// either cg.snap->time or cg.nextSnap->time
@@ -1136,6 +1140,7 @@ typedef struct {
 	//hook
 	unsigned int	g_grapplePull;
   	unsigned int	g_grappleDelayTime;
+	unsigned int	g_autoThawTime;
 
 	float			fov;		// clamped cg_fov value
 	float			zoomFov;	// clamped cg_zoomFov value

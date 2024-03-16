@@ -126,7 +126,7 @@ G_CVAR( g_startAmmoCG, "g_startAmmoCG", "100", 0, 0, qfalse, qfalse )
 
 G_CVAR( g_freezeTag, "freezeTag", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_spawnProtection, "g_spawnProtection", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
-G_CVAR( g_autoThawTime, "g_autoThawTime", "60", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_autoThawTime, "g_autoThawTime", "60", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse, qfalse )
 G_CVAR( g_thawTime, "g_thawTime", "3", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_thawRadius, "g_thawRadius", "100", CVAR_ARCHIVE, 0, qfalse, qfalse )
 

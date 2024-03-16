@@ -918,6 +918,41 @@ static float CG_DrawTimer( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
+/*
+=================
+CG_DrawThawTimer
+=================
+*/
+static float CG_DrawThawTimer( float y ) {
+	const char	*s;
+	int			mins, seconds;
+	int			msec;
+	//int			freezeTime;
+	int			counter;
+	playerState_t	*ps;
+
+	if ( !Q_Isfreeze( cg.clientNum ) ) {
+		return;
+	}
+
+	//freezeTime = cg.freezeTime;
+
+	msec = cg.time - cgs.levelStartTime;
+
+	if ( cg.freezeTime > msec ) {
+		counter = cg.freezeTime - msec;
+	}
+
+	seconds = counter / 1000;
+	mins = seconds / 60;
+	seconds -= mins * 60;
+
+	s = va( "THAW %i", seconds );
+	CG_DrawString( cgs.screenXmax - 4, y + 2, s, colorCyan, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_RIGHT | DS_PROPORTIONAL );
+
+	return y + BIGCHAR_HEIGHT + 4;
+}
+
 
 /*
 =================
@@ -1124,6 +1159,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if ( cg_drawAttacker.integer ) {
 		y = CG_DrawAttacker( y );
 	}
+	y = CG_DrawThawTimer( y );
 }
 
 
