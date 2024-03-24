@@ -620,11 +620,9 @@ typedef struct {
 	qhandle_t	soundPlaying;
 
 	// for voice chat buffer
-#ifdef MISSIONPACK
 	int			voiceChatTime;
 	int			voiceChatBufferIn;
 	int			voiceChatBufferOut;
-#endif
 
 	// warmup countdown
 	int			warmup;
@@ -1113,9 +1111,8 @@ typedef struct {
 	int				teamChatPos;
 	int				teamLastChatPos;
 
-#ifdef MISSIONPACK
-	int cursorX;
-	int cursorY;
+	//int cursorX;
+	//int cursorY;
 	qboolean eventHandling;
 	qboolean mouseCaptured;
 	qboolean sizingHud;
@@ -1131,7 +1128,6 @@ typedef struct {
 	int acceptTask;
 	int acceptLeader;
 	char acceptVoice[MAX_NAME_LENGTH];
-#endif
 
 	// media
 	cgMedia_t		media;

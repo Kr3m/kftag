@@ -5,8 +5,6 @@
 // be a valid snapshot this frame
 
 #include "cg_local.h"
-
-#ifdef MISSIONPACK // bk001204
 #include "../../ui/menudef.h" // bk001205 - for Q3_ui as well
 
 typedef struct {
@@ -28,6 +26,7 @@ static const orderTask_t validOrders[] = {
 
 static const int numValidOrders = sizeof(validOrders) / sizeof(orderTask_t);
 
+#ifdef MISSIONPACK // bk001204
 static int CG_ValidOrder(const char *p) {
 	int i;
 	for (i = 0; i < numValidOrders; i++) {
@@ -510,8 +509,6 @@ static void CG_MapRestart( void ) {
 	trap_Cvar_Set( "cg_thirdPerson", "0" );
 }
 
-#ifdef MISSIONPACK
-
 #define MAX_VOICEFILESIZE	16384
 #define MAX_VOICEFILES		8
 #define MAX_VOICECHATS		64
@@ -654,6 +651,9 @@ void CG_LoadVoiceChats( void ) {
 	int size;
 
 	size = trap_MemoryRemaining();
+//freeze
+#ifdef MISSIONPACK
+//freeze
 	CG_ParseVoiceChats( "scripts/female1.voice", &voiceChatLists[0], MAX_VOICECHATS );
 	CG_ParseVoiceChats( "scripts/female2.voice", &voiceChatLists[1], MAX_VOICECHATS );
 	CG_ParseVoiceChats( "scripts/female3.voice", &voiceChatLists[2], MAX_VOICECHATS );
@@ -662,6 +662,12 @@ void CG_LoadVoiceChats( void ) {
 	CG_ParseVoiceChats( "scripts/male3.voice", &voiceChatLists[5], MAX_VOICECHATS );
 	CG_ParseVoiceChats( "scripts/male4.voice", &voiceChatLists[6], MAX_VOICECHATS );
 	CG_ParseVoiceChats( "scripts/male5.voice", &voiceChatLists[7], MAX_VOICECHATS );
+//freeze
+#else
+	CG_ParseVoiceChats( "scripts/female4.voice", &voiceChatLists[ 0 ], MAX_VOICECHATS );
+	CG_ParseVoiceChats( "scripts/male6.voice", &voiceChatLists[ 1 ], MAX_VOICECHATS );
+#endif
+//freeze
 	CG_Printf("voice chat memory size = %d\n", size - trap_MemoryRemaining());
 }
 
@@ -851,6 +857,9 @@ void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
 
 	if ( !cg_noVoiceChats.integer ) {
 		trap_S_StartLocalSound( vchat->snd, CHAN_VOICE);
+//freeze
+#ifdef MISSIONPACK
+//freeze
 		if (vchat->clientNum != cg.snap->ps.clientNum) {
 			int orderTask = CG_ValidOrder(vchat->cmd);
 			if (orderTask > 0) {
@@ -862,6 +871,9 @@ void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
 			// see if this was an order
 			CG_ShowResponseHead();
 		}
+//freeze
+#endif
+//freeze
 	}
 	if (!vchat->voiceOnly && !cg_noVoiceText.integer) {
 		CG_AddToTeamChat( vchat->message );
@@ -948,7 +960,17 @@ void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, 
 				Com_sprintf(vchat.message, sizeof(vchat.message), "[%s]: %c%c%s", ci->name, Q_COLOR_ESCAPE, color, chat);
 			}
 			else if ( mode == SAY_TEAM ) {
+//freeze
+				const char	*p = CG_ConfigString( CS_LOCATIONS + ci->location );
+
+				if ( !p || !*p ) {
+//freeze
 				Com_sprintf(vchat.message, sizeof(vchat.message), "(%s): %c%c%s", ci->name, Q_COLOR_ESCAPE, color, chat);
+//freeze
+				} else {
+					Com_sprintf( vchat.message, sizeof ( vchat.message ), "(%s) (%s): %c%c%s", ci->name, p, Q_COLOR_ESCAPE, color, chat );
+				}
+//freeze
 			}
 			else {
 				Com_sprintf(vchat.message, sizeof(vchat.message), "%s: %c%c%s", ci->name, Q_COLOR_ESCAPE, color, chat);
@@ -984,8 +1006,6 @@ void CG_VoiceChat( int mode ) {
 
 	CG_VoiceChatLocal( mode, voiceOnly, clientNum, color, cmd );
 }
-#endif // MISSIONPACK
-
 
 /*
 =================
@@ -1075,8 +1095,6 @@ static void CG_ServerCommand( void ) {
 			CG_Printf( "%s\n", text );
 		return;
 	}
-
-#ifdef MISSIONPACK
 	if ( !strcmp( cmd, "vchat" ) ) {
 		CG_VoiceChat( SAY_ALL );
 		return;
@@ -1091,7 +1109,6 @@ static void CG_ServerCommand( void ) {
 		CG_VoiceChat( SAY_TELL );
 		return;
 	}
-#endif
 
 	if ( !strcmp( cmd, "scores" ) ) {
 		CG_ParseScores();

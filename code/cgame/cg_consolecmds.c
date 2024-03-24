@@ -4,8 +4,8 @@
 // executed by a key binding
 
 #include "cg_local.h"
-#ifdef MISSIONPACK
 #include "../ui/ui_shared.h"
+#ifdef MISSIONPACK
 extern menuDef_t *menuScoreboard;
 #endif
 
@@ -217,8 +217,6 @@ static void CG_TellAttacker_f( void ) {
 	trap_SendClientCommand( command );
 }
 
-
-#ifdef MISSIONPACK
 /*
 ==================
 CG_VoiceTellTarget_f
@@ -260,6 +258,7 @@ static void CG_VoiceTellAttacker_f( void ) {
 	trap_SendClientCommand( command );
 }
 
+#ifdef MISSIONPACK
 static void CG_NextTeamMember_f( void ) {
   CG_SelectNextPlayer();
 }
@@ -489,9 +488,10 @@ static consoleCommand_t	commands[] = {
 	{ "tcmd", CG_TargetCommand_f },
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
-#ifdef MISSIONPACK
 	{ "vtell_target", CG_VoiceTellTarget_f },
 	{ "vtell_attacker", CG_VoiceTellAttacker_f },
+	{ "tcmd", CG_TargetCommand_f },
+#ifdef MISSIONPACK
 	{ "loadhud", CG_LoadHud_f },
 	{ "nextTeamMember", CG_NextTeamMember_f },
 	{ "prevTeamMember", CG_PrevTeamMember_f },
