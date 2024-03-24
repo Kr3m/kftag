@@ -405,9 +405,9 @@ static void CG_RegisterSounds( void ) {
 	const char	*soundName;
 
 	// voice commands
-#ifdef MISSIONPACK
+
 	CG_LoadVoiceChats();
-#endif
+
 
 	cgs.media.oneMinuteSound = trap_S_RegisterSound( "sound/feedback/1_minute.wav", qtrue );
 	cgs.media.fiveMinuteSound = trap_S_RegisterSound( "sound/feedback/5_minute.wav", qtrue );
