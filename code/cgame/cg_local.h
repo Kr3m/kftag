@@ -498,7 +498,7 @@ typedef struct {
 								// is rendering at.
 
 	//freeze
-	int			freezeTime;
+	int			thawTime;
 	//freeze
 	int			oldTime;		// time at last frame, used for missile trails and prediction checking
 

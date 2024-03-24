@@ -927,7 +927,6 @@ static float CG_DrawThawTimer( float y ) {
 	const char	*s;
 	int			mins, seconds;
 	int			msec;
-	//int			freezeTime;
 	int			counter;
 	playerState_t	*ps;
 
@@ -935,12 +934,10 @@ static float CG_DrawThawTimer( float y ) {
 		return;
 	}
 
-	//freezeTime = cg.freezeTime;
-
 	msec = cg.time - cgs.levelStartTime;
 
-	if ( cg.freezeTime > msec ) {
-		counter = cg.freezeTime - msec;
+	if ( cg.thawTime > msec ) {
+		counter = cg.thawTime - msec;
 	}
 
 	seconds = counter / 1000;
