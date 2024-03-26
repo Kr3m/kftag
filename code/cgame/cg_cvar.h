@@ -129,5 +129,6 @@ CG_CVAR( cg_teamColors, "cg_teamColors", "", CVAR_ARCHIVE )
 CG_CVAR( cg_deadBodyDarken, "cg_deadBodyDarken", "1", CVAR_ARCHIVE )
 CG_CVAR( cg_fovAdjust, "cg_fovAdjust", "0", CVAR_ARCHIVE )
 CG_CVAR( cg_followKiller, "cg_followKiller", "0", CVAR_ARCHIVE )
+CG_CVAR( cg_modVersion, "cg_modVersion", "kftag4q3retro", CVAR_ROM | CVAR_USERINFO )
 
 #undef CG_CVAR
