@@ -772,8 +772,8 @@ static void CG_RegisterGraphics( void ) {
 #else
 	if ( cgs.gametype == GT_CTF || cg_buildScript.integer ) {
 #endif
-		cgs.media.redFlagModel = trap_R_RegisterModel( "models/flags/r_flag.md3" );
-		cgs.media.blueFlagModel = trap_R_RegisterModel( "models/flags/b_flag.md3" );
+		cgs.media.redFlagModel = trap_R_RegisterModel( "models/flag3/r_flag3.md3" );
+		cgs.media.blueFlagModel = trap_R_RegisterModel( "models/flag3/b_flag3.md3" );
 		cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip( "icons/iconf_red1" );
 		cgs.media.redFlagShader[1] = trap_R_RegisterShaderNoMip( "icons/iconf_red2" );
 		cgs.media.redFlagShader[2] = trap_R_RegisterShaderNoMip( "icons/iconf_red3" );
@@ -796,7 +796,7 @@ static void CG_RegisterGraphics( void ) {
 
 #ifdef MISSIONPACK
 	if ( cgs.gametype == GT_1FCTF || cg_buildScript.integer ) {
-		cgs.media.neutralFlagModel = trap_R_RegisterModel( "models/flags/n_flag.md3" );
+		cgs.media.neutralFlagModel = trap_R_RegisterModel( "models/flag3/n_flag3.md3" );
 		cgs.media.flagShader[0] = trap_R_RegisterShaderNoMip( "icons/iconf_neutral1" );
 		cgs.media.flagShader[1] = trap_R_RegisterShaderNoMip( "icons/iconf_red2" );
 		cgs.media.flagShader[2] = trap_R_RegisterShaderNoMip( "icons/iconf_blu2" );
@@ -1715,13 +1715,7 @@ void CG_AssetCache( void ) {
 	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
 	cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
 	cgDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
-	cgDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip( ART_FX_RED );
-	cgDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip( ART_FX_YELLOW );
-	cgDC.Assets.fxPic[2] = trap_R_RegisterShaderNoMip( ART_FX_GREEN );
-	cgDC.Assets.fxPic[3] = trap_R_RegisterShaderNoMip( ART_FX_TEAL );
-	cgDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip( ART_FX_BLUE );
-	cgDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
-	cgDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
+	cgDC.Assets.fxPic = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
 	cgDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
 	cgDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
 	cgDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
