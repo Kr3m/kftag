@@ -1490,7 +1490,6 @@ static void PM_BeginWeaponChange( int weapon ) {
 
 	PM_AddEvent( EV_CHANGE_WEAPON );
 	pm->ps->weaponstate = WEAPON_DROPPING;
-	//qlone
 	//pm->ps->weaponTime += 200;
 	pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 0 ? 0 : 200;
 	PM_StartTorsoAnim( TORSO_DROP );
@@ -1518,9 +1517,7 @@ static void PM_FinishWeaponChange( void ) {
 	pm->ps->weaponstate = WEAPON_RAISING;
 	pm->ps->eFlags &= ~EF_FIRING;
 	//pm->ps->weaponTime += 250;
-	//qlone
 	pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 0 ? 0 : 250;
-	//qlone
 	PM_StartTorsoAnim( TORSO_RAISE );
 }
 
@@ -1652,9 +1649,7 @@ static void PM_Weapon( void ) {
 	if ( ! pm->ps->ammo[ pm->ps->weapon ] ) {
 		PM_AddEvent( EV_NOAMMO );
 		//pm->ps->weaponTime += 500;
-		//qlone
 		pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 1 ? 100 : 500;
-		//qlone
 		return;
 	}
 
