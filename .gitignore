@@ -1,0 +1,8 @@
+.idea
+build/linux-qvm/vm/
+build/linux-qvm/kftag
+build/linux-qvm/*.pk3
+code/.vscode/
+assets/scripts/neuter1.voice
+assets/sound/voices/gayrobot/
+workspace
