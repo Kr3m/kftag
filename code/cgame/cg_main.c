@@ -14,7 +14,7 @@ int enemyModelModificationCount  = -1;
 int	enemyColorsModificationCount = -1;
 int teamModelModificationCount  = -1;
 int	teamColorsModificationCount = -1;
-static int crosshairColorModificationCount = -1;
+//static int crosshairColorModificationCount = -1;
 int cg_playback_follow;
 
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
@@ -163,7 +163,7 @@ void CG_ForceModelChange( void ) {
 CG_UpdateCrosshairColor
 ===================
 */
-static void CG_UpdateCrosshairColor( void ) {
+/*static void CG_UpdateCrosshairColor( void ) {
 	const char	*s = cg_crosshairColor.string;
 	int			i;
 
@@ -205,7 +205,7 @@ static void CG_UpdateCrosshairColor( void ) {
 		cgs.crosshairColor[3] = 1.0f;	// no alpha specified, default to 1
 	else if ( i != 4 )
 		cgs.crosshairColor[3] = 0.0f;	// alpha 0 means use original method
-}
+}*/
 
 
 /*
@@ -253,10 +253,10 @@ void CG_UpdateCvars( void ) {
 
 		CG_ForceModelChange();
 	}
-	if ( crosshairColorModificationCount != cg_crosshairColor.modificationCount ) {
+	/*if ( crosshairColorModificationCount != cg_crosshairColor.modificationCount ) {
 		crosshairColorModificationCount = cg_crosshairColor.modificationCount;
 		CG_UpdateCrosshairColor();
-	}
+	}*/
 }
 
 
@@ -405,9 +405,9 @@ static void CG_RegisterSounds( void ) {
 	const char	*soundName;
 
 	// voice commands
-#ifdef MISSIONPACK
+
 	CG_LoadVoiceChats();
-#endif
+
 
 	cgs.media.oneMinuteSound = trap_S_RegisterSound( "sound/feedback/1_minute.wav", qtrue );
 	cgs.media.fiveMinuteSound = trap_S_RegisterSound( "sound/feedback/5_minute.wav", qtrue );
@@ -772,8 +772,8 @@ static void CG_RegisterGraphics( void ) {
 #else
 	if ( cgs.gametype == GT_CTF || cg_buildScript.integer ) {
 #endif
-		cgs.media.redFlagModel = trap_R_RegisterModel( "models/flags/r_flag.md3" );
-		cgs.media.blueFlagModel = trap_R_RegisterModel( "models/flags/b_flag.md3" );
+		cgs.media.redFlagModel = trap_R_RegisterModel( "models/flag3/r_flag3.md3" );
+		cgs.media.blueFlagModel = trap_R_RegisterModel( "models/flag3/b_flag3.md3" );
 		cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip( "icons/iconf_red1" );
 		cgs.media.redFlagShader[1] = trap_R_RegisterShaderNoMip( "icons/iconf_red2" );
 		cgs.media.redFlagShader[2] = trap_R_RegisterShaderNoMip( "icons/iconf_red3" );
@@ -796,7 +796,7 @@ static void CG_RegisterGraphics( void ) {
 
 #ifdef MISSIONPACK
 	if ( cgs.gametype == GT_1FCTF || cg_buildScript.integer ) {
-		cgs.media.neutralFlagModel = trap_R_RegisterModel( "models/flags/n_flag.md3" );
+		cgs.media.neutralFlagModel = trap_R_RegisterModel( "models/flag3/n_flag3.md3" );
 		cgs.media.flagShader[0] = trap_R_RegisterShaderNoMip( "icons/iconf_neutral1" );
 		cgs.media.flagShader[1] = trap_R_RegisterShaderNoMip( "icons/iconf_red2" );
 		cgs.media.flagShader[2] = trap_R_RegisterShaderNoMip( "icons/iconf_blu2" );
@@ -1715,13 +1715,7 @@ void CG_AssetCache( void ) {
 	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
 	cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
 	cgDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
-	cgDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip( ART_FX_RED );
-	cgDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip( ART_FX_YELLOW );
-	cgDC.Assets.fxPic[2] = trap_R_RegisterShaderNoMip( ART_FX_GREEN );
-	cgDC.Assets.fxPic[3] = trap_R_RegisterShaderNoMip( ART_FX_TEAL );
-	cgDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip( ART_FX_BLUE );
-	cgDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
-	cgDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
+	cgDC.Assets.fxPic = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
 	cgDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
 	cgDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
 	cgDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );

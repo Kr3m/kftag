@@ -147,7 +147,7 @@ static void Body_Explode( gentity_t *self ) {
 		if ( e->health < 1 ) continue;
 		if ( e->client->sess.sessionTeam != self->spawnflags ) continue;
 		VectorSubtract( self->s.pos.trBase, e->s.pos.trBase, point );
-		if ( VectorLength( point ) > 100 ) continue;
+		if ( VectorLength( point ) > g_thawRadius.integer ) continue;
 		if ( is_spectator( e->client ) ) continue;
 		if ( !self->count ) {
 			if ( g_dmflags.integer & 1024 || g_gametype.integer == GT_CTF ) {
@@ -164,7 +164,7 @@ static void Body_Explode( gentity_t *self ) {
 			} else if ( self->activator->health < 1 ) {
 			} else {
 				VectorSubtract( self->s.pos.trBase, self->activator->s.pos.trBase, point );
-				if ( VectorLength( point ) > 100 ) {
+				if ( VectorLength( point ) > g_thawRadius.integer ) {
 				} else if ( is_spectator( self->activator->client ) ) {
 				} else {
 					e = self->activator;
@@ -178,7 +178,7 @@ static void Body_Explode( gentity_t *self ) {
 			tent->r.svFlags = SVF_BROADCAST;
 
 			G_LogPrintf( "Kill: %i %i %i: %s killed %s by %s\n", e->s.number, self->target_ent->s.number, MOD_UNKNOWN, e->client->pers.netname, self->target_ent->client->pers.netname, "MOD_UNKNOWN" );
-			AddScore( e, self->s.pos.trBase, 1 );
+			AddScore( e, self->s.pos.trBase, 2 );
 
 			e->client->sess.wins++;
 			G_Damage( self, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );

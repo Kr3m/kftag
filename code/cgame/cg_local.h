@@ -496,6 +496,10 @@ typedef struct {
 
 	int			time;			// this is the time value that the client
 								// is rendering at.
+
+	//freeze
+	int			thawTime;
+	//freeze
 	int			oldTime;		// time at last frame, used for missile trails and prediction checking
 
 	int			physicsTime;	// either cg.snap->time or cg.nextSnap->time
@@ -616,11 +620,9 @@ typedef struct {
 	qhandle_t	soundPlaying;
 
 	// for voice chat buffer
-#ifdef MISSIONPACK
 	int			voiceChatTime;
 	int			voiceChatBufferIn;
 	int			voiceChatBufferOut;
-#endif
 
 	// warmup countdown
 	int			warmup;
@@ -1109,9 +1111,8 @@ typedef struct {
 	int				teamChatPos;
 	int				teamLastChatPos;
 
-#ifdef MISSIONPACK
-	int cursorX;
-	int cursorY;
+	//int cursorX;
+	//int cursorY;
 	qboolean eventHandling;
 	qboolean mouseCaptured;
 	qboolean sizingHud;
@@ -1127,7 +1128,6 @@ typedef struct {
 	int acceptTask;
 	int acceptLeader;
 	char acceptVoice[MAX_NAME_LENGTH];
-#endif
 
 	// media
 	cgMedia_t		media;
@@ -1136,6 +1136,7 @@ typedef struct {
 	//hook
 	unsigned int	g_grapplePull;
   	unsigned int	g_grappleDelayTime;
+	unsigned int	g_autoThawTime;
 
 	float			fov;		// clamped cg_fov value
 	float			zoomFov;	// clamped cg_zoomFov value
@@ -1460,11 +1461,9 @@ void CG_ParseServerinfo( void );
 void CG_ParseSysteminfo( void );
 void CG_SetConfigValues( void );
 void CG_ShaderStateChanged(void);
-#ifdef MISSIONPACK
 void CG_LoadVoiceChats( void );
 void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd );
 void CG_PlayBufferedVoiceChats( void );
-#endif
 
 //
 // cg_playerstate.c

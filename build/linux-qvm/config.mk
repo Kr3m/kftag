@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 PK3 = zz-patch04.pk3
+=======
+PK3 = pak000.pk3
+>>>>>>> edc5c58466dc0d3c07f7e5e5e367f892c64c75bf
 
 basedir = ../../code
 

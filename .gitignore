@@ -1,5 +1,17 @@
+<<<<<<< HEAD
 build/linux-qvm/pak00.pk3
 build/linux-qvm/zz-patch04.pk3
+=======
+.idea
+>>>>>>> edc5c58466dc0d3c07f7e5e5e367f892c64c75bf
 build/linux-qvm/vm/
+build/linux-qvm/kftag
+build/linux-qvm/*.pk3
 code/.vscode/
+<<<<<<< HEAD
 build/win32-msvc/.vs/
+=======
+assets/scripts/neuter1.voice
+assets/sound/voices/gayrobot/
+workspace
+>>>>>>> edc5c58466dc0d3c07f7e5e5e367f892c64c75bf

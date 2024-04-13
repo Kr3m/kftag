@@ -9,7 +9,7 @@
 
 //qlone
 // thanx to Mr Pants "Excessive" mod
-/* int trap_Cvar_VariableIntegerValue(const char * var_name);
+int trap_Cvar_VariableIntegerValue(const char * var_name);
 const char *CG_ConfigString(int index);
 int getCvarInt(const char * name) {
 #ifdef CGAME
@@ -17,7 +17,7 @@ int getCvarInt(const char * name) {
 #else
 	return trap_Cvar_VariableIntegerValue(name);
 #endif
-} */
+}
 //qlone
 
 pmove_t		*pm;
@@ -1490,9 +1490,8 @@ static void PM_BeginWeaponChange( int weapon ) {
 
 	PM_AddEvent( EV_CHANGE_WEAPON );
 	pm->ps->weaponstate = WEAPON_DROPPING;
-	//qlone
-	pm->ps->weaponTime += 200;
-	//pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 1 ? 0 : 200;
+	//pm->ps->weaponTime += 200;
+	pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 0 ? 0 : 200;
 	PM_StartTorsoAnim( TORSO_DROP );
 }
 
@@ -1517,10 +1516,8 @@ static void PM_FinishWeaponChange( void ) {
 	pm->ps->weapon = weapon;
 	pm->ps->weaponstate = WEAPON_RAISING;
 	pm->ps->eFlags &= ~EF_FIRING;
-	pm->ps->weaponTime += 250;
-	//qlone
-	//pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 1 ? 0 : 250;
-	//qlone
+	//pm->ps->weaponTime += 250;
+	pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 0 ? 0 : 250;
 	PM_StartTorsoAnim( TORSO_RAISE );
 }
 
@@ -1651,10 +1648,8 @@ static void PM_Weapon( void ) {
 	// check for out of ammo
 	if ( ! pm->ps->ammo[ pm->ps->weapon ] ) {
 		PM_AddEvent( EV_NOAMMO );
-		pm->ps->weaponTime += 500;
-		//qlone
-		//pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 0 ? 100 : 500;
-		//qlone
+		//pm->ps->weaponTime += 500;
+		pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 1 ? 100 : 500;
 		return;
 	}
 
@@ -1690,11 +1685,17 @@ static void PM_Weapon( void ) {
 		addTime = 100;
 		break;
 	case WP_RAILGUN:
-		addTime = 1500;
-		//qlone - fast RG reload (a la CPM)
-		//if (getCvarInt("g_fastWeaponSwitch") || getCvarInt("g_fastRail"))
-		//	addTime = 1000;
-		//qlone - fast RG reload (a la CPM)
+		if( getCvarInt( "g_fastRail" ) >= 2 )
+		{
+			addTime = 1000;
+		} else if ( getCvarInt("g_fastRail") == 1 )
+		{
+			addTime = 1250;
+		}
+		else {
+			addTime = 1500;
+		}
+		
 		break;
 	case WP_BFG:
 		addTime = 200;
@@ -1722,8 +1723,8 @@ static void PM_Weapon( void ) {
 	else
 	if( bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN ) {
 		addTime /= 1.3;
-  }
-  else
+	}
+	else
 #endif
 	if ( pm->ps->powerups[PW_HASTE] ) {
 		addTime /= 1.3;

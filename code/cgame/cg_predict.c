@@ -616,6 +616,7 @@ static void CG_CheckTimers( void ) {
 
 	// no armor/health/powerups prediction for dead bodies
 	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 )
+		cg.thawTime = cg.time - cgs.levelStartTime + ( cgs.g_autoThawTime * 1000 );
 		return;
 
 	// periodic tasks

@@ -142,7 +142,7 @@ static void Main_MenuDraw( void ) {
 	vec3_t			angles;
 	float			adjust;
 	float			x, y, w, h;
-	vec4_t			color = {0.5, 0, 0, 1};
+	vec4_t			color = {0.95, 0.61, 0.07, 1};
 
 	// setup the refdef
 
@@ -203,9 +203,9 @@ static void Main_MenuDraw( void ) {
 
 	if (uis.demoversion) {
 		UI_DrawProportionalString( 320, 372, "DEMO      FOR MATURE AUDIENCES      DEMO", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 400, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 400, "KFTAG v11.0 by Kr3m. Visit us at www.dayentech.net and www.kr3m.one", UI_CENTER|UI_SMALLFONT, color );
 	} else {
-		UI_DrawString( 320, 450, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 450, "KFTAG by Kr3m. Visit us at www.dayentech.net and www.kr3m.one", UI_CENTER|UI_SMALLFONT, color );
 	}
 }
 

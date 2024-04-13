@@ -881,22 +881,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	/*
-	============
-	SPAWN PROTECTION
-	============
-	*/
-
-	/* if ( targ && targ->client && targ->client->ps.eFlags & EF_SPAWNPROTECTION ) {
-		return;
-	}
-
-	if ( attacker && attacker->client && attacker->client->ps.eFlags & EF_SPAWNPROTECTION ) {
-		return;
-	} */
-
-	//end spawn protection
-
 	// the intermission has allready been qualified for, so don't
 	// allow any extra scoring
 	if ( level.intermissionQueued ) {
@@ -1057,15 +1041,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 	take = damage;
 
-	//qlone - self damages
 	if ( targ == attacker && g_noSelfDamage.integer )
 		asave = 0;
 	else {
-	//qlone - self damages
 		// save some from armor
 		asave = CheckArmor( targ, take, dflags );
 		take -= asave;
-	} //qlone - self damages
+	}
 
 	if ( g_debugDamage.integer ) {
 		G_Printf( "%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number,
@@ -1132,10 +1114,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		targ->client->lasthurt_mod = mod;
 	}
 
-	//qlone - self damages
 	if ( targ == attacker && g_noSelfDamage.integer )
 		return;
-	//qlone - self damages
 
 	// do the damage
 	if (take) {

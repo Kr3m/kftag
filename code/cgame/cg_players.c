@@ -675,7 +675,7 @@ static void CG_ColorFromChar( char v, vec3_t color ) {
 
 	val = v - '0';
 
-	if ( val < 1 || val > 7 ) {
+	if ( val < 1 || val > 9 ) {
 		VectorSet( color, 1.0f, 1.0f, 1.0f );
 	} else {
 		VectorClear( color );

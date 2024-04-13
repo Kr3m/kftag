@@ -918,6 +918,38 @@ static float CG_DrawTimer( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
+/*
+=================
+CG_DrawThawTimer
+=================
+*/
+static float CG_DrawThawTimer( float y ) {
+	const char	*s;
+	int			mins, seconds;
+	int			msec;
+	int			counter;
+	playerState_t	*ps;
+
+	if ( !Q_Isfreeze( cg.clientNum ) ) {
+		return;
+	}
+
+	msec = cg.time - cgs.levelStartTime;
+
+	if ( cg.thawTime > msec ) {
+		counter = cg.thawTime - msec;
+	}
+
+	seconds = counter / 1000;
+	mins = seconds / 60;
+	seconds -= mins * 60;
+
+	s = va( "THAW %i", seconds );
+	CG_DrawString( cgs.screenXmax - 4, y + 2, s, colorCyan, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_RIGHT | DS_PROPORTIONAL );
+
+	return y + BIGCHAR_HEIGHT + 4;
+}
+
 
 /*
 =================
@@ -1124,6 +1156,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if ( cg_drawAttacker.integer ) {
 		y = CG_DrawAttacker( y );
 	}
+	y = CG_DrawThawTimer( y );
 }
 
 
@@ -2006,6 +2039,35 @@ CROSSHAIR
 ================================================================================
 */
 
+/*
+=================
+CG_SetCrosshairColor
+=================
+*/
+static void CG_SetCrosshairColor( void ) {
+	static int		colorNum;
+	static float	*colors[] = {
+		colorBlack,
+		colorRed,
+		colorGreen,
+		colorYellow,
+		colorBlue,	
+		colorCyan,
+		colorMagenta,
+		colorWhite,
+		colorOrange,
+		colorPink
+	};
+
+	colorNum = cg_crosshairColor.integer;
+	if ( colorNum > 9 || colorNum < 0 || !colorNum ) { // if it's larger than 9 or less than 0, set it to white
+		colorNum = 7;
+	}
+	colorNum = ( colorNum ) % ARRAY_LEN( colors );
+
+	trap_R_SetColor( colors[colorNum] );
+}
+
 
 /*
 =================
@@ -2037,13 +2099,8 @@ static void CG_DrawCrosshair( void ) {
 
 		CG_ColorForHealth( hcolor );
 		trap_R_SetColor( hcolor );
-	}
-	else if ( cgs.crosshairColor[3] > 0.0f )
-	{
-		trap_R_SetColor( cgs.crosshairColor );
-	}	 
-	else {
-		trap_R_SetColor( NULL );
+	} else {
+		CG_SetCrosshairColor();
 	}
 
 	w = h = cg_crosshairSize.value;

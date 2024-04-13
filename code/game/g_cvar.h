@@ -105,8 +105,8 @@ G_CVAR( g_removeweapon, "removeweapon", "0", 0, 0, qfalse, qfalse )
 G_CVAR( g_wpflags, "wpflags", "0", 0, 0, qfalse, qfalse )
 
 G_CVAR( g_doReady, "g_doReady", "0", 0, 0, qfalse, qfalse )
-G_CVAR( g_fastRail, "g_fastRail", "0", CVAR_ARCHIVE, 0, qtrue, qtrue )
-G_CVAR( g_fastWeaponSwitch, "g_fastWeaponSwitch", "0", CVAR_ARCHIVE, 0, qtrue, qtrue )
+G_CVAR( g_fastRail, "g_fastRail", "0", 0, 0, qtrue, qtrue )
+G_CVAR( g_fastWeaponSwitch, "g_fastWeaponSwitch", "0", 0, 0, qtrue, qtrue )
 G_CVAR( g_specLock, "g_specLock", "0", CVAR_ARCHIVE, 0, qtrue, qtrue )
 
 G_CVAR( g_startAmmoMG, "g_startAmmoMG", "50", 0, 0, qfalse, qfalse )
@@ -126,8 +126,9 @@ G_CVAR( g_startAmmoCG, "g_startAmmoCG", "100", 0, 0, qfalse, qfalse )
 
 G_CVAR( g_freezeTag, "freezeTag", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_spawnProtection, "g_spawnProtection", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
-G_CVAR( g_autoThawTime, "g_autoThawTime", "60", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_autoThawTime, "g_autoThawTime", "60", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse, qfalse )
 G_CVAR( g_thawTime, "g_thawTime", "3", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_thawRadius, "g_thawRadius", "100", CVAR_ARCHIVE, 0, qfalse, qfalse )
 
 G_CVAR( g_grapple, "g_grapple", "0", 0, 0, qtrue, qfalse )
 G_CVAR( g_grappleDelayTime, "g_grappleDelayTime", "400", CVAR_SERVERINFO, 0, qtrue, qfalse )
