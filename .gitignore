@@ -4,6 +4,7 @@ build/linux-qvm/vm/
 build/win32-msvc/.vs/
 build/win32-msvc/kftag.bat
 build/win32-msvc/x64/
+build/win32-qvm/*.pk3
 build/win32-qvm/vm/
 code/.vscode/
 workspace

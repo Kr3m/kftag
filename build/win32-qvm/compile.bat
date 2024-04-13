@@ -9,7 +9,7 @@ set gamedir=..\..\..\..\code\game
 set uidir=..\..\..\..\code\q3_ui
 
 set tooldir=%~dp0tools\
-set pk3=%~dp0pak8a.pk3
+set pk3=%~dp0zz-patch09.pk3
 
 set cc1=%tooldir%q3lcc -DQ3_VM -DCGAME  -S -Wf-g -I%cgamedir% -I%gamedir% %1
 set cc2=%tooldir%q3lcc -DQ3_VM -DQAGAME -S -Wf-g -I%gamedir% %1
@@ -44,6 +44,8 @@ cd vm\cgame
 %cc1% %cgamedir%\cg_ents.c
 @if errorlevel 1 goto quit
 %cc1% %cgamedir%\cg_event.c
+@if errorlevel 1 goto quit
+%cc1% %cgamedir%\cg_freeze.c
 @if errorlevel 1 goto quit
 %cc1% %cgamedir%\cg_info.c
 @if errorlevel 1 goto quit
@@ -109,6 +111,8 @@ cd vm\game
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\ai_dmq3.c
 @if errorlevel 1 goto quit
+%cc2% %gamedir%\ai_freeze.c
+@if errorlevel 1 goto quit
 %cc2% %gamedir%\ai_main.c
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\ai_team.c
@@ -135,6 +139,8 @@ cd vm\game
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\g_combat.c
 @if errorlevel 1 goto quit
+%cc2% %gamedir%\g_freeze.c
+@if errorlevel 1 goto quit
 %cc2% %gamedir%\g_items.c
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\g_mem.c
@@ -144,6 +150,8 @@ cd vm\game
 %cc2% %gamedir%\g_missile.c
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\g_mover.c
+@if errorlevel 1 goto quit
+%cc2% %gamedir%\g_qlone.c
 @if errorlevel 1 goto quit
 %cc2% %gamedir%\g_rotation.c
 @if errorlevel 1 goto quit
