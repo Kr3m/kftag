@@ -1,0 +1,6 @@
+.idea/
+build/linux-qvm/kftag
+build/linux-qvm/vm/
+build/linux-qvm/*.pk3
+code/.vscode/
+workspace
