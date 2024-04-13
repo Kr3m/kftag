@@ -6,6 +6,7 @@ cg_drawtools
 cg_effects
 cg_ents
 cg_event
+cg_freeze
 cg_info
 cg_localents
 cg_marks
