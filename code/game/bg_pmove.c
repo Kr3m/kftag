@@ -8,10 +8,13 @@
 #include "bg_local.h"
 
 //added by Kr3m
-int getCvarInt(const char * name) {
-#ifdef GAME
-	return atoi(trap_GetServerinfo(CS_SERVERINFO, name));
-#endif
+int getCvarInt(const char* name)
+{
+  char value[16];
+
+  trap_Cvar_VariableStringBuffer(name, value, sizeof(value));
+
+  return atoi(value);
 }
 
 pmove_t		*pm;
