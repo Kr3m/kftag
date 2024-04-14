@@ -105,8 +105,8 @@ G_CVAR( g_removeweapon, "removeweapon", "0", 0, 0, qfalse, qfalse )
 G_CVAR( g_wpflags, "wpflags", "0", 0, 0, qfalse, qfalse )
 
 G_CVAR( g_doReady, "g_doReady", "0", 0, 0, qfalse, qfalse )
-G_CVAR( g_fastRail, "g_fastRail", "0", 0, 0, qtrue, qtrue )
-G_CVAR( g_fastWeaponSwitch, "g_fastWeaponSwitch", "0", 0, 0, qtrue, qtrue )
+G_CVAR( g_fastRail, "g_fastRail", "0", CVAR_SERVERINFO, 0, qtrue, qtrue )
+G_CVAR( g_fastWeaponSwitch, "g_fastWeaponSwitch", "0", CVAR_SERVERINFO, 0, qtrue, qtrue )
 G_CVAR( g_specLock, "g_specLock", "0", CVAR_ARCHIVE, 0, qtrue, qtrue )
 
 G_CVAR( g_startAmmoMG, "g_startAmmoMG", "50", 0, 0, qfalse, qfalse )

@@ -7,6 +7,13 @@
 #include "bg_public.h"
 #include "bg_local.h"
 
+//added by Kr3m
+int getCvarInt(const char * name) {
+#ifdef GAME
+	return atoi(trap_GetServerinfo(CS_SERVERINFO, name));
+#endif
+}
+
 pmove_t		*pm;
 pml_t		pml;
 
