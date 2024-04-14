@@ -7,16 +7,6 @@
 #include "bg_public.h"
 #include "bg_local.h"
 
-//added by Kr3m
-int getCvarInt(const char* name)
-{
-  char value[16];
-
-  trap_Cvar_VariableStringBuffer(name, value, sizeof(value));
-
-  return atoi(value);
-}
-
 pmove_t		*pm;
 pml_t		pml;
 
@@ -1488,7 +1478,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 	PM_AddEvent( EV_CHANGE_WEAPON );
 	pm->ps->weaponstate = WEAPON_DROPPING;
 	//pm->ps->weaponTime += 200;
-	pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 0 ? 0 : 200;
+	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 0 : 200;
 	PM_StartTorsoAnim( TORSO_DROP );
 }
 
@@ -1514,7 +1504,7 @@ static void PM_FinishWeaponChange( void ) {
 	pm->ps->weaponstate = WEAPON_RAISING;
 	pm->ps->eFlags &= ~EF_FIRING;
 	//pm->ps->weaponTime += 250;
-	pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 0 ? 0 : 250;
+	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 0 : 250;
 	PM_StartTorsoAnim( TORSO_RAISE );
 }
 
@@ -1646,7 +1636,7 @@ static void PM_Weapon( void ) {
 	if ( ! pm->ps->ammo[ pm->ps->weapon ] ) {
 		PM_AddEvent( EV_NOAMMO );
 		//pm->ps->weaponTime += 500;
-		pm->ps->weaponTime += getCvarInt("g_fastWeaponSwitch") > 1 ? 100 : 500;
+		pm->ps->weaponTime += pm->fastWeaponSwitch > 1 ? 100 : 500;
 		return;
 	}
 
@@ -1682,10 +1672,10 @@ static void PM_Weapon( void ) {
 		addTime = 100;
 		break;
 	case WP_RAILGUN:
-		if( getCvarInt( "g_fastRail" ) >= 2 )
+		if( pm->fastRail >= 2 )
 		{
 			addTime = 1000;
-		} else if ( getCvarInt("g_fastRail") == 1 )
+		} else if ( pm->fastRail == 1 )
 		{
 			addTime = 1250;
 		}
