@@ -1,0 +1,35 @@
+male
+
+yes
+{
+	sound/voices/male6/re_01.wav	"Affirmative"
+	sound/voices/male6/re_02.wav	"Roger"
+}
+
+no
+{
+	sound/voices/male6/re_03.wav	"Negative"
+}
+
+praise
+{
+	sound/voices/male6/tt_01.wav	"Thanks for the thaw!"
+	sound/voices/male6/tt_02.wav	"Thank you!"
+}
+
+onfollow
+{
+	sound/voices/male6/tt_03.wav	"I'm following."
+}
+
+help
+{
+	sound/voices/male6/gs_01.wav	"I'm frozen!"
+	sound/voices/male6/gs_02.wav	"Someone unfreeze me."
+}
+
+helping
+{
+	sound/voices/male6/voc_01.wav	"I'm coming to help!"
+	sound/voices/male6/voc_02.wav	"I'm on my way!"
+}
