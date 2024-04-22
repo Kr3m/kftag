@@ -1,4 +1,4 @@
-"team_icon/thefallen_red"
+"team_icon/the fallen_red"
 {       	
 	cull none
         surfaceparm nolightmap
@@ -12,7 +12,7 @@
 	}
 
 }
-"team_icon/thefallen_blue"
+"team_icon/the fallen_blue"
 {       	
 	cull none
         surfaceparm nolightmap
@@ -135,6 +135,35 @@ team_icon/stroggs_blue
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
                   
+	}
+
+}
+team_icon/_blue
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map textures/ctf2/blueteam01.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+
+team_icon/_red
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map textures/ctf2/redteam01.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
 	}
 
 }
