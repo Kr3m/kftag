@@ -1,3 +1,339 @@
+//crosshairs
+gfx/2d/crosshaira
+{
+	nopicmip
+	{
+		map gfx/2d/crosshaira.tga
+		blendFunc BLEND
+		rgbGen exactVertex
+	}
+}
+gfx/2d/crosshairb
+{
+	nopicmip
+	{
+		map gfx/2d/crosshairb.tga
+		blendFunc BLEND
+		rgbGen exactVertex
+	}
+}
+gfx/2d/crosshairc
+{
+	nopicmip
+	{
+		map gfx/2d/crosshairc.tga
+		blendFunc BLEND
+		rgbGen exactVertex
+	}
+}
+gfx/2d/crosshaird
+{
+	nopicmip
+	{
+		map gfx/2d/crosshaird.tga
+		blendFunc BLEND
+		rgbGen exactVertex
+	}
+}
+gfx/2d/crosshaire
+{
+	nopicmip
+	{
+		map gfx/2d/crosshaire.tga
+		blendFunc BLEND
+		rgbGen exactVertex
+	}
+}
+gfx/2d/crosshairf
+{
+	nopicmip
+	{
+		map gfx/2d/crosshairf.tga
+		blendFunc BLEND
+		rgbGen exactVertex
+	}
+}
+gfx/2d/crosshairg
+{
+	nopicmip
+	{
+		map gfx/2d/crosshairg.tga
+		blendFunc BLEND
+		rgbGen exactVertex
+	}
+}
+gfx/2d/crosshairh
+{
+	nopicmip
+	{
+		map gfx/2d/crosshairh.tga
+		blendFunc BLEND
+		rgbGen exactVertex
+	}
+}
+gfx/2d/crosshairi
+{
+	nopicmip
+	{
+		map gfx/2d/crosshairi.tga
+		blendFunc BLEND
+		rgbGen exactVertex
+	}
+}
+gfx/2d/crosshairj
+{
+	nopicmip
+	{
+		map gfx/2d/crosshairj.tga
+		blendFunc BLEND
+		rgbGen exactVertex
+	}
+}
+//flags
+models/flag3/b_flag3
+{
+	cull none
+	nopicmip
+	
+	{
+		map models/flag3/b_flag3_tint.tga
+		blendfunc add
+		rgbgen identity
+	}
+	{
+		AnimMap 15 models/flag3/flag3_static_1.tga models/flag3/flag3_static_2.tga models/flag3/flag3_static_3.tga models/flag3/flag3_static_4.tga
+		blendfunc add
+		rgbGen wave sin 0.5 0.25 0 3
+	}
+	{
+		map models/flag3/flag3.tga
+		blendfunc blend
+		rgbGen wave triangle 0.95 0.05 1 15
+	}
+}
+
+models/flag3/d_flag3
+{
+	cull none
+	nopicmip
+	
+	{
+		map models/flag3/d_flag3_tint.tga
+		blendfunc add
+		rgbgen entity
+	}
+	{
+		AnimMap 15 models/flag3/flag3_static_1.tga models/flag3/flag3_static_2.tga models/flag3/flag3_static_3.tga models/flag3/flag3_static_4.tga
+		blendfunc add
+		rgbGen wave sin 0.5 0.25 0 3
+	}
+	{
+		map models/flag3/flag3.tga
+		blendfunc blend
+		rgbGen wave triangle 0.95 0.05 1 15
+	}
+}
+
+models/flag3/f_flag3
+{
+	cull none
+	nopicmip
+	
+	{
+		map models/flag3/f_flag3_tint.tga
+		blendfunc add
+		rgbgen identity
+	}
+	{
+		AnimMap 15 models/flag3/flag3_static_1.tga models/flag3/flag3_static_2.tga models/flag3/flag3_static_3.tga models/flag3/flag3_static_4.tga
+		blendfunc add
+		rgbGen wave sin 0.5 0.25 0 3
+	}
+	{
+		map models/flag3/f_flag3.tga
+		blendfunc blend
+		rgbGen wave triangle 0.95 0.05 1 15
+	}
+}
+
+models/flag3/g_flag3
+{
+	cull none
+	nopicmip
+	
+	{
+		map models/flag3/g_flag3_tint.tga
+		blendfunc add
+		rgbgen identity
+	}
+	{
+		AnimMap 15 models/flag3/flag3_static_1.tga models/flag3/flag3_static_2.tga models/flag3/flag3_static_3.tga models/flag3/flag3_static_4.tga
+		blendfunc add
+		rgbGen wave sin 0.5 0.25 0 3
+	}
+	{
+		map models/flag3/flag3.tga
+		blendfunc blend
+		rgbGen wave triangle 0.95 0.05 1 15
+	}
+}
+
+models/flag3/n_flag3
+{
+	cull none
+	nopicmip
+	
+	{
+		map models/flag3/n_flag3_tint.tga
+		blendfunc add
+		rgbgen identity
+	}
+	{
+		AnimMap 15 models/flag3/flag3_static_1.tga models/flag3/flag3_static_2.tga models/flag3/flag3_static_3.tga models/flag3/flag3_static_4.tga
+		blendfunc add
+		rgbGen wave sin 0.5 0.25 0 3
+	}
+	{
+		map models/flag3/flag3.tga
+		blendfunc blend
+		rgbGen wave triangle 0.95 0.05 1 15
+	}
+}
+
+models/flag3/r_flag3
+{
+	cull none
+	nopicmip
+	
+	{
+		map models/flag3/r_flag3_tint.tga
+		blendfunc add
+		rgbgen identity
+	}
+	{
+		AnimMap 15 models/flag3/flag3_static_1.tga models/flag3/flag3_static_2.tga models/flag3/flag3_static_3.tga models/flag3/flag3_static_4.tga
+		blendfunc add
+		rgbGen wave sin 0.5 0.25 0 3
+	}
+	{
+		map models/flag3/flag3.tga
+		blendfunc blend
+		rgbGen wave triangle 0.95 0.05 1 15
+	}
+}
+//freeze
+freezeShader
+{
+	nopicmip
+	deformVertexes wave 100 sin 2 0 0 0
+	{
+		map gfx/misc/freeze.jpg
+		blendfunc add
+		rgbGen const ( 0.95 1 1 )
+		tcMod scroll 0.1 0.1
+		tcGen environment
+	}
+}
+
+freezeMarkShader
+{
+	nopicmip
+	polygonoffset
+	{
+		clampmap gfx/damage/freeze_stain.tga
+		blendfunc gl_src_alpha gl_one_minus_src_alpha
+		rgbgen identitylighting
+		alphagen vertex
+	}
+}
+
+spawnShader
+{
+        deformVertexes wave 100 sin 3 0 0 0
+        {
+                map menu/art/fx_grn.tga
+                blendfunc GL_ONE GL_ONE
+                tcGen environment
+                tcmod rotate 30
+                //tcMod turb 0 0.2 0 .2
+                tcmod scroll 1 .1
+        }
+}
+
+iceTrail
+{
+        
+        nopicmip                        // make sure a border remains
+        entityMergable          // allow all the sprites to be merged together
+        {
+                clampmap gfx/damage/blood_spurt.tga
+                blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+                rgbGen          vertex
+                alphaGen        vertex
+        }
+}
+//fullbright
+fullBright
+{
+	// use our supplied color...
+	{
+		map $whiteimage
+		blendFunc GL_ONE GL_ZERO
+		rgbGen entity
+	}
+
+	// ...and divide it by the current brightness
+	{
+		map $whiteimage
+		blendFunc GL_DST_COLOR GL_ZERO
+		rgbGen identityLighting
+	}
+}
+
+fullBrightVertexLight
+{
+	{
+		map $whiteimage
+		blendFunc GL_ONE GL_ZERO
+		rgbGen entity
+	}
+}
+//grapple
+models/weapons2/grapple2/ball
+{
+	//novlcollapse
+	nopicmip
+	{
+		map models/weapons2/grapple2/ball.jpg
+		blendFunc GL_ONE GL_ZERO
+		tcGen environment
+		rgbGen lightingDiffuse
+	}
+}
+
+models/weapons2/grapple2/spikes
+{
+	//novlcollapse
+	nopicmip
+	{
+		map models/weapons2/grapple2/spikes.jpg
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		tcGen environment
+		rgbGen lightingDiffuse
+	}
+}
+
+grappleRope
+{
+	//novlcollapse
+	nopicmip
+	cull none
+	{
+		map models/weapons2/grapple2/grapplerope.tga
+		blendfunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+	}
+}
+//players
 
 // CPM skins
 // KHB  9-Mar-01	single shader for both v and lm, all standard models now supported, and a WICKED trick...  :)
@@ -808,4 +1144,316 @@ models/players/xaero/pmh
 		alphaFunc LT128
 		rgbGen identity
 	}
+}
+//teams
+"team_icon/the fallen_red"
+{       	
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/thefallen_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+                  
+	}
+
+}
+"team_icon/the fallen_blue"
+{       	
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/thefallen_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+                  
+	}
+
+}
+team_icon/thefallen_red
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/thefallen_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/thefallen_blue
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/thefallen_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/intruders_red
+{       	
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/intruders_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+                  
+	}
+
+}
+team_icon/intruders_blue
+{       	
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/intruders_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+                  
+	}
+
+}
+team_icon/crusaders_red
+{       	
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/crusaders_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+                  
+	}
+
+}
+team_icon/crusaders_blue
+{       	
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/crusaders_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+                  
+	}
+
+}
+team_icon/pagans_red
+{       	
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/pagans_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+                  
+	}
+
+}
+team_icon/pagans_blue
+{       	
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/pagans_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+                  
+	}
+
+}
+team_icon/stroggs_red
+{       	
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/stroggs_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+                  
+	}
+
+}
+team_icon/stroggs_blue
+{       	
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/stroggs_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+                  
+	}
+
+}
+
+//shortcuts by Kr3m
+
+team_icon/t_red
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/thefallen_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/t_blue
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/thefallen_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/i_red
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/intruders_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/i_blue
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/intruders_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/c_red
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/crusaders_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/c_blue
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/crusaders_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/p_red
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/pagans_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/p_blue
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/pagans_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/s_red
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/stroggs_red.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
+}
+team_icon/s_blue
+{
+	cull none
+        surfaceparm nolightmap
+        surfaceparm trans
+        surfaceparm nomarks
+	{
+		map team_icon/stroggs_blue.tga
+		blendFunc Add
+		rgbgen wave triangle 0.2 0.5 0 0.2
+
+	}
+
 }
