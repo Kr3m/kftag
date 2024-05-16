@@ -187,7 +187,7 @@ qboolean G_RemovePowerup ( gitem_t *item ) {
 void G_SetInfiniteAmmo ( gclient_t *client ) {
 	int     i;
 	for ( i = 0; i < MAX_WEAPONS; i++ ) {
-		client->ps.ammo[ i ] = 9999;
+		client->ps.ammo[ i ] = INFINITE;
 	}
 }
 
