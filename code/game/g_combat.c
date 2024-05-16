@@ -670,6 +670,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if ( g_freezeTag.integer ) {
 		player_freeze( self, attacker, meansOfDeath );
 		if ( self->freezeState ) {
+            self->freezeTime = level.time;
 			G_AddEvent( self, EV_DEATH1 + ( rand() % 3 ), killer );
 			trap_LinkEntity( self );
 			return;
