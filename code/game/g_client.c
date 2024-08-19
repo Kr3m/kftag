@@ -784,6 +784,8 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
  	// check to see if they are on the banned IP list
 	value = Info_ValueForKey( userinfo, "ip" );
 
+    G_LogPrintf( "Client Connect Using IP Address: %s\n", value );
+
 	if ( !strcmp( value, "localhost" ) && !isBot )
 		isAdmin = qtrue;
 	else

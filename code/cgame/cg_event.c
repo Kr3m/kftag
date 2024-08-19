@@ -253,7 +253,8 @@ static void CG_Obituary( entityState_t *ent ) {
 	if ( attacker != ENTITYNUM_WORLD ) {
 		switch (mod) {
 		case MOD_GRAPPLE:
-			message = "was caught by";
+//			message = "was caught by";
+			message = "was touched by";
 			break;
 		case MOD_GAUNTLET:
 			message = "was pummeled by";
