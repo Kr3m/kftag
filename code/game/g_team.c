@@ -1049,6 +1049,31 @@ __rescan:
 	return spots[ selection ];
 }
 
+/*
+===========
+SelectFreezeSpawnPoint
+============
+*/
+gentity_t *SelectFreezeSpawnPoint ( gentity_t *ent, team_t team, int teamstate, vec3_t origin, vec3_t angles ) {
+    gentity_t	*spot;
+
+    spot = SelectRandomTeamSpawnPoint ( ent, teamstate, team );
+
+    if (!spot) {
+        spot = SelectFarFromEnemyTeamSpawnpoint( team, origin, angles );
+    }
+
+    if (!spot) {
+        return SelectSpawnPoint( NULL, vec3_origin, origin, angles );
+    }
+
+    VectorCopy (spot->s.origin, origin);
+    origin[2] += 9;
+    VectorCopy (spot->s.angles, angles);
+
+    return spot;
+}
+
 
 /*
 ===========

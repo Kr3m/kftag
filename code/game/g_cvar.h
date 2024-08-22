@@ -127,6 +127,7 @@ G_CVAR( g_spawnProtection, "g_spawnProtection", "0", CVAR_ARCHIVE, 0, qfalse, qf
 G_CVAR( g_autoThawTime, "g_autoThawTime", "60", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse, qfalse )
 G_CVAR( g_thawTime, "g_thawTime", "3", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_thawRadius, "g_thawRadius", "100", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_freezeSpawns, "g_freezeSpawns", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 
 G_CVAR( g_grapple, "g_grapple", "0", 0, 0, qtrue, qfalse )
 G_CVAR( g_grappleDelayTime, "g_grappleDelayTime", "400", CVAR_SERVERINFO, 0, qtrue, qfalse )

@@ -44,6 +44,109 @@ void SP_info_player_intermission( gentity_t *ent ) {
 
 }
 
+/*
+=======================================================================
+
+  SelectFarFromEnemyTeamSpawnpointArena
+
+=======================================================================
+*/
+
+#define	MAX_SPAWN_POINTS 128
+
+typedef struct {
+    gentity_t *spot;
+    float distance;
+} spawnPointDistance_t;
+
+int QDECL SortSpawnPoints( const void *a, const void *b ) {
+    const spawnPointDistance_t *sa, *sb;
+
+    sa = (const spawnPointDistance_t *)a;
+    sb = (const spawnPointDistance_t *)b;
+
+    if (sa->distance > sb->distance) {
+        return 1;
+    } else if (sa->distance < sb->distance) {
+        return -1;
+    }
+
+    return 0;
+}
+
+// spawn far from all enemies, or close to your teammates if there are no enemies, for elimination
+gentity_t *SelectFarFromEnemyTeamSpawnpointArena ( int arenaNum, team_t myteam, vec3_t origin, vec3_t angles) {
+    gentity_t	*spot;
+    int			count;
+    int			selection;
+    spawnPointDistance_t spots[MAX_SPAWN_POINTS];
+    int i,j;
+    vec3_t distV;
+    float dist;
+    gentity_t *ent;
+    int areaDivisor;
+    int n;
+
+    for (i = 0; i < 2; ++i) {
+        count = 0;
+        spot = NULL;
+
+        while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL
+               && count < MAX_SPAWN_POINTS) {
+            if ( i == 0 && SpotWouldTelefrag( spot ) ) {
+                continue;
+            }
+            spots[ count ].spot = spot;
+            spots[ count ].distance = -1;
+            for( j=0;j < level.numPlayingClients; j++ ) {
+                ent = &g_entities[level.sortedClients[j]];
+
+                if (!G_InUse(ent)
+                    || ent->client->sess.sessionTeam == TEAM_SPECTATOR
+                    || ent->client->ps.pm_type == PM_DEAD
+                    || !ent->r.linked
+                    || ent->client->sess.sessionTeam == myteam
+                        ) {
+                    continue;
+                }
+
+                VectorSubtract(spot->s.origin, ent->client->ps.origin, distV);
+                dist = VectorLengthSquared(distV);
+                if (spots[count].distance > dist || spots[count].distance < 0) {
+                    spots[count].distance = dist;
+                }
+            }
+            count++;
+        }
+
+        if (count == 0) {
+            continue;
+        }
+
+        qsort(spots, count, sizeof(spots[0]), SortSpawnPoints);
+
+        // divide map into arenas that have at least 3 spawns if possible
+        areaDivisor = count/3;
+        if (areaDivisor < 2 && count > 1) {
+            // at least make 2 areas
+            areaDivisor = 2;
+        }
+        if (areaDivisor > 0) {
+            n = count/areaDivisor;
+        } else {
+            n = count;
+        }
+        selection = count-1 - (rand() % n);
+        return spots[ selection ].spot;
+    }
+
+    return NULL;
+}
+
+gentity_t *SelectFarFromEnemyTeamSpawnpoint ( team_t myteam, vec3_t origin, vec3_t angles) {
+    return SelectFarFromEnemyTeamSpawnpointArena(-1, myteam, origin, angles);
+}
+
 
 
 /*
@@ -90,7 +193,7 @@ SelectRandomFurthestSpawnPoint
 Chooses a player start, deathmatch start, etc
 ============
 */
-#define	MAX_SPAWN_POINTS 64
+//#define	MAX_SPAWN_POINTS 64
 static gentity_t *SelectRandomFurthestSpawnPoint( const gentity_t *ent, vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
 	gentity_t	*spot;
 	vec3_t		delta;
@@ -1000,7 +1103,9 @@ void ClientSpawn(gentity_t *ent) {
 	} else if (g_gametype.integer >= GT_CTF ) {
 		// all base oriented team games use the CTF spawn points
 		spawnPoint = SelectCTFSpawnPoint( ent, client->sess.sessionTeam, client->pers.teamState.state, spawn_origin, spawn_angles );
-	} else {
+	} else if (g_freezeSpawns.integer == 1) {
+        spawnPoint = SelectFreezeSpawnPoint( ent, client->sess.sessionTeam, client->pers.teamState.state, spawn_origin, spawn_angles);
+    } else {
 		do {
 			// the first spawn should be at a good looking spot
 			if ( !client->pers.initialSpawn && client->pers.localClient ) {
