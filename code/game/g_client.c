@@ -743,6 +743,7 @@ restarts.
 */
 const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	char		*value;
+    char        *guid;
 //	char		*areabits;
 	gclient_t	*client;
 	char		userinfo[MAX_INFO_STRING];
@@ -784,7 +785,10 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
  	// check to see if they are on the banned IP list
 	value = Info_ValueForKey( userinfo, "ip" );
 
-    G_LogPrintf( "Client Connect Using IP Address: %s\n", value );
+    //check user GUID
+    guid = Info_ValueForKey( userinfo, "cl_guid" );
+
+    G_LogPrintf( "Client Connect Using IP Address: %s (%s)\n", value, guid );
 
 	if ( !strcmp( value, "localhost" ) && !isBot )
 		isAdmin = qtrue;
