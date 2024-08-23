@@ -924,7 +924,7 @@ static float CG_DrawTimer( float y ) {
 =================
 CG_DrawThawTimer
 =================
-*/
+*//*
 static float CG_DrawThawTimer( float y ) {
 	const char	*s;
 	int			mins, seconds;
@@ -950,6 +950,48 @@ static float CG_DrawThawTimer( float y ) {
 	CG_DrawString( cgs.screenXmax - 4, y + 2, s, colorCyan, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_RIGHT | DS_PROPORTIONAL );
 
 	return y + BIGCHAR_HEIGHT + 4;
+}*/
+
+/*
+=================
+CG_DrawThawTimer
+=================
+*/
+static float CG_DrawThawTimer(float y) {
+    const char *s;
+    int mins, seconds;
+    int msec;
+    int counter = 0;  // Initialize counter to zero
+    playerState_t *ps;
+
+    // Check if the player is frozen
+    if (!Q_Isfreeze(cg.clientNum)) {
+        return y;  // Return the input y to avoid undefined behavior
+    }
+
+    msec = cg.time - cgs.levelStartTime;
+
+    // Only calculate counter if thaw time is greater than current time
+    if (cg.thawTime > msec) {
+        counter = cg.thawTime - msec;
+    }
+
+    // Ensure counter doesn't go negative
+    if (counter < 0) {
+        counter = 0;
+    }
+
+    seconds = counter / 1000;
+    mins = seconds / 60;
+    seconds -= mins * 60;
+
+    // Format the timer string
+    s = va("THAW %02d", seconds);
+
+    // Draw the thaw timer
+    CG_DrawString(cgs.screenXmax - 4, y + 2, s, colorCyan, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_RIGHT | DS_PROPORTIONAL);
+
+    return y + BIGCHAR_HEIGHT + 4;  // Return the updated y value
 }
 
 

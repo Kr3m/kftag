@@ -530,6 +530,7 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm );
 void G_SetOrigin( gentity_t *ent, vec3_t origin );
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char *BuildShaderStateConfig( void );
+qboolean G_InUse(gentity_t *ent);
 
 //
 // g_combat.c
@@ -660,7 +661,7 @@ void QDECL G_Error( const char *fmt, ... );
 void G_BroadcastServerCommand( int ignoreClient, const char *command );
 
 //kftag
-qboolean G_AreTeamStringValid();
+qboolean G_IsTeamStringValid();
 
 //
 // g_client.c
