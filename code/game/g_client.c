@@ -47,7 +47,7 @@ void SP_info_player_intermission( gentity_t *ent ) {
 /*
 =======================================================================
 
-  SelectFarFromEnemyTeamSpawnpointArena
+  SelectFarFromEnemyTeamInit
 
 =======================================================================
 */
@@ -75,7 +75,7 @@ int QDECL SortSpawnPoints( const void *a, const void *b ) {
 }
 
 // spawn far from all enemies, or close to your teammates if there are no enemies, for elimination
-gentity_t *SelectFarFromEnemyTeamSpawnpointArena ( int arenaNum, team_t myteam, vec3_t origin, vec3_t angles) {
+gentity_t *SelectFarFromEnemyTeamInit ( int arenaNum, team_t myteam, vec3_t origin, vec3_t angles) {
     gentity_t	*spot;
     int			count;
     int			selection;
@@ -143,8 +143,8 @@ gentity_t *SelectFarFromEnemyTeamSpawnpointArena ( int arenaNum, team_t myteam, 
     return NULL;
 }
 
-gentity_t *SelectFarFromEnemyTeamSpawnpoint ( team_t myteam, vec3_t origin, vec3_t angles) {
-    return SelectFarFromEnemyTeamSpawnpointArena(-1, myteam, origin, angles);
+gentity_t *SelectFarFromEnemyTeam ( team_t myteam, vec3_t origin, vec3_t angles) {
+    return SelectFarFromEnemyTeamInit(-1, myteam, origin, angles);
 }
 
 
