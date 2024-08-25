@@ -1142,7 +1142,8 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 			}
 			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
 				if ( Q_Isfreeze( ci - cgs.clientinfo ) ) {
-					CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, cgs.media.noammoShader);
+					//CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, cgs.media.noammoShader);
+                    CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, cgs.media.thawShader);
 					break;
 				}
 
