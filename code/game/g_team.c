@@ -1057,10 +1057,10 @@ SelectFreezeSpawnPoint
 gentity_t *SelectFreezeSpawnPoint ( gentity_t *ent, team_t team, int teamstate, vec3_t origin, vec3_t angles ) {
     gentity_t	*spot;
 
-    spot = SelectRandomTeamSpawnPoint ( ent, teamstate, team );
+    spot = SelectFarFromEnemyTeam( team, origin, angles );
 
     if (!spot) {
-        spot = SelectFarFromEnemyTeam( team, origin, angles );
+        spot = SelectRandomTeamSpawnPoint ( ent, teamstate, team );
     }
 
     if (!spot) {

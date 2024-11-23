@@ -438,7 +438,13 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 			G_FreeEntity( ent );
 			return;
 		}
-	}
+        if (g_gametype.integer != GT_CTF) {
+            if (!Q_stricmp(ent->classname, "team_CTF_bluespawn") ||
+                !Q_stricmp(ent->classname, "team_CTF_redspawn")) {
+                ent->classname = "info_player_deathmatch";
+            }
+        }
+    }
 
 #ifdef MISSIONPACK
 	G_SpawnInt( "notta", "0", &i );
