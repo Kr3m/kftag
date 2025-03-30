@@ -1091,6 +1091,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	index = ent - g_entities;
 	client = ent->client;
+	ent->client->freezeTime = 0;
 
 	trap_UnlinkEntity( ent );
 

@@ -962,7 +962,6 @@ static float CG_DrawThawTimer(float y) {
     int mins, seconds;
     int msec;
     int counter = 0;  // Initialize counter to zero
-    playerState_t *ps;
 
     // Check if the player is frozen
     if (!Q_Isfreeze(cg.clientNum)) {
