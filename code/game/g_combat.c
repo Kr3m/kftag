@@ -285,6 +285,10 @@ void GibEntity( gentity_t *self, int killer ) {
 #endif
 
 	G_AddEvent( self, EV_GIB_PLAYER, killer );
+	//self->client->freezeTime = level.time;
+	// Set a config string for this player's freeze time
+	//Com_Printf("Setting freeze time for client %d to %d\n", self->client->ps.clientNum, self->client->freezeTime);
+	//trap_SetConfigstring(CS_FREEZE_TIME + self->client->ps.clientNum, va("%d", self->client->freezeTime));
 	self->takedamage = qfalse;
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
@@ -469,8 +473,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int			killer;
 	int			i;
 	char		*killerName, *obit;
-	char		*tmpStr;
-	int			tmpInt;
 
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;
@@ -479,12 +481,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if ( level.intermissiontime ) {
 		return;
 	}
-
-	self->client->freezeTime = level.time;
-
-	// Set a config string for this player's freeze time
-	Com_Printf("Setting freeze time for client %d to %d\n", self->client->ps.clientNum, self->client->freezeTime);
-    trap_SetConfigstring(CS_FREEZE_TIME + self->client->ps.clientNum, va("%d", self->client->freezeTime));
 
 	//unlag the client
 	G_UnTimeShiftClient( self );
