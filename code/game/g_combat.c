@@ -471,12 +471,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	char		*killerName, *obit;
 
 	//self->client->freezeTime = level.time;
-	self->client->ps.stats[STAT_FREEZETIME] = level.time;
-	Com_Printf("setting freeze time to: ", self->client->ps.stats[STAT_FREEZETIME]);
-	// Set a config string for this player's freeze time
-	//Com_Printf("Setting freeze time for client %d to %d\n", self->s.clientNum, self->client->freezeTime);
-	//trap_SetConfigstring(CS_FREEZE_TIME + self->s.clientNum, va("%d", self->client->freezeTime));
+	self->s.time = level.time;
 
+	Com_Printf("freezeTime: %d\n", self->s.time);
+	
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;
 	}
