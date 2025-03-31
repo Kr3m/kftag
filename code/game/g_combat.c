@@ -470,10 +470,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int			i;
 	char		*killerName, *obit;
 
-	//self->client->freezeTime = level.time;
-	self->s.time = level.time;
-
-	Com_Printf("freezeTime: %d\n", self->s.time);
+	// Create a temporary event entity to carry the freezeTime value
+    gentity_t *event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
+    event->s.time = level.time; // Store the freezeTime value in the event
+    event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
+    event->r.singleClient = self->s.clientNum;
 	
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;

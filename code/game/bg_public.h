@@ -454,6 +454,7 @@ typedef enum {
 	EV_TAUNT_GETFLAG,
 	EV_TAUNT_GUARDBASE,
 	EV_TAUNT_PATROL,
+	EV_FREEZE_TIME,
 	EV_MAX
 
 } entity_event_t;
