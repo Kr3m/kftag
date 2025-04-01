@@ -1525,6 +1525,15 @@ static void G_WarmupEnd( void )
 		trap_SendServerCommand( i, "map_restart" );
 	}
 
+	for (i = 0; i < level.maxclients; i++) {
+		gentity_t *ent = &g_entities[i];
+		if (!ent->inuse || !ent->client) {
+			continue;
+		}
+	
+		ResetGrappleState(ent);
+	}
+
 	// respawn items, remove projectiles, etc.
 	ent = level.gentities + MAX_CLIENTS;
 	for ( i = MAX_CLIENTS; i < level.num_entities ; i++, ent++ ) {
@@ -1580,6 +1589,17 @@ static void G_WarmupEnd( void )
 			G_FreeEntity( ent );
 		}
 	}
+}
+
+void ResetGrappleState(gentity_t *ent) {
+    if (!ent->client) {
+        return;
+    }
+
+    // Reset grapple-related state
+    ent->client->hook = NULL;
+    ent->client->ps.pm_flags &= ~PMF_GRAPPLE_PULL;
+    ent->client->grapple_release_time = 0;
 }
 
 
