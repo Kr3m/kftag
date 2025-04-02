@@ -422,6 +422,16 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	G_InitMemory();
 
+	//set the freeze game type string
+	if (g_freezeTag.integer) {
+        char freezeGameType[MAX_CVAR_VALUE_STRING];
+		trap_SetConfigstring(CS_OSP_FREEZE_GAME_TYPE, va("%d", g_freezeTag.integer));
+		trap_GetConfigstring(CS_OSP_FREEZE_GAME_TYPE, freezeGameType, sizeof(freezeGameType));
+		G_Printf("CS_OSP_FREEZE_GAME_TYPE is set to: %s\n", freezeGameType);
+	}
+
+	//Com_Printf("FreezeTag game type: %d\n", g_freezeTag.integer);
+
 	// set some level globals
 	memset( &level, 0, sizeof( level ) );
 	level.time = levelTime;
