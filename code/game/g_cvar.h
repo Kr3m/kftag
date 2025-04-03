@@ -141,4 +141,6 @@ G_CVAR( g_rotation, "g_rotation", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_redteam, "g_redteam", "Stroggs", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO, 0, qtrue, qtrue )
 G_CVAR( g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO, 0, qtrue, qtrue )
 
+G_CVAR( g_fpsCap, "g_fpsCap", "250", CVAR_SERVERINFO, 0, qtrue, qfalse )
+
 #undef G_CVAR

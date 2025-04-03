@@ -394,6 +394,7 @@ G_InitGame
 static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	char value[ MAX_CVAR_VALUE_STRING ];
 	int	i;
+	const char *fpsCapString;
 
 	G_Printf ("------- Game Initialization -------\n");
 	G_Printf ("gamename: %s\n", GAMEVERSION);
@@ -421,6 +422,9 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_ProcessIPBans();
 
 	G_InitMemory();
+
+	// fpsCapString = va("g_fpsCap %d", g_fpsCap.integer);
+	trap_SetConfigstring(CS_SERVERINFO, va("g_fpsCap %d", g_fpsCap.integer));
 
 	//set the freeze game type string
 	if (g_freezeTag.integer) {
