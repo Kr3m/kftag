@@ -1003,9 +1003,15 @@ void ClientBegin( int clientNum ) {
 
 	client = level.clients + clientNum;
 
-	// Re-send EV_FREEZE_TIME to the client
-    if (ent->freezeState) {
-		ResetFreezeTimeEvent(ent, clientNum);
+	// Re-send EV_FREEZE_TIME if the client was frozen
+    if (ent->client->freezeTime > 0) {
+        gentity_t *event = G_TempEntity(ent->r.currentOrigin, EV_FREEZE_TIME);
+        event->s.time = ent->client->freezeTime; // Send the remaining freeze time
+        event->r.svFlags |= SVF_SINGLECLIENT; // Send only to the specific client
+        event->r.singleClient = clientNum;
+    } else {
+        // Reset EV_FREEZE_TIME if the client is not frozen
+        ResetFreezeTimeEvent(ent, clientNum);
     }
 
 	if ( ent->r.linked ) {
@@ -1367,12 +1373,6 @@ void ClientDisconnect( int clientNum ) {
 	gentity_t	*tent;
 	int			i;
 
-	// Reset EV_FREEZE_TIME (s.time) for the disconnecting client
-    gentity_t *event = G_TempEntity(ent->r.currentOrigin, EV_FREEZE_TIME);
-    event->s.time = 0; // Reset freeze time
-    event->r.svFlags |= SVF_SINGLECLIENT; // Send only to the specific client
-    event->r.singleClient = clientNum;
-
 	// cleanup if we are kicking a bot that
 	// hasn't spawned yet
 	G_RemoveQueuedBotBegin( clientNum );
@@ -1381,6 +1381,13 @@ void ClientDisconnect( int clientNum ) {
 	if (!ent->client || ent->client->pers.connected == CON_DISCONNECTED) {
 		return;
 	}
+
+	// Reset freeze state and freeze time.
+	ent->freezeState = qfalse;
+	ent->client->freezeTime = 0;
+
+	// Reset EV_FREEZE_TIME (s.time) for the disconnecting client
+	ResetFreezeTimeEvent(ent, clientNum);
 
 	// stop any following clients
 	for ( i = 0 ; i < level.maxclients ; i++ ) {

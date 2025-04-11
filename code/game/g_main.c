@@ -541,6 +541,15 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 			ParseMapRotation();
 		}
 	}
+
+	// Reset freeze state and EV_FREEZE_TIME for all clients
+    for (i = 0; i < level.maxclients; i++) {
+        gentity_t *ent = &g_entities[i];
+        if (ent->inuse && ent->client) {
+            ent->freezeState = qfalse;
+            ResetFreezeTimeEvent(ent, i);
+        }
+    }
 }
 
 

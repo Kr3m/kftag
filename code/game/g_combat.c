@@ -472,7 +472,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// Create a temporary event entity to carry the freezeTime value
     gentity_t *event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
-    event->s.time = level.time; // Store the freezeTime value in the event
+	self->client->freezeTime = level.time; // Set the freezeTime value
+    event->s.time = self->client->freezeTime; // Store the freezeTime value in the event
     event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
     event->r.singleClient = self->s.clientNum;
 	
