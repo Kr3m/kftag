@@ -369,7 +369,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			SnapVectorTowards( v, ent->s.pos.trBase );	// save net bandwidth
 		} else {
 			VectorCopy(trace->endpos, v);
-			G_AddEvent( nent, EV_MISSILE_MISS, DirToByte( trace->plane.normal ) );
+			G_AddEvent( nent, EV_GRAPPLE_HIT, DirToByte( trace->plane.normal ) );
 			ent->enemy = NULL;
 		}
 
@@ -387,6 +387,12 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->nextthink = level.time + FRAMETIME;
 
 		ent->parent->client->ps.pm_flags |= PMF_GRAPPLE_PULL;
+
+		if (ent->parent->client->ps.pm_flags & PMF_GRAPPLE_PULL) {
+			G_AddEvent( ent->parent, EV_GRAPPLE_PULL, DirToByte(trace->plane.normal));
+			nent->freeAfterEvent = qtrue;
+		}
+
 		VectorCopy( ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
 
 		trap_LinkEntity( ent );
