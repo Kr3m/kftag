@@ -1003,6 +1003,11 @@ void ClientBegin( int clientNum ) {
 
 	client = level.clients + clientNum;
 
+	// Re-send EV_FREEZE_TIME to the client
+    if (ent->freezeState) {
+		ResetFreezeTimeEvent(ent, clientNum);
+    }
+
 	if ( ent->r.linked ) {
 		trap_UnlinkEntity( ent );
 	}

@@ -785,6 +785,7 @@ void locationSpawn( gentity_t *ent, gitem_t *item );
 void Cmd_Drop_f( gentity_t *ent );
 void Cmd_Ready_f( gentity_t *ent );
 void FT_ResetFlags( void );
+void ResetFreezeTimeEvent( gentity_t *ent, int clientNum );
 //qlone - freezetag
 
 
