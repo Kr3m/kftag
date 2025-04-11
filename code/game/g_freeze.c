@@ -101,10 +101,21 @@ static void FollowClient( gentity_t *ent, gentity_t *other ) {
 }
 
 static void player_free( gentity_t *ent ) {
+	gentity_t *event;
+
 	if ( !ent || !ent->inuse ) return;
 	if ( !ent->freezeState ) return;
+
+	// Reset freeze state
 	ent->freezeState = qfalse;
 	ent->client->respawnTime = level.time + 1700;
+
+	// Reset EV_FREEZE_TIME (s.time) for the client
+	event = G_TempEntity(ent->r.currentOrigin, EV_FREEZE_TIME);
+	event->s.time = 0; // Reset freeze time
+	event->r.svFlags |= SVF_SINGLECLIENT; // Send only to the specific client
+	event->r.singleClient = ent->s.clientNum;
+
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
 		StopFollowing( ent, qtrue );
 		ent->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;

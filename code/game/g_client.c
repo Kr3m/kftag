@@ -1362,6 +1362,12 @@ void ClientDisconnect( int clientNum ) {
 	gentity_t	*tent;
 	int			i;
 
+	// Reset EV_FREEZE_TIME (s.time) for the disconnecting client
+    gentity_t *event = G_TempEntity(ent->r.currentOrigin, EV_FREEZE_TIME);
+    event->s.time = 0; // Reset freeze time
+    event->r.svFlags |= SVF_SINGLECLIENT; // Send only to the specific client
+    event->r.singleClient = clientNum;
+
 	// cleanup if we are kicking a bot that
 	// hasn't spawned yet
 	G_RemoveQueuedBotBegin( clientNum );
