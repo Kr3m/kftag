@@ -156,10 +156,10 @@ struct gentity_s {
 
 	gitem_t		*item;			// for bonus items
 
-	//qlone - freezetag
 	qboolean	freezeState;
 	qboolean	readyBegin;
-	//qlone - freezetag
+	int			freezeTime; //freeze timer
+	int			freezeInstance; //unique id for each freeze
 
 	// team for spawn spot
 	team_t		fteam;

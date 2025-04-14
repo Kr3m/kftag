@@ -1376,6 +1376,7 @@ server system housekeeping.
 void ClientDisconnect( int clientNum ) {
 	gentity_t	*ent;
 	gentity_t	*tent;
+	gentity_t	*freezeEnt;
 	int			i;
 
 	// cleanup if we are kicking a bot that
@@ -1391,7 +1392,8 @@ void ClientDisconnect( int clientNum ) {
 	ent->freezeState = qfalse;
 
 	// Reset EV_FREEZE_TIME (s.time) for the disconnecting client
-	ResetFreezeTimeEvent(ent, clientNum);
+	freezeEnt = &g_entities[clientNum];
+	ResetFreezeTimeEvent(freezeEnt, clientNum);
 
 	// stop any following clients
 	for ( i = 0 ; i < level.maxclients ; i++ ) {

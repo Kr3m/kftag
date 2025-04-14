@@ -1,0 +1,601 @@
+cgame/cg_predict.c:	if ( pps->pm_time != ps->pm_time ||
+cgame/cg_predict.c:		 pps->pm_type != ps->pm_type ||
+cgame/cg_predict.c:		 pps->pm_flags != ps->pm_flags ) {
+cgame/cg_predict.c:	VectorSubtract( pps->origin, ps->origin, delta );
+cgame/cg_predict.c:	VectorSubtract( pps->velocity, ps->velocity, delta );
+cgame/cg_predict.c:	if( pps->weaponTime != ps->weaponTime ||
+cgame/cg_predict.c:		pps->gravity != ps->gravity ||
+cgame/cg_predict.c:		pps->speed != ps->speed ||
+cgame/cg_predict.c:		pps->delta_angles[ 0 ] != ps->delta_angles[ 0 ] ||
+cgame/cg_predict.c:		pps->delta_angles[ 1 ] != ps->delta_angles[ 1 ] ||
+cgame/cg_predict.c:		pps->delta_angles[ 2 ] != ps->delta_angles[ 2 ] || 
+cgame/cg_predict.c:		pps->groundEntityNum != ps->groundEntityNum ) {
+cgame/cg_predict.c:				pps->weaponTime, pps->gravity, pps->speed, pps->groundEntityNum,
+cgame/cg_predict.c:				ps->weaponTime, ps->gravity, ps->speed, ps->groundEntityNum ); 
+cgame/cg_predict.c:	if ( pps->torsoAnim != ps->torsoAnim && (ps->torsoAnim & ~ANIM_TOGGLEBIT ) == TORSO_GESTURE ) {
+cgame/cg_predict.c:			cg.savedPmoveStates[ n ].torsoAnim = ps->torsoAnim;
+cgame/cg_predict.c:			cg.savedPmoveStates[ n ].torsoTimer = ps->torsoTimer;
+cgame/cg_predict.c:	if ( pps->legsTimer != ps->legsTimer ||	pps->legsAnim != ps->legsAnim ||
+cgame/cg_predict.c:		pps->torsoTimer != ps->torsoTimer || pps->torsoAnim != ps->torsoAnim ||
+cgame/cg_predict.c:		pps->movementDir != ps->movementDir ) {
+cgame/cg_predict.c:	VectorSubtract( pps->grapplePoint, ps->grapplePoint, delta );
+cgame/cg_predict.c:	v0 = pps->eFlags & EF_NOPREDICT;
+cgame/cg_predict.c:	v1 = ps->eFlags & EF_NOPREDICT;
+cgame/cg_predict.c:		pps->eFlags = (pps->eFlags & ~EF_NOPREDICT) | v1;
+cgame/cg_predict.c:	if ( pps->eFlags !=  ps->eFlags ) {
+cgame/cg_predict.c:			CG_Printf( "eFlags %i => %i", pps->eFlags, ps->eFlags );
+cgame/cg_predict.c:	if( pps->eventSequence != ps->eventSequence )
+cgame/cg_predict.c:		if ( pps->events[ i ] != ps->events[ i ] ) {
+cgame/cg_predict.c:				CG_Printf( "event[%i] %i => %i\n", i, pps->events[ i ], ps->events[ i ] );
+cgame/cg_predict.c:		if ( pps->eventParms[ i ] != ps->eventParms[ i ] ) {
+cgame/cg_predict.c:				CG_Printf( "eventParms[%i] %i => %i\n", i, pps->eventParms[ i ], ps->eventParms[ i ] );
+cgame/cg_predict.c:	if ( pps->externalEvent != ps->externalEvent ||
+cgame/cg_predict.c:		pps->externalEventParm != ps->externalEventParm ||
+cgame/cg_predict.c:		pps->externalEventTime != ps->externalEventTime ) {
+cgame/cg_predict.c:	if ( pps->clientNum != ps->clientNum ||
+cgame/cg_predict.c:		pps->weapon != ps->weapon ||
+cgame/cg_predict.c:		pps->weaponstate != ps->weaponstate ) {
+cgame/cg_predict.c:	if ( fabs( AngleDelta( ps->viewangles[ 0 ], pps->viewangles[ 0 ] ) ) > 1.0f ||
+cgame/cg_predict.c:		fabs( AngleDelta( ps->viewangles[ 1 ], pps->viewangles[ 1 ] ) ) > 1.0f ||
+cgame/cg_predict.c:		fabs( AngleDelta( ps->viewangles[ 2 ], pps->viewangles[ 2 ] ) ) > 1.0f ) {
+cgame/cg_predict.c:	if ( pps->viewheight != ps->viewheight )
+cgame/cg_predict.c:	if( pps->damageEvent != ps->damageEvent ||
+cgame/cg_predict.c:		pps->damageYaw != ps->damageYaw ||
+cgame/cg_predict.c:		pps->damagePitch != ps->damagePitch ||
+cgame/cg_predict.c:		pps->damageCount != ps->damageCount ) {
+cgame/cg_predict.c:				pps->damageEvent, pps->damageYaw, pps->damagePitch, pps->damageCount,
+cgame/cg_predict.c:				ps->damageEvent, ps->damageYaw, ps->damagePitch, ps->damageCount );
+cgame/cg_predict.c:	if ( pps->stats[ STAT_HEALTH ] == ps->stats[ STAT_HEALTH ] + 1 && ps->stats[ STAT_HEALTH ] >= ps->stats[ STAT_MAX_HEALTH ] ) {
+cgame/cg_predict.c:		cg.timeResidual = ps->commandTime + 1000;
+cgame/cg_predict.c:			cg.savedPmoveStates[ n ].stats[ STAT_HEALTH ] = ps->stats[ STAT_HEALTH ];
+cgame/cg_predict.c:	if ( pps->stats[ STAT_ARMOR ] == ps->stats[ STAT_ARMOR ] - 1 && ps->stats[ STAT_ARMOR ] >= ps->stats[ STAT_MAX_HEALTH ] ) {
+cgame/cg_predict.c:		cg.timeResidual = ps->commandTime + 1000;
+cgame/cg_predict.c:			cg.savedPmoveStates[ n ].stats[ STAT_ARMOR ] = ps->stats[ STAT_ARMOR ];
+cgame/cg_predict.c:				cg.savedPmoveStates[ n ].stats[ i ] = ps->stats[ i ];
+cgame/cg_predict.c:		if ( pps->stats[ i ] != ps->stats[ i ] ) {
+cgame/cg_predict.c:				CG_Printf( "stats[%i] %i => %i ", i, pps->stats[ i ], ps->stats[ i ] );
+cgame/cg_predict.c:		if ( pps->persistant[ i ] != ps->persistant[ i ] ) {
+cgame/cg_predict.c:					CG_Printf( "persistant[%i] %i => %i ", i, pps->persistant[ i ], ps->persistant[ i ] );
+cgame/cg_predict.c:			v0 = ps->persistant[ i ];
+cgame/cg_predict.c:		if( pps->ammo[ i ] != ps->ammo[ i ] ) {
+cgame/cg_predict.c:				CG_Printf( "ammo[%i] %i => %i ", i, pps->ammo[ i ], ps->ammo[ i ] );
+cgame/cg_predict.c:	if ( pps->generic1 != ps->generic1 || pps->loopSound != ps->loopSound ) {
+cgame/cg_predict.c:		if( pps->powerups[ i ] != ps->powerups[ i ] ) {
+cgame/cg_predict.c:				CG_Printf( "powerups[%i] %i => %i ", i, pps->powerups[i], ps->powerups[i] );
+cgame/cg_predict.c:	if ( cg_pmove.ps->pm_type == PM_DEAD ) {
+cgame/cg_snapshot.c:		if ( ( ps->eFlags ^ ops->eFlags ) & EF_TELEPORT_BIT ) {
+cgame/cg_weapons.c:	if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+cgame/cg_weapons.c:	if ( ps->pm_type == PM_INTERMISSION ) {
+cgame/cg_weapons.c:			CG_LightningBolt( &cg_entities[ps->clientNum], origin );
+cgame/cg_weapons.c:	CG_RegisterWeapon( ps->weapon );
+cgame/cg_weapons.c:	weapon = &cg_weapons[ ps->weapon ];
+cgame/cg_weapons.c:	CG_AddPlayerWeapon( &hand, ps, &cg.predictedPlayerEntity, ps->persistant[PERS_TEAM] );
+cgame/cg_playerstate.c:	if ( ps->externalEvent && ps->externalEvent != ops->externalEvent ) {
+cgame/cg_playerstate.c:		cent = &cg_entities[ ps->clientNum ];
+cgame/cg_playerstate.c:		cent->currentState.event = ps->externalEvent;
+cgame/cg_playerstate.c:		cent->currentState.eventParm = ps->externalEventParm;
+cgame/cg_playerstate.c:	cent = &cg.predictedPlayerEntity; // cg_entities[ ps->clientNum ];
+cgame/cg_playerstate.c:	for ( i = ps->eventSequence - MAX_PS_EVENTS ; i < ps->eventSequence ; i++ ) {
+cgame/cg_playerstate.c:		if ( i >= ops->eventSequence
+cgame/cg_playerstate.c:			|| (i > ops->eventSequence - MAX_PS_EVENTS && ps->events[i & (MAX_PS_EVENTS-1)] != ops->events[i & (MAX_PS_EVENTS-1)]) ) {
+cgame/cg_playerstate.c:			event = ps->events[ i & (MAX_PS_EVENTS-1) ];
+cgame/cg_playerstate.c:			cent->currentState.eventParm = ps->eventParms[ i & (MAX_PS_EVENTS-1) ];
+cgame/cg_playerstate.c:	if ( ps->persistant[PERS_TEAM] != ops->persistant[PERS_TEAM] ) {
+cgame/cg_playerstate.c:	if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
+cgame/cg_playerstate.c:		armor  = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
+cgame/cg_playerstate.c:		health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
+cgame/cg_playerstate.c:		if ( cg_hitSounds.integer > 0 && (ps->persistant[PERS_ATTACKEE_ARMOR] & 0xFF00) == 0 )
+cgame/cg_playerstate.c:			damage = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xFF;
+cgame/cg_playerstate.c:	} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
+cgame/cg_playerstate.c:	if ( ps->stats[STAT_HEALTH] < ops->stats[STAT_HEALTH] - 1 ) {
+cgame/cg_playerstate.c:		if ( ps->stats[STAT_HEALTH] > 0 ) {
+cgame/cg_playerstate.c:			CG_PainEvent( &cg.predictedPlayerEntity, ps->stats[STAT_HEALTH] );
+cgame/cg_playerstate.c:	if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
+cgame/cg_playerstate.c:		pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[PERS_CAPTURES]);
+cgame/cg_playerstate.c:	if (ps->persistant[PERS_IMPRESSIVE_COUNT] != ops->persistant[PERS_IMPRESSIVE_COUNT]) {
+cgame/cg_playerstate.c:		if (ps->persistant[PERS_IMPRESSIVE_COUNT] == 1) {
+cgame/cg_playerstate.c:		pushReward(sfx, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
+cgame/cg_playerstate.c:	if (ps->persistant[PERS_EXCELLENT_COUNT] != ops->persistant[PERS_EXCELLENT_COUNT]) {
+cgame/cg_playerstate.c:		if (ps->persistant[PERS_EXCELLENT_COUNT] == 1) {
+cgame/cg_playerstate.c:		pushReward(sfx, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
+cgame/cg_playerstate.c:	if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[PERS_GAUNTLET_FRAG_COUNT]) {
+cgame/cg_playerstate.c:		if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] == 1) {
+cgame/cg_playerstate.c:		pushReward(sfx, cgs.media.medalGauntlet, ps->persistant[PERS_GAUNTLET_FRAG_COUNT]);
+cgame/cg_playerstate.c:	if (ps->persistant[PERS_DEFEND_COUNT] != ops->persistant[PERS_DEFEND_COUNT]) {
+cgame/cg_playerstate.c:		pushReward(cgs.media.defendSound, cgs.media.medalDefend, ps->persistant[PERS_DEFEND_COUNT]);
+cgame/cg_playerstate.c:	if (ps->persistant[PERS_ASSIST_COUNT] != ops->persistant[PERS_ASSIST_COUNT]) {
+cgame/cg_playerstate.c:		pushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[PERS_ASSIST_COUNT]);
+cgame/cg_playerstate.c:	if (ps->persistant[PERS_PLAYEREVENTS] != ops->persistant[PERS_PLAYEREVENTS]) {
+cgame/cg_playerstate.c:		if ((ps->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_DENIEDREWARD) !=
+cgame/cg_playerstate.c:				(ops->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_DENIEDREWARD)) {
+cgame/cg_playerstate.c:		else if ((ps->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_GAUNTLETREWARD) !=
+cgame/cg_playerstate.c:				(ops->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_GAUNTLETREWARD)) {
+cgame/cg_playerstate.c:		else if ((ps->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_HOLYSHIT) !=
+cgame/cg_playerstate.c:				(ops->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_HOLYSHIT)) {
+cgame/cg_playerstate.c:		if ((ps->powerups[PW_REDFLAG] != ops->powerups[PW_REDFLAG] && ps->powerups[PW_REDFLAG]) ||
+cgame/cg_playerstate.c:			(ps->powerups[PW_BLUEFLAG] != ops->powerups[PW_BLUEFLAG] && ps->powerups[PW_BLUEFLAG]) ||
+cgame/cg_playerstate.c:			(ps->powerups[PW_NEUTRALFLAG] != ops->powerups[PW_NEUTRALFLAG] && ps->powerups[PW_NEUTRALFLAG]) )
+cgame/cg_playerstate.c:			if ( ps->persistant[PERS_RANK] != ops->persistant[PERS_RANK] ) {
+cgame/cg_playerstate.c:					if (  ps->persistant[PERS_RANK] == 0 ) {
+cgame/cg_playerstate.c:					} else if ( ps->persistant[PERS_RANK] == RANK_TIED_FLAG ) {
+cgame/cg_playerstate.c:					} else if ( ( ops->persistant[PERS_RANK] & ~RANK_TIED_FLAG ) == 0 ) {
+cgame/cg_playerstate.c:	if ( ps->clientNum != ops->clientNum ) {
+cgame/cg_playerstate.c:	if ( ps->damageEvent != ops->damageEvent && ps->damageCount ) {
+cgame/cg_playerstate.c:		CG_DamageFeedback( ps->damageYaw, ps->damagePitch, ps->damageCount );
+cgame/cg_playerstate.c:	respawn = ps->persistant[PERS_SPAWN_COUNT] != ops->persistant[PERS_SPAWN_COUNT];
+cgame/cg_playerstate.c:		&& ps->persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
+cgame/cg_playerstate.c:	if ( ps->viewheight != ops->viewheight && !respawn ) {
+cgame/cg_playerstate.c:		cg.duckChange = ps->viewheight - ops->viewheight;
+cgame/cg_newdraw.c:	value = ps->stats[STAT_ARMOR];
+cgame/cg_newdraw.c:		value = ps->ammo[cent->currentState.weapon];
+cgame/cg_newdraw.c:	value = ps->stats[STAT_HEALTH];
+cgame/cg_newdraw.c:	if ( ps->stats[STAT_HEALTH] <= 0 ) {
+cgame/cg_newdraw.c:		if ( !ps->powerups[ i ] ) {
+cgame/cg_newdraw.c:		t = ps->powerups[ i ] - cg.time;
+cgame/cg_newdraw.c:			t = ps->powerups[ sorted[i] ];
+cgame/cg_newdraw.c:		return ps->stats[STAT_ARMOR];
+cgame/cg_newdraw.c:		  return ps->ammo[cent->currentState.weapon];
+cgame/cg_newdraw.c:		return ps->stats[STAT_HEALTH];
+cgame/cg_view.c:	if ( ps->pm_type == PM_INTERMISSION ) {
+cgame/cg_view.c:		VectorCopy( ps->origin, cg.refdef.vieworg );
+cgame/cg_view.c:		VectorCopy( ps->viewangles, cg.refdefViewAngles );
+cgame/cg_view.c:	cg.bobcycle = ( ps->bobCycle & 128 ) >> 7;
+cgame/cg_view.c:	cg.bobfracsin = fabs( sin( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
+cgame/cg_view.c:	cg.xyspeed = sqrt( ps->velocity[0] * ps->velocity[0] +
+cgame/cg_view.c:		ps->velocity[1] * ps->velocity[1] );
+cgame/cg_view.c:	VectorCopy( ps->origin, cg.refdef.vieworg );
+cgame/cg_view.c:	VectorCopy( ps->viewangles, cg.refdefViewAngles );
+cgame/cg_draw.c:	if ( ps->stats[ STAT_ARMOR ] ) {
+cgame/cg_draw.c:		value = ps->ammo[cent->currentState.weapon];
+cgame/cg_draw.c:	value = ps->stats[STAT_HEALTH];
+cgame/cg_draw.c:	value = ps->stats[STAT_ARMOR];
+cgame/cg_draw.c:		value = ps->generic1;
+cgame/cg_draw.c:	if ( ps->stats[STAT_HEALTH] <= 0 ) {
+cgame/cg_draw.c:		if ( !ps->powerups[ i ] ) {
+cgame/cg_draw.c:		t = ps->powerups[ i ] - cg.time;
+cgame/cg_draw.c:			t = ps->powerups[ sorted[i] ];
+cgame/cg_main.c:		if (ps->clientNum == cg.scores[i].client) {
+game/bg_public.h:// reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
+game/bg_pmove.c:	if ( pm->ps->pm_type >= PM_DEAD ) {
+game/bg_pmove.c:	pm->ps->torsoAnim = ( ( pm->ps->torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
+game/bg_pmove.c:	if ( pm->ps->pm_type >= PM_DEAD ) {
+game/bg_pmove.c:	if ( pm->ps->legsTimer > 0 ) {
+game/bg_pmove.c:	pm->ps->legsAnim = ( ( pm->ps->legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
+game/bg_pmove.c:	if ( ( pm->ps->legsAnim & ~ANIM_TOGGLEBIT ) == anim ) {
+game/bg_pmove.c:	if ( pm->ps->legsTimer > 0 ) {
+game/bg_pmove.c:	if ( ( pm->ps->torsoAnim & ~ANIM_TOGGLEBIT ) == anim ) {
+game/bg_pmove.c:	if ( pm->ps->torsoTimer > 0 ) {
+game/bg_pmove.c:	pm->ps->legsTimer = 0;
+game/bg_pmove.c:	vel = pm->ps->velocity;
+game/bg_pmove.c:		if ( pm->ps->pm_type == PM_SPECTATOR || pm->ps->powerups[ PW_FLIGHT ] )
+game/bg_pmove.c:			if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
+game/bg_pmove.c:	if ( pm->ps->powerups[PW_FLIGHT]) {
+game/bg_pmove.c:	if ( pm->ps->pm_type == PM_SPECTATOR) {
+game/bg_pmove.c:	currentspeed = DotProduct (pm->ps->velocity, wishdir);
+game/bg_pmove.c:		pm->ps->velocity[i] += accelspeed*wishdir[i];	
+game/bg_pmove.c:	VectorSubtract( wishVelocity, pm->ps->velocity, pushDir );
+game/bg_pmove.c:	VectorMA( pm->ps->velocity, canPush, pushDir, pm->ps->velocity );
+game/bg_pmove.c:	scale = (float)pm->ps->speed * max / ( 127.0 * total );
+game/bg_pmove.c:			pm->ps->movementDir = 0;
+game/bg_pmove.c:			pm->ps->movementDir = 1;
+game/bg_pmove.c:			pm->ps->movementDir = 2;
+game/bg_pmove.c:			pm->ps->movementDir = 3;
+game/bg_pmove.c:			pm->ps->movementDir = 4;
+game/bg_pmove.c:			pm->ps->movementDir = 5;
+game/bg_pmove.c:			pm->ps->movementDir = 6;
+game/bg_pmove.c:			pm->ps->movementDir = 7;
+game/bg_pmove.c:		if ( pm->ps->movementDir == 2 ) {
+game/bg_pmove.c:			pm->ps->movementDir = 1;
+game/bg_pmove.c:		} else if ( pm->ps->movementDir == 6 ) {
+game/bg_pmove.c:			pm->ps->movementDir = 7;
+game/bg_pmove.c:	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
+game/bg_pmove.c:	if ( pm->ps->pm_flags & PMF_JUMP_HELD ) {
+game/bg_pmove.c:	pm->ps->pm_flags |= PMF_JUMP_HELD;
+game/bg_pmove.c:	pm->ps->groundEntityNum = ENTITYNUM_NONE;
+game/bg_pmove.c:	pm->ps->velocity[2] = JUMP_VELOCITY;
+game/bg_pmove.c:		pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+game/bg_pmove.c:		pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
+game/bg_pmove.c:	if (pm->ps->pm_time) {
+game/bg_pmove.c:	VectorMA (pm->ps->origin, 30, flatforward, spot);
+game/bg_pmove.c:	cont = pm->pointcontents (spot, pm->ps->clientNum );
+game/bg_pmove.c:	cont = pm->pointcontents (spot, pm->ps->clientNum );
+game/bg_pmove.c:	VectorScale (pml.forward, 200, pm->ps->velocity);
+game/bg_pmove.c:	pm->ps->velocity[2] = 350;
+game/bg_pmove.c:	pm->ps->pm_flags |= PMF_TIME_WATERJUMP;
+game/bg_pmove.c:	pm->ps->pm_time = 2000;
+game/bg_pmove.c:	pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+game/bg_pmove.c:	if (pm->ps->velocity[2] < 0) {
+game/bg_pmove.c:		pm->ps->pm_flags &= ~PMF_ALL_TIMES;
+game/bg_pmove.c:		pm->ps->pm_time = 0;
+game/bg_pmove.c:		if (pm->ps->velocity[2] > -300) {
+game/bg_pmove.c:				pm->ps->velocity[2] = 100;
+game/bg_pmove.c:				pm->ps->velocity[2] = 80;
+game/bg_pmove.c:				pm->ps->velocity[2] = 50;
+game/bg_pmove.c:	if ( wishspeed > pm->ps->speed * pm_swimScale ) {
+game/bg_pmove.c:		wishspeed = pm->ps->speed * pm_swimScale;
+game/bg_pmove.c:	if ( pml.groundPlane && DotProduct( pm->ps->velocity, pml.groundTrace.plane.normal ) < 0 ) {
+game/bg_pmove.c:		vel = VectorLength(pm->ps->velocity);
+game/bg_pmove.c:		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
+game/bg_pmove.c:			pm->ps->velocity, OVERCLIP );
+game/bg_pmove.c:		VectorNormalize(pm->ps->velocity);
+game/bg_pmove.c:		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+game/bg_pmove.c:	VectorClear(pm->ps->velocity);
+game/bg_pmove.c:		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+game/bg_pmove.c:			pm->ps->velocity, OVERCLIP );
+game/bg_pmove.c:	if (pm->ps->pm_flags & PMF_GRAPPLE_PULL)
+game/bg_pmove.c:	VectorAdd(pm->ps->grapplePoint, v, v);
+game/bg_pmove.c:	VectorSubtract(v, pm->ps->origin, vel);
+game/bg_pmove.c:	VectorCopy(vel, pm->ps->velocity);
+game/bg_pmove.c:	if ( pm->ps->pm_flags & PMF_DUCKED ) {
+game/bg_pmove.c:		if ( wishspeed > pm->ps->speed * pm_duckScale ) {
+game/bg_pmove.c:			wishspeed = pm->ps->speed * pm_duckScale;
+game/bg_pmove.c:		if ( wishspeed > pm->ps->speed * waterScale ) {
+game/bg_pmove.c:			wishspeed = pm->ps->speed * waterScale;
+game/bg_pmove.c:	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
+game/bg_pmove.c:	//Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
+game/bg_pmove.c:	//Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
+game/bg_pmove.c:	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
+game/bg_pmove.c:		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+game/bg_pmove.c://		pm->ps->velocity[2] = 0;
+game/bg_pmove.c:		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
+game/bg_pmove.c:			pm->ps->velocity, OVERCLIP );
+game/bg_pmove.c:		vel = VectorLength(pm->ps->velocity);
+game/bg_pmove.c:		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
+game/bg_pmove.c:			pm->ps->velocity, OVERCLIP );
+game/bg_pmove.c:		VectorNormalize(pm->ps->velocity);
+game/bg_pmove.c:		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+game/bg_pmove.c:	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
+game/bg_pmove.c:	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
+game/bg_pmove.c:	forward = VectorLength (pm->ps->velocity);
+game/bg_pmove.c:		VectorClear (pm->ps->velocity);
+game/bg_pmove.c:		VectorNormalize (pm->ps->velocity);
+game/bg_pmove.c:		VectorScale (pm->ps->velocity, forward, pm->ps->velocity);
+game/bg_pmove.c:	pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+game/bg_pmove.c:	speed = VectorLength (pm->ps->velocity);
+game/bg_pmove.c:		VectorCopy (vec3_origin, pm->ps->velocity);
+game/bg_pmove.c:		VectorScale (pm->ps->velocity, newspeed, pm->ps->velocity);
+game/bg_pmove.c:	VectorMA (pm->ps->origin, pml.frametime, pm->ps->velocity, pm->ps->origin);
+game/bg_pmove.c:	if ( pm->ps->pm_flags & PMF_BACKWARDS_JUMP ) {
+game/bg_pmove.c:	pm->ps->legsTimer = TIMER_LAND;
+game/bg_pmove.c:	dist = pm->ps->origin[2] - pml.previous_origin[2];
+game/bg_pmove.c:	acc = -pm->ps->gravity;
+game/bg_pmove.c:	if ( pm->ps->pm_flags & PMF_DUCKED ) {
+game/bg_pmove.c:			if ( pm->ps->stats[STAT_HEALTH] > 0 ) {
+game/bg_pmove.c:	pm->ps->bobCycle = 0;
+game/bg_pmove.c:	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask);
+game/bg_pmove.c:				VectorCopy(pm->ps->origin, point);
+game/bg_pmove.c:				pm->trace (trace, point, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+game/bg_pmove.c:					point[0] = pm->ps->origin[0];
+game/bg_pmove.c:					point[1] = pm->ps->origin[1];
+game/bg_pmove.c:					point[2] = pm->ps->origin[2] - 0.25;
+game/bg_pmove.c:					pm->trace (trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+game/bg_pmove.c:	pm->ps->groundEntityNum = ENTITYNUM_NONE;
+game/bg_pmove.c:	if ( pm->ps->groundEntityNum != ENTITYNUM_NONE ) {
+game/bg_pmove.c:		VectorCopy( pm->ps->origin, point );
+game/bg_pmove.c:		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+game/bg_pmove.c:				pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+game/bg_pmove.c:				pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
+game/bg_pmove.c:	pm->ps->groundEntityNum = ENTITYNUM_NONE;
+game/bg_pmove.c:	point[0] = pm->ps->origin[0];
+game/bg_pmove.c:	point[1] = pm->ps->origin[1];
+game/bg_pmove.c:	point[2] = pm->ps->origin[2] - 0.25;
+game/bg_pmove.c:	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+game/bg_pmove.c:	if ( pm->ps->velocity[2] > 0 && DotProduct( pm->ps->velocity, trace.plane.normal ) > 10 ) {
+game/bg_pmove.c:			pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+game/bg_pmove.c:			pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
+game/bg_pmove.c:		pm->ps->groundEntityNum = ENTITYNUM_NONE;
+game/bg_pmove.c:		pm->ps->groundEntityNum = ENTITYNUM_NONE;
+game/bg_pmove.c:	if (pm->ps->pm_flags & PMF_TIME_WATERJUMP)
+game/bg_pmove.c:		pm->ps->pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND);
+game/bg_pmove.c:		pm->ps->pm_time = 0;
+game/bg_pmove.c:	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE ) {
+game/bg_pmove.c:			pm->ps->pm_flags |= PMF_TIME_LAND;
+game/bg_pmove.c:			pm->ps->pm_time = 250;
+game/bg_pmove.c:	pm->ps->groundEntityNum = trace.entityNum;
+game/bg_pmove.c://	pm->ps->velocity[2] = 0;
+game/bg_pmove.c:	point[0] = pm->ps->origin[0];
+game/bg_pmove.c:	point[1] = pm->ps->origin[1];
+game/bg_pmove.c:	point[2] = pm->ps->origin[2] + MINS_Z + 1;	
+game/bg_pmove.c:	cont = pm->pointcontents( point, pm->ps->clientNum );
+game/bg_pmove.c:		sample2 = pm->ps->viewheight - MINS_Z;
+game/bg_pmove.c:		point[2] = pm->ps->origin[2] + MINS_Z + sample1;
+game/bg_pmove.c:		cont = pm->pointcontents (point, pm->ps->clientNum );
+game/bg_pmove.c:			point[2] = pm->ps->origin[2] + MINS_Z + sample2;
+game/bg_pmove.c:			cont = pm->pointcontents (point, pm->ps->clientNum );
+game/bg_pmove.c:Sets mins, maxs, and pm->ps->viewheight
+game/bg_pmove.c:	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
+game/bg_pmove.c:		if ( pm->ps->pm_flags & PMF_INVULEXPAND ) {
+game/bg_pmove.c:		pm->ps->pm_flags |= PMF_DUCKED;
+game/bg_pmove.c:		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+game/bg_pmove.c:	pm->ps->pm_flags &= ~PMF_INVULEXPAND;
+game/bg_pmove.c:	if (pm->ps->pm_type == PM_DEAD)
+game/bg_pmove.c:		pm->ps->viewheight = DEAD_VIEWHEIGHT;
+game/bg_pmove.c:		pm->ps->pm_flags |= PMF_DUCKED;
+game/bg_pmove.c:		if (pm->ps->pm_flags & PMF_DUCKED)
+game/bg_pmove.c:			pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask );
+game/bg_pmove.c:				pm->ps->pm_flags &= ~PMF_DUCKED;
+game/bg_pmove.c:	if (pm->ps->pm_flags & PMF_DUCKED)
+game/bg_pmove.c:		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+game/bg_pmove.c:		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+game/bg_pmove.c:	//xyspeedQ = pm->ps->velocity[0] * pm->ps->velocity[0] 
+game/bg_pmove.c:	//	+ pm->ps->velocity[1] * pm->ps->velocity[1];
+game/bg_pmove.c:	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE ) {
+game/bg_pmove.c:		if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
+game/bg_pmove.c:		xyspeedQ = pm->ps->velocity[0] * pm->ps->velocity[0] 
+game/bg_pmove.c:			+ pm->ps->velocity[1] * pm->ps->velocity[1];
+game/bg_pmove.c:			pm->ps->bobCycle = 0;	// start at beginning of cycle again
+game/bg_pmove.c:			if ( pm->ps->pm_flags & PMF_DUCKED ) {
+game/bg_pmove.c:	if ( pm->ps->pm_flags & PMF_DUCKED ) {
+game/bg_pmove.c:		if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
+game/bg_pmove.c:	} else 	if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
+game/bg_pmove.c:			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
+game/bg_pmove.c:			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
+game/bg_pmove.c:	old = pm->ps->bobCycle;
+game/bg_pmove.c:	pm->ps->bobCycle = (int)( old + bobmove * pml.msec ) & 255;
+game/bg_pmove.c:	if ( ( ( old + 64 ) ^ ( pm->ps->bobCycle + 64 ) ) & 128 ) {
+game/bg_pmove.c:	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+game/bg_pmove.c:	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
+game/bg_pmove.c:		pm->ps->eFlags &= ~EF_FIRING;
+game/bg_pmove.c:	pm->ps->weaponstate = WEAPON_DROPPING;
+game/bg_pmove.c:	//pm->ps->weaponTime += 200;
+game/bg_pmove.c:	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 0 : 200;
+game/bg_pmove.c:	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+game/bg_pmove.c:	pm->ps->weapon = weapon;
+game/bg_pmove.c:	pm->ps->weaponstate = WEAPON_RAISING;
+game/bg_pmove.c:	pm->ps->eFlags &= ~EF_FIRING;
+game/bg_pmove.c:	//pm->ps->weaponTime += 250;
+game/bg_pmove.c:	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 0 : 250;
+game/bg_pmove.c:	if ( pm->ps->weaponstate == WEAPON_READY ) {
+game/bg_pmove.c:		if ( pm->ps->weapon == WP_GAUNTLET ) {
+game/bg_pmove.c:	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
+game/bg_pmove.c:	if ( pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+game/bg_pmove.c:	if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
+game/bg_pmove.c:		pm->ps->weapon = WP_NONE;
+game/bg_pmove.c:		if ( ! ( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) ) {
+game/bg_pmove.c:			if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT
+game/bg_pmove.c:				&& pm->ps->stats[STAT_HEALTH] >= (pm->ps->stats[STAT_MAX_HEALTH] + 25) ) {
+game/bg_pmove.c:				pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
+game/bg_pmove.c:				PM_AddEvent( EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag );
+game/bg_pmove.c:				pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
+game/bg_pmove.c:		pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
+game/bg_pmove.c:	if ( pm->ps->weaponTime > 0 ) {
+game/bg_pmove.c:		pm->ps->weaponTime -= pml.msec;
+game/bg_pmove.c:	if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
+game/bg_pmove.c:		if ( pm->ps->weapon != pm->cmd.weapon ) {
+game/bg_pmove.c:	if ( pm->ps->weaponTime > 0 ) {
+game/bg_pmove.c:	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
+game/bg_pmove.c:	if ( pm->ps->weaponstate == WEAPON_RAISING ) {
+game/bg_pmove.c:		pm->ps->weaponstate = WEAPON_READY;
+game/bg_pmove.c:		if ( pm->ps->weapon == WP_GAUNTLET ) {
+game/bg_pmove.c:		pm->ps->weaponTime = 0;
+game/bg_pmove.c:		pm->ps->weaponstate = WEAPON_READY;
+game/bg_pmove.c:	if ( pm->ps->weapon == WP_GAUNTLET ) {
+game/bg_pmove.c:			pm->ps->weaponTime = 0;
+game/bg_pmove.c:			pm->ps->weaponstate = WEAPON_READY;
+game/bg_pmove.c:	pm->ps->weaponstate = WEAPON_FIRING;
+game/bg_pmove.c:	if ( ! pm->ps->ammo[ pm->ps->weapon ] ) {
+game/bg_pmove.c:		//pm->ps->weaponTime += 500;
+game/bg_pmove.c:		pm->ps->weaponTime += pm->fastWeaponSwitch > 1 ? 100 : 500;
+game/bg_pmove.c:	if ( pm->ps->ammo[ pm->ps->weapon ] != -1 ) {
+game/bg_pmove.c:		pm->ps->ammo[ pm->ps->weapon ]--;
+game/bg_pmove.c:	switch( pm->ps->weapon ) {
+game/bg_pmove.c:	if( bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
+game/bg_pmove.c:	if( bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN ) {
+game/bg_pmove.c:	if ( pm->ps->powerups[PW_HASTE] ) {
+game/bg_pmove.c:	pm->ps->weaponTime += addTime;
+game/bg_pmove.c:		if ( pm->ps->torsoTimer == 0 ) {
+game/bg_pmove.c:			pm->ps->torsoTimer = TIMER_GESTURE;
+game/bg_pmove.c:		if ( pm->ps->torsoTimer == 0 ) {
+game/bg_pmove.c:			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
+game/bg_pmove.c:		if ( pm->ps->torsoTimer == 0 ) {
+game/bg_pmove.c:			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
+game/bg_pmove.c:		if ( pm->ps->torsoTimer == 0 ) {
+game/bg_pmove.c:			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
+game/bg_pmove.c:		if ( pm->ps->torsoTimer == 0 ) {
+game/bg_pmove.c:			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
+game/bg_pmove.c:		if ( pm->ps->torsoTimer == 0 ) {
+game/bg_pmove.c:			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
+game/bg_pmove.c:		if ( pm->ps->torsoTimer == 0 ) {
+game/bg_pmove.c:			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
+game/bg_pmove.c:	if ( pm->ps->pm_time ) {
+game/bg_pmove.c:		if ( pml.msec >= pm->ps->pm_time ) {
+game/bg_pmove.c:			pm->ps->pm_flags &= ~PMF_ALL_TIMES;
+game/bg_pmove.c:			pm->ps->pm_time = 0;
+game/bg_pmove.c:			pm->ps->pm_time -= pml.msec;
+game/bg_pmove.c:	if ( pm->ps->legsTimer > 0 ) {
+game/bg_pmove.c:		pm->ps->legsTimer -= pml.msec;
+game/bg_pmove.c:		if ( pm->ps->legsTimer < 0 ) {
+game/bg_pmove.c:			pm->ps->legsTimer = 0;
+game/bg_pmove.c:	if ( pm->ps->torsoTimer > 0 ) {
+game/bg_pmove.c:		pm->ps->torsoTimer -= pml.msec;
+game/bg_pmove.c:		if ( pm->ps->torsoTimer < 0 ) {
+game/bg_pmove.c:			pm->ps->torsoTimer = 0;
+game/bg_pmove.c:	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION) {
+game/bg_pmove.c:	if ( ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0 ) {
+game/bg_pmove.c:		temp = cmd->angles[i] + ps->delta_angles[i];
+game/bg_pmove.c:				ps->delta_angles[i] = (16000 - cmd->angles[i]) & 0xFFFF;
+game/bg_pmove.c:				ps->delta_angles[i] = (-16000 - cmd->angles[i]) & 0xFFFF;
+game/bg_pmove.c:		ps->viewangles[i] = SHORT2ANGLE(temp);
+game/bg_pmove.c:	if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
+game/bg_pmove.c:		pm->ps->eFlags |= EF_TALK;
+game/bg_pmove.c:		pm->ps->eFlags &= ~EF_TALK;
+game/bg_pmove.c:	if ( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION && pm->ps->pm_type != PM_NOCLIP
+game/bg_pmove.c:		&& ( pm->cmd.buttons & BUTTON_ATTACK ) && pm->ps->ammo[ pm->ps->weapon ] ) {
+game/bg_pmove.c:		pm->ps->eFlags |= EF_FIRING;
+game/bg_pmove.c:		pm->ps->eFlags &= ~EF_FIRING;
+game/bg_pmove.c:	if ( pm->ps->stats[STAT_HEALTH] > 0 && 
+game/bg_pmove.c:		pm->ps->pm_flags &= ~PMF_RESPAWNED;
+game/bg_pmove.c:	pml.msec = pmove->cmd.serverTime - pm->ps->commandTime;
+game/bg_pmove.c:	pm->ps->commandTime = pmove->cmd.serverTime;
+game/bg_pmove.c:	VectorCopy (pm->ps->origin, pml.previous_origin);
+game/bg_pmove.c:	VectorCopy (pm->ps->velocity, pml.previous_velocity);
+game/bg_pmove.c:	AngleVectors (pm->ps->viewangles, pml.forward, pml.right, pml.up);
+game/bg_pmove.c:		pm->ps->pm_flags &= ~PMF_JUMP_HELD;
+game/bg_pmove.c:		pm->ps->pm_flags |= PMF_BACKWARDS_RUN;
+game/bg_pmove.c:		pm->ps->pm_flags &= ~PMF_BACKWARDS_RUN;
+game/bg_pmove.c:	if ( pm->ps->pm_type >= PM_DEAD ) {
+game/bg_pmove.c:	if ( pm->ps->pm_type == PM_SPECTATOR ) {
+game/bg_pmove.c:	if ( pm->ps->pm_type == PM_NOCLIP ) {
+game/bg_pmove.c:	if (pm->ps->pm_type == PM_FREEZE) {
+game/bg_pmove.c:	if ( pm->ps->pm_type == PM_INTERMISSION || pm->ps->pm_type == PM_SPINTERMISSION) {
+game/bg_pmove.c:	if ( pm->ps->pm_type == PM_DEAD ) {
+game/bg_pmove.c:	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
+game/bg_pmove.c:	if ( pm->ps->powerups[PW_FLIGHT] ) {
+game/bg_pmove.c:	} else if (pm->ps->pm_flags & PMF_GRAPPLE_PULL) {
+game/bg_pmove.c:	} else if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
+game/bg_pmove.c:	if ( pm->ps->powerups[PW_FLIGHT] && !pml.groundPlane ) {
+game/bg_pmove.c:	trap_SnapVector( pm->ps->velocity );
+game/bg_pmove.c:	if ( finalTime < pmove->ps->commandTime ) {
+game/bg_pmove.c:	if ( finalTime > pmove->ps->commandTime + 1000 ) {
+game/bg_pmove.c:		pmove->ps->commandTime = finalTime - 1000;
+game/bg_pmove.c:	pmove->ps->pmove_framecount = (pmove->ps->pmove_framecount+1) & ((1<<PS_PMOVEFRAMECOUNTBITS)-1);
+game/bg_pmove.c:	if ( pmove->ps->pm_flags & PMF_RESPAWNED && pm_respawntimer == 0 ) {
+game/bg_pmove.c:	while ( pmove->ps->commandTime != finalTime ) {
+game/bg_pmove.c:		msec = finalTime - pmove->ps->commandTime;
+game/bg_pmove.c:		pmove->cmd.serverTime = pmove->ps->commandTime + msec;
+game/bg_pmove.c:		if ( pmove->ps->pm_flags & PMF_JUMP_HELD ) {
+game/g_active.c:	if ( ps->entityEventSequence < ps->eventSequence ) {
+game/g_active.c:		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
+game/g_active.c:		event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
+game/g_active.c:		extEvent = ps->externalEvent;
+game/g_active.c:		ps->externalEvent = 0;
+game/g_active.c:		t = G_TempEntity( ps->origin, event );
+game/g_active.c:		t->s.otherEntityNum = ps->clientNum;
+game/g_active.c:		t->r.singleClient = ps->clientNum;
+game/g_active.c:		ps->externalEvent = extEvent;
+game/g_active.c:	if ( pm.ps->pm_type == PM_DEAD ) {
+game/bg_slidemove.c:	VectorCopy (pm->ps->velocity, primal_velocity);
+game/bg_slidemove.c:		VectorCopy( pm->ps->velocity, endVelocity );
+game/bg_slidemove.c:		endVelocity[2] -= pm->ps->gravity * pml.frametime;
+game/bg_slidemove.c:		pm->ps->velocity[2] = ( pm->ps->velocity[2] + endVelocity[2] ) * 0.5;
+game/bg_slidemove.c:			PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+game/bg_slidemove.c:				pm->ps->velocity, OVERCLIP );
+game/bg_slidemove.c:	VectorNormalize2( pm->ps->velocity, planes[numplanes] );
+game/bg_slidemove.c:		VectorMA( pm->ps->origin, time_left, pm->ps->velocity, end );
+game/bg_slidemove.c:		pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
+game/bg_slidemove.c:			pm->ps->velocity[2] = 0;	// don't build up falling damage, but allow sideways acceleration
+game/bg_slidemove.c:			VectorCopy (trace.endpos, pm->ps->origin);
+game/bg_slidemove.c:			VectorClear( pm->ps->velocity );
+game/bg_slidemove.c:				VectorAdd( trace.plane.normal, pm->ps->velocity, pm->ps->velocity );
+game/bg_slidemove.c:			into = DotProduct( pm->ps->velocity, planes[i] );
+game/bg_slidemove.c:			PM_ClipVelocity (pm->ps->velocity, planes[i], clipVelocity, OVERCLIP );
+game/bg_slidemove.c:				d = DotProduct( dir, pm->ps->velocity );
+game/bg_slidemove.c:					VectorClear( pm->ps->velocity );
+game/bg_slidemove.c:			VectorCopy( clipVelocity, pm->ps->velocity );
+game/bg_slidemove.c:		VectorCopy( endVelocity, pm->ps->velocity );
+game/bg_slidemove.c:	if ( pm->ps->pm_time ) {
+game/bg_slidemove.c:		VectorCopy( primal_velocity, pm->ps->velocity );
+game/bg_slidemove.c:	VectorCopy (pm->ps->origin, start_o);
+game/bg_slidemove.c:	VectorCopy (pm->ps->velocity, start_v);
+game/bg_slidemove.c:	pm->trace (&trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
+game/bg_slidemove.c:	if ( pm->ps->velocity[2] > 0 && (trace.fraction == 1.0 ||
+game/bg_slidemove.c:	//VectorCopy (pm->ps->origin, down_o);
+game/bg_slidemove.c:	//VectorCopy (pm->ps->velocity, down_v);
+game/bg_slidemove.c:	pm->trace (&trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask);
+game/bg_slidemove.c:	VectorCopy (trace.endpos, pm->ps->origin);
+game/bg_slidemove.c:	VectorCopy (start_v, pm->ps->velocity);
+game/bg_slidemove.c:	VectorCopy (pm->ps->origin, down);
+game/bg_slidemove.c:	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
+game/bg_slidemove.c:		VectorCopy (trace.endpos, pm->ps->origin);
+game/bg_slidemove.c:		PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
+game/bg_slidemove.c:	pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, start_o, pm->ps->clientNum, pm->tracemask);
+game/bg_slidemove.c:		VectorCopy (down_o, pm->ps->origin);
+game/bg_slidemove.c:		VectorCopy (down_v, pm->ps->velocity);
+game/bg_slidemove.c:		delta = pm->ps->origin[2] - start_o[2];
+game/bg_slidemove.c:		if ( delta > 2 && pm->ps->pm_type != PM_DEAD ) {
+game/bg_misc.c:	if ( ps->origin[0] - origin[0] > 44
+game/bg_misc.c:		|| ps->origin[0] - origin[0] < -50
+game/bg_misc.c:		|| ps->origin[1] - origin[1] > 36
+game/bg_misc.c:		|| ps->origin[1] - origin[1] < -36
+game/bg_misc.c:		|| ps->origin[2] - origin[2] > 36
+game/bg_misc.c:		|| ps->origin[2] - origin[2] < -36 ) {
+game/bg_misc.c:	if ( ent->modelindex2 == 1 && ent->otherEntityNum == ps->clientNum + 1 ) {
+game/bg_misc.c:		if ( ent->modelindex2 == 255 && ps->stats[ STAT_WEAPONS ] & ( 1 << item->giTag ) ) {
+game/bg_misc.c:		if ( ps->ammo[ item->giTag ] >= 200 ) {
+game/bg_misc.c:		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
+game/bg_misc.c:		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
+game/bg_misc.c:			upperBound = ps->stats[STAT_MAX_HEALTH];
+game/bg_misc.c:			upperBound = ps->stats[STAT_MAX_HEALTH] * 2;
+game/bg_misc.c:		if ( ps->stats[STAT_ARMOR] >= upperBound ) {
+game/bg_misc.c:		if ( ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
+game/bg_misc.c:		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
+game/bg_misc.c:			upperBound = ps->stats[STAT_MAX_HEALTH];
+game/bg_misc.c:			if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
+game/bg_misc.c:		if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
+game/bg_misc.c:		if ( ps->stats[STAT_PERSISTANT_POWERUP] ) {
+game/bg_misc.c:		if( ( ent->generic1 & 2 ) && ( ps->persistant[PERS_TEAM] != TEAM_RED ) ) {
+game/bg_misc.c:		if( ( ent->generic1 & 4 ) && ( ps->persistant[PERS_TEAM] != TEAM_BLUE ) ) {
+game/bg_misc.c:			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
+game/bg_misc.c:				if (item->giTag == PW_BLUEFLAG  && ps->powerups[PW_NEUTRALFLAG] ) {
+game/bg_misc.c:			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+game/bg_misc.c:				if (item->giTag == PW_REDFLAG  && ps->powerups[PW_NEUTRALFLAG] ) {
+game/bg_misc.c:			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
+game/bg_misc.c:					(item->giTag == PW_REDFLAG && ps->powerups[PW_BLUEFLAG]) )
+game/bg_misc.c:			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+game/bg_misc.c:					(item->giTag == PW_BLUEFLAG && ps->powerups[PW_REDFLAG]) )
+game/bg_misc.c:		if ( ps->stats[STAT_HOLDABLE_ITEM] ) {
+game/bg_misc.c:			Com_Printf(" game event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
+game/bg_misc.c:			Com_Printf("Cgame event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
+game/bg_misc.c:	ps->events[ps->eventSequence & (MAX_PS_EVENTS-1)] = newEvent;
+game/bg_misc.c:	ps->eventParms[ps->eventSequence & (MAX_PS_EVENTS-1)] = eventParm;
+game/bg_misc.c:	ps->eventSequence++;
+game/bg_misc.c:	if ( ps->pm_type != PM_NORMAL ) {
+game/bg_misc.c:	if ( ps->powerups[PW_FLIGHT] ) {
+game/bg_misc.c:	if ( ps->jumppad_ent != jumppad->number ) {
+game/bg_misc.c:	ps->jumppad_ent = jumppad->number;
+game/bg_misc.c:	ps->jumppad_frame = ps->pmove_framecount;
+game/bg_misc.c:	VectorCopy( jumppad->origin2, ps->velocity );
+game/bg_misc.c:	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR ) {
+game/bg_misc.c:	} else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
+game/bg_misc.c:	s->number = ps->clientNum;
+game/bg_misc.c:	VectorCopy( ps->origin, s->pos.trBase );
+game/bg_misc.c:	VectorCopy( ps->velocity, s->pos.trDelta );
+game/bg_misc.c:	VectorCopy( ps->viewangles, s->apos.trBase );
+game/bg_misc.c:	s->angles2[YAW] = ps->movementDir;
+game/bg_misc.c:	s->legsAnim = ps->legsAnim;
+game/bg_misc.c:	s->torsoAnim = ps->torsoAnim;
+game/bg_misc.c:	s->clientNum = ps->clientNum;		// ET_PLAYER looks here instead of at number
+game/bg_misc.c:	s->eFlags = ps->eFlags;
+game/bg_misc.c:	if ( ps->stats[STAT_HEALTH] <= 0 ) {
+game/bg_misc.c:	if ( ps->externalEvent ) {
+game/bg_misc.c:		s->event = ps->externalEvent;
+game/bg_misc.c:		s->eventParm = ps->externalEventParm;
+game/bg_misc.c:	} else if ( ps->entityEventSequence < ps->eventSequence ) {
+game/bg_misc.c:		if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
+game/bg_misc.c:			ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
+game/bg_misc.c:		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
+game/bg_misc.c:		s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
+game/bg_misc.c:		s->eventParm = ps->eventParms[ seq ];
+game/bg_misc.c:		ps->entityEventSequence++;
+game/bg_misc.c:	s->weapon = ps->weapon;
+game/bg_misc.c:	s->groundEntityNum = ps->groundEntityNum;
+game/bg_misc.c:		if ( ps->powerups[ i ] ) {
+game/bg_misc.c:	s->loopSound = ps->loopSound;
+game/bg_misc.c:	s->generic1 = ps->generic1;
+game/bg_misc.c:	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR ) {
+game/bg_misc.c:	} else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
+game/bg_misc.c:	s->number = ps->clientNum;
+game/bg_misc.c:	VectorCopy( ps->origin, s->pos.trBase );
+game/bg_misc.c:	VectorCopy( ps->velocity, s->pos.trDelta );
+game/bg_misc.c:	VectorCopy( ps->viewangles, s->apos.trBase );
+game/bg_misc.c:	s->angles2[YAW] = ps->movementDir;
+game/bg_misc.c:	s->legsAnim = ps->legsAnim;
+game/bg_misc.c:	s->torsoAnim = ps->torsoAnim;
+game/bg_misc.c:	s->clientNum = ps->clientNum;		// ET_PLAYER looks here instead of at number
+game/bg_misc.c:	s->eFlags = ps->eFlags;
+game/bg_misc.c:	if ( ps->stats[STAT_HEALTH] <= 0 ) {
+game/bg_misc.c:	if ( ps->externalEvent ) {
+game/bg_misc.c:		s->event = ps->externalEvent;
+game/bg_misc.c:		s->eventParm = ps->externalEventParm;
+game/bg_misc.c:	} else if ( ps->entityEventSequence < ps->eventSequence ) {
+game/bg_misc.c:		if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
+game/bg_misc.c:			ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
+game/bg_misc.c:		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
+game/bg_misc.c:		s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
+game/bg_misc.c:		s->eventParm = ps->eventParms[ seq ];
+game/bg_misc.c:		ps->entityEventSequence++;
+game/bg_misc.c:	s->weapon = ps->weapon;
+game/bg_misc.c:	s->groundEntityNum = ps->groundEntityNum;
+game/bg_misc.c:		if ( ps->powerups[ i ] ) {
+game/bg_misc.c:	s->loopSound = ps->loopSound;
+game/bg_misc.c:	s->generic1 = ps->generic1;

@@ -1022,14 +1022,6 @@ void FT_ResetFlags ( void ) {
 }
 
 void ResetFreezeTimeEvent( gentity_t *ent, int clientNum ) {
-	gentity_t *event = G_TempEntity(ent->r.currentOrigin, EV_FREEZE_TIME);
-
-	// Skip processing if the player is in spectator mode
-    // if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-    //     return;
-    // }
-    
-	event->s.time = level.time; // Set the freeze time
-    event->r.svFlags |= SVF_SINGLECLIENT; // Send only to the specific client
-    event->r.singleClient = clientNum;
+	ent->freezeTime = 0;
+	ent->freezeInstance = 0;
 }
