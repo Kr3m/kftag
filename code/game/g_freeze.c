@@ -111,7 +111,7 @@ static void player_free( gentity_t *ent ) {
 	ent->client->respawnTime = level.time + 1700;
 
 	// Reset EV_FREEZE_TIME (s.time) for the client
-	ResetFreezeTimeEvent(ent, ent->s.clientNum);
+	//ResetFreezeTimeEvent(ent, ent->s.clientNum);
 
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
 		StopFollowing( ent, qtrue );
@@ -1023,7 +1023,13 @@ void FT_ResetFlags ( void ) {
 
 void ResetFreezeTimeEvent( gentity_t *ent, int clientNum ) {
 	gentity_t *event = G_TempEntity(ent->r.currentOrigin, EV_FREEZE_TIME);
-        event->s.time = 0; // Set the freeze time
-        event->r.svFlags |= SVF_SINGLECLIENT; // Send only to the specific client
-        event->r.singleClient = clientNum;
+
+	// Skip processing if the player is in spectator mode
+    // if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+    //     return;
+    // }
+    
+	event->s.time = level.time; // Set the freeze time
+    event->r.svFlags |= SVF_SINGLECLIENT; // Send only to the specific client
+    event->r.singleClient = clientNum;
 }

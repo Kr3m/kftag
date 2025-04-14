@@ -1004,15 +1004,16 @@ void ClientBegin( int clientNum ) {
 	client = level.clients + clientNum;
 
 	// Re-send EV_FREEZE_TIME if the client was frozen
-    if (ent->client->freezeTime > 0) {
-        gentity_t *event = G_TempEntity(ent->r.currentOrigin, EV_FREEZE_TIME);
-        event->s.time = ent->client->freezeTime; // Send the remaining freeze time
-        event->r.svFlags |= SVF_SINGLECLIENT; // Send only to the specific client
-        event->r.singleClient = clientNum;
-    } else {
-        // Reset EV_FREEZE_TIME if the client is not frozen
-        ResetFreezeTimeEvent(ent, clientNum);
-    }
+	ResetFreezeTimeEvent(ent, clientNum);
+    // if (ent->freezeState) {
+    //     gentity_t *event = G_TempEntity(ent->r.currentOrigin, EV_FREEZE_TIME);
+    //     event->s.time = ent->client->freezeTime; // Send the remaining freeze time
+    //     event->r.svFlags |= SVF_SINGLECLIENT; // Send only to the specific client
+    //     event->r.singleClient = clientNum;
+    // } else {
+    //     // Reset EV_FREEZE_TIME if the client is not frozen
+    //     ResetFreezeTimeEvent(ent, clientNum);
+    // }
 
 	if ( ent->r.linked ) {
 		trap_UnlinkEntity( ent );
@@ -1101,12 +1102,16 @@ void ClientSpawn(gentity_t *ent) {
 	//qlone
 
 	index = ent - g_entities;
-	client = ent->client;
-	ent->client->freezeTime = 0;
+	client = ent->client;	
 
 	trap_UnlinkEntity( ent );
 
 	isSpectator = client->sess.sessionTeam == TEAM_SPECTATOR;
+
+	if(isSpectator) {
+		ResetFreezeTimeEvent(ent, ent->s.clientNum);
+	}
+
 	// find a spawn point
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
@@ -1384,7 +1389,6 @@ void ClientDisconnect( int clientNum ) {
 
 	// Reset freeze state and freeze time.
 	ent->freezeState = qfalse;
-	ent->client->freezeTime = 0;
 
 	// Reset EV_FREEZE_TIME (s.time) for the disconnecting client
 	ResetFreezeTimeEvent(ent, clientNum);

@@ -318,7 +318,7 @@ struct gclient_s {
 	//spawn protection
 	int			spawnProtectionTime;
 	//freeze
-	int			freezeTime;
+	//int			freezeTime;
 
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;
