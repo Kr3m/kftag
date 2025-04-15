@@ -159,7 +159,6 @@ struct gentity_s {
 	qboolean	freezeState;
 	qboolean	readyBegin;
 	int			freezeTime; //freeze timer
-	int			freezeInstance; //unique id for each freeze
 
 	// team for spawn spot
 	team_t		fteam;
@@ -318,7 +317,7 @@ struct gclient_s {
 	//spawn protection
 	int			spawnProtectionTime;
 	//freeze
-	//int			freezeTime;
+	gentity_t	*freezeEvent;	// Reference to the EV_FREEZE_TIME temporary entity
 
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;

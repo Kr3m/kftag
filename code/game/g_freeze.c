@@ -1021,7 +1021,16 @@ void FT_ResetFlags ( void ) {
 	VectorClear( blueflag );
 }
 
-void ResetFreezeTimeEvent( gentity_t *ent, int clientNum ) {
-	ent->freezeTime = 0;
-	ent->freezeInstance = 0;
+void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
+	// Check if the player is a bot
+    if (ent->r.svFlags & SVF_BOT) {
+        return; // Skip output for bots
+    }
+
+    if (ent->client->freezeEvent) {
+        G_FreeEntity(ent->client->freezeEvent);
+        ent->client->freezeEvent = NULL;     
+    }
+
+    ent->freezeTime = 0;
 }
