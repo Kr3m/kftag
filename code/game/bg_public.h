@@ -99,8 +99,7 @@
 #define CS_OSP_AUTH                               872
 #define CS_OSP_FREEZE_GAME_TYPE                   873
 #define CS_OSP_CUSTOM_CLIENT2                     874
-#define CS_AUTOTHAW_TIME                       	  800
-#define CS_FREEZE_TIME                            801
+#define X_HCK_PS_ENEMY_HITBOX                     1000
 
 #define CS_MAX                  (CS_OSP_CUSTOM_CLIENT2)
 

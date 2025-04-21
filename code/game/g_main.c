@@ -423,6 +423,9 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	G_InitMemory();
 
+	// enable / disable hitboxes
+	UpdateHitBoxConfigString();
+
 	// fpsCapString = va("g_fpsCap %d", g_fpsCap.integer);
 	trap_SetConfigstring(CS_SERVERINFO, va("g_fpsCap %d", g_fpsCap.integer));
 
@@ -1491,6 +1494,16 @@ static void ClearBodyQue( void ) {
 	}
 }
 
+static void UpdateHitBoxConfigString(void) {
+    char buffer[32];
+    int hitboxEnabled = trap_Cvar_VariableIntegerValue("g_hitBoxEnabled");
+
+    // Format the config string
+    Com_sprintf(buffer, sizeof(buffer), "g_hitBoxEnabled %d", hitboxEnabled);
+
+    // Set the config string
+    trap_SetConfigstring(X_HCK_PS_ENEMY_HITBOX, buffer);
+}
 
 static void G_WarmupEnd( void ) 
 {

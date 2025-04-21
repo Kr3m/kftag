@@ -142,5 +142,6 @@ G_CVAR( g_redteam, "g_redteam", "Stroggs", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR
 G_CVAR( g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO, 0, qtrue, qtrue )
 
 G_CVAR( g_fpsCap, "g_fpsCap", "250", CVAR_SERVERINFO, 0, qtrue, qfalse )
+G_CVAR( g_hitBoxEnabled, "g_hitBoxEnabled", "0", CVAR_SERVERINFO, 0, qfalse, qfalse )
 
 #undef G_CVAR
