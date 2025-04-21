@@ -166,6 +166,8 @@ static void Body_Explode( gentity_t *self ) {
 			G_Sound( self, CHAN_AUTO, self->noise_index );
 
 			self->activator = e;
+
+			ResetFreezeTimeEvent( self, self->s.clientNum );
 		} else if ( self->count < level.time ) {
 			if ( self->activator == e ) {
 			} else if ( !self->activator->inuse ) {
