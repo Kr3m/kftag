@@ -995,14 +995,25 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	//damage stats
 	if( targ && targ->client && attacker && attacker->client ) {
 		if(!OnSameTeam(targ, attacker)) {
-			attacker->client->pers.stats.damageGiven += damage;
-		} else if ( mod != MOD_UNKNOWN && mod != MOD_TELEFRAG ) {
-			attacker->client->pers.stats.teamDamageGiven += damage;
-		}
-	}
-
-	if( targ && targ->client ) {
-		targ->client->pers.stats.damageReceived += damage;
+			if( g_dmflags.integer & 1024 ) {
+				if( mod != MOD_GRAPPLE ) {
+					attacker->client->pers.stats.damageGiven += (int)((float)damage / 8);
+					targ->client->pers.stats.damageReceived += (int)((float)damage / 8);
+				} else {
+					attacker->client->pers.stats.damageGiven += damage;
+					targ->client->pers.stats.damageReceived += damage;
+				}
+			} else {
+				attacker->client->pers.stats.damageGiven += damage;
+				targ->client->pers.stats.damageReceived += damage;
+			}
+		} 
+		
+		// else if ( g_friendlyFire.integer || mod != MOD_TELEFRAG ) {
+		// 	attacker->client->pers.stats.teamDamageGiven += damage;
+		// } else {
+		// 	attacker->client->pers.stats.teamDamageGiven += 0;
+		// }
 	}
 
 	client = targ->client;
