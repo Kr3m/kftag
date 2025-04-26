@@ -129,6 +129,8 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
 
     damage = 50 * s_quadFactor;
 
+	ent->client->pers.stats.weaponStats[WP_GAUNTLET].hits++;
+
 	G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_GAUNTLET );
 
 	return qtrue;
@@ -341,6 +343,9 @@ static qboolean ShotgunPellet( const vec3_t start, const vec3_t end, gentity_t *
 #else
 			if ( LogAccuracyHit( traceEnt, ent ) ) {
 				hitClient = qtrue;
+
+				// Increment the pellet hit counter
+                ent->client->pers.pelletsHit++;
 			}
 			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_SHOTGUN );
 			return hitClient;
@@ -389,6 +394,9 @@ static void ShotgunPattern( const vec3_t origin, const vec3_t origin2, int seed,
 
 static void weapon_supershotgun_fire( gentity_t *ent ) {
 	gentity_t		*tent;
+
+	// Reset the pellet hit counter
+	ent->client->pers.pelletsHit = 0;
 
 	// send shotgun blast
 	tent = G_TempEntity( muzzle, EV_SHOTGUN );
@@ -877,6 +885,8 @@ LogAccuracyHit
 ===============
 */
 qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
+	int weapon;
+
 	if( !target->takedamage ) {
 		return qfalse;
 	}
@@ -901,6 +911,13 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 		return qfalse;
 	}
 
+	if ( attacker && attacker->client ) {
+		weapon = attacker->client->ps.weapon;
+		if( weapon >= 0 && weapon < WP_NUM_WEAPONS ) {
+			attacker->client->pers.stats.weaponStats[weapon].hits++;
+		}
+	}
+	
 	return qtrue;
 }
 
@@ -911,6 +928,9 @@ FireWeapon
 ===============
 */
 void FireWeapon( gentity_t *ent ) {
+	int weapon = ent->s.weapon;
+	ent->client->pers.stats.weaponStats[weapon].attacks++;
+
 	if ( ent->client->ps.powerups[PW_QUAD] ) {
 		s_quadFactor = g_quadfactor.value;
 	} else {

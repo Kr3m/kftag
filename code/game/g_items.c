@@ -477,6 +477,7 @@ Touch_Item
 void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	int			respawn;
 	qboolean	predict;
+	int			weapon = ent->item->giTag;
 
 	if (!other->client)
 		return;
@@ -500,12 +501,25 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	switch( ent->item->giType ) {
 	case IT_WEAPON:
 		respawn = Pickup_Weapon(ent, other);
+		other->client->pers.stats.weaponStats[weapon].pickups++;
 		break;
 	case IT_AMMO:
 		respawn = Pickup_Ammo(ent, other);
 		break;
 	case IT_ARMOR:
 		respawn = Pickup_Armor(ent, other);
+		if ( ent->item->giTag != ARMOR_SHARD ) {
+			other->client->pers.stats.armorTaken++;
+		}
+		if ( ent->item->giTag == ARMOR_YELLOW ) {
+			other->client->pers.stats.YA++;
+		}
+		if ( ent->item->giTag == ARMOR_RED ) {
+			other->client->pers.stats.RA++;
+		}
+		if ( ent->item->giTag == ARMOR_GREEN ) {
+			other->client->pers.stats.GA++;
+		}
 		break;
 	case IT_HEALTH:
 		respawn = Pickup_Health(ent, other);

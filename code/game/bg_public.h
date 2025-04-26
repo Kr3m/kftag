@@ -665,6 +665,12 @@ typedef enum {
 	IT_TEAM
 } itemType_t;
 
+#define ARMOR_YELLOW 1
+#define ARMOR_RED 2
+#define ARMOR_GREEN 3
+#define ARMOR_SHARD 4
+#define HEALTH_MEGA 5
+
 #define MAX_ITEM_MODELS 4
 
 typedef struct gitem_s {

@@ -225,6 +225,35 @@ typedef struct {
 #define MAX_NETNAME			36
 #define	MAX_VOTE_COUNT		3
 
+//weapon stats
+typedef struct {
+    int attacks;
+    int hits;
+    int kills;
+    int deaths;
+    int pickups;
+    int drops;
+} weaponStats_t;
+
+//player stats
+typedef struct {
+    int kills;
+    int deaths;
+	int thaws;
+    int suicides;
+    int teamKills;
+    int damageGiven;
+	int teamDamageGiven;
+    int damageReceived;
+    int armorTaken;
+    int healthTaken;
+    int MH; // Mega Health pickups
+    int RA; // Red Armor pickups
+    int YA; // Yellow Armor pickups
+	int GA; // Green Armor pickups
+	weaponStats_t weaponStats[10];
+} playerStats_t;
+
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct {
@@ -244,6 +273,10 @@ typedef struct {
 	int			teamVoted;
 
 	qboolean	inGame;
+	float			pelletsHit;
+
+	//player stats
+	playerStats_t stats;
 } clientPersistant_t;
 
 // unlagged
@@ -1022,6 +1055,8 @@ void	trap_SnapVector( float *v );
 
 // Rail jumping
 void G_RailgunRadiusDamage (vec3_t origin, gentity_t *ent);
+
+float roundUp(float value);
 
 // extension interface
 

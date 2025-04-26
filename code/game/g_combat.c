@@ -471,6 +471,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	char		*killerName, *obit;
 	gentity_t	*event;
 
+	int weapon = attacker->client->ps.weapon;
+
+	if( self && self->client ) {
+		self->client->pers.stats.deaths++;
+	}
+
 	// Create a temporary event entity to carry the freezeTime value
 	ResetFreezeTimeEvent( self, self->s.clientNum );
 
@@ -490,6 +496,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	if ( level.intermissiontime ) {
 		return;
+	}
+
+	//death stats
+	if ( self && self->client && attacker && attacker->client ) {
+		if( OnSameTeam ( self, attacker ) ) {
+			attacker->client->pers.stats.teamKills++;
+		} else {
+			attacker->client->pers.stats.kills++;
+		}
 	}
 
 	//unlag the client
@@ -550,7 +565,18 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	self->client->ps.persistant[PERS_KILLED]++;
 
-	if (attacker && attacker->client) {
+	if (attacker && attacker->client && self && self->client) {
+		//weapon stats
+		
+		if(!OnSameTeam(self, attacker)) {
+			attacker->client->pers.stats.weaponStats[weapon].kills++;
+		}
+		if ( attacker != self ) {
+			if( weapon && weapon < WP_NUM_WEAPONS ) {
+				self->client->pers.stats.weaponStats[weapon].deaths++;
+			}
+		}
+		
 		attacker->client->lastkilled_client = self->s.number;
 
 		if ( attacker == self || OnSameTeam (self, attacker ) ) {
@@ -592,6 +618,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// Add team bonuses
 	Team_FragBonuses(self, inflictor, attacker);
+
+	//suicide stats
+	if(self && self->client) {
+		if (meansOfDeath == MOD_SUICIDE || meansOfDeath == MOD_FALLING || meansOfDeath == MOD_CRUSH || meansOfDeath == MOD_LAVA || meansOfDeath == MOD_SLIME || meansOfDeath == MOD_TRIGGER_HURT || attacker == self ) {		
+			self->client->pers.stats.suicides++;
+		}
+	}
+
+	Com_Printf("MOD: %s", obit);
 
 	// if I committed suicide, the flag does not fall, it returns.
 	if (meansOfDeath == MOD_SUICIDE) {
@@ -955,6 +990,19 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 #endif
 		damage = damage * max / 100;
+	}
+
+	//damage stats
+	if( targ && targ->client && attacker && attacker->client ) {
+		if(!OnSameTeam(targ, attacker)) {
+			attacker->client->pers.stats.damageGiven += damage;
+		} else if ( mod != MOD_UNKNOWN && mod != MOD_TELEFRAG ) {
+			attacker->client->pers.stats.teamDamageGiven += damage;
+		}
+	}
+
+	if( targ && targ->client ) {
+		targ->client->pers.stats.damageReceived += damage;
 	}
 
 	client = targ->client;

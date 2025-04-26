@@ -54,7 +54,7 @@ gitem_t	bg_itemlist[] =
 /* pickup */	"Armor Shard",
 		5,
 		IT_ARMOR,
-		0,
+		ARMOR_SHARD,
 /* precache */ "",
 /* sounds */ ""
 	},
@@ -70,7 +70,7 @@ gitem_t	bg_itemlist[] =
 /* pickup */	"Armor",
 		50,
 		IT_ARMOR,
-		0,
+		ARMOR_YELLOW,
 /* precache */ "",
 /* sounds */ ""
 	},
@@ -86,7 +86,7 @@ gitem_t	bg_itemlist[] =
 /* pickup */	"Heavy Armor",
 		100,
 		IT_ARMOR,
-		0,
+		ARMOR_RED,
 /* precache */ "",
 /* sounds */ ""
 	},
@@ -157,7 +157,7 @@ gitem_t	bg_itemlist[] =
 /* pickup */	"Mega Health",
 		100,
 		IT_HEALTH,
-		0,
+		HEALTH_MEGA,
 /* precache */ "",
 /* sounds */ ""
 	},
@@ -633,6 +633,22 @@ Only in CTF games
 /* precache */ "",
 /* sounds */ ""
 	},
+
+/*QUAKED item_armor_jacket (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+{
+	"item_armor_jacket", 
+	"sound/misc/ar2_pkup.wav",
+	{ "models/powerups/armor/armor_grn.md3",
+	0, 0, 0},
+/* icon */		"icons/iconr_green",
+/* pickup */	"Light Armor",
+	25,
+	IT_ARMOR,
+	ARMOR_GREEN,
+/* precache */ "",
+/* sounds */ ""
+},
 
 #ifdef MISSIONPACK
 /*QUAKED holdable_kamikaze (.3 .3 1) (-16 -16 -16) (16 16 16) suspended

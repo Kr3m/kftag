@@ -544,6 +544,11 @@ qboolean SetTeam( gentity_t *ent, const char *s ) {
 	int					teamLeader;
 	qboolean			checkTeamLeader;
 
+	// fix: this prevents rare creation of invalid players
+	if ( !ent->inuse ) {
+		return qfalse;
+	}
+
 	//
 	// see what change is requested
 	//
@@ -1867,6 +1872,83 @@ void Cmd_Stats_f( gentity_t *ent ) {
 */
 }
 
+/*
+=================
+Cmd_GetStatsInfo_f
+Send OSP specific stats info to player
+=================
+*/
+void Cmd_GetStatsInfo_f(gentity_t *ent) {
+    char *statsinfo, buffer[MAX_STRING_CHARS];
+    gentity_t *ent2 = ent;
+    playerStats_t *stats;
+    playerTeamState_t *teamstats;
+    int i, len = 0, weapons = 0;
+    int losses;
+	float sgHits;
+
+    #define CombineNumbers(a, b) (a + b + (b * 65535))
+
+    if (is_spectator(ent->client)) {
+        if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW)
+            return;
+        ent2 = &level.gentities[ent->client->sess.spectatorClient];
+    }
+
+    stats = &ent2->client->pers.stats;
+    teamstats = &ent2->client->pers.teamState;
+
+    losses = ent2->client->sess.losses;
+
+    for (i = 1; i < 10; i++) {
+        weaponStats_t *ws = &stats->weaponStats[i];
+		if ( i == WP_SHOTGUN ) {
+			sgHits = (float)ws->hits / DEFAULT_SHOTGUN_COUNT;
+			ws->hits = (int)roundUp(sgHits);
+		}
+		G_Printf("Weapon %d: attacks=%d, hits=%d, kills=%d, deaths=%d, pickups=%d, drops=%d\n",
+			i, ws->attacks, ws->hits, ws->kills, ws->deaths, ws->pickups, ws->drops);
+        if (ws->attacks || ws->hits || ws->kills || ws->deaths || ws->pickups || ws->drops) {
+            weapons += 1 << i;
+            len += Com_sprintf(buffer + len, sizeof(buffer) - len, " %i %i %i %i",
+                CombineNumbers(ws->hits, ws->drops),
+                CombineNumbers(ws->attacks, ws->pickups),
+                ws->kills,
+                ws->deaths);
+        }
+    }
+    buffer[len] = '\0';
+    
+        statsinfo = va("statsinfo %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i  %i%s",
+        1, // unknown. always 1
+        ent2->client->ps.persistant[PERS_SCORE],
+        ent2->client->sess.sessionTeam,
+        stats->kills,
+        stats->deaths,
+        stats->suicides,
+        stats->teamKills,
+        stats->teamDamageGiven,
+        stats->damageGiven,
+        stats->damageReceived,
+        CombineNumbers(ent2->client->sess.wins, stats->armorTaken),
+        CombineNumbers(stats->thaws, stats->healthTaken),
+        teamstats->captures,
+        teamstats->assists,
+        teamstats->basedefense + teamstats->carrierdefense,
+        teamstats->flagrecovery,
+        0, // unknown
+        stats->MH,
+        stats->GA,
+        stats->RA,
+        stats->YA,
+        weapons,
+        buffer);
+
+	Com_Printf("StatsInfo: %s\n", statsinfo);
+	trap_SendServerCommand(ent - g_entities, statsinfo);
+}
+
+
 
 /*
 =================
@@ -1986,6 +2068,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_Drop_f( ent );
 	else if ( Q_stricmp( cmd, "ready" ) == 0 )
 		Cmd_Ready_f( ent );
+	else if ( Q_stricmp( cmd, "getstatsinfo" ) == 0 )
+		Cmd_GetStatsInfo_f( ent );
 //qlone - freezetag
 	else
 		trap_SendServerCommand( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );

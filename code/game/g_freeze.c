@@ -187,6 +187,8 @@ static void Body_Explode( gentity_t *self ) {
 			tent->r.svFlags = SVF_BROADCAST;
 
 			G_LogPrintf( "Kill: %i %i %i: %s killed %s by %s\n", e->s.number, self->target_ent->s.number, MOD_UNKNOWN, e->client->pers.netname, self->target_ent->client->pers.netname, "MOD_UNKNOWN" );
+			e->client->pers.stats.thaws++;
+			Com_Printf("Thaws: %i\n", e->client->pers.stats.thaws);
 			AddScore( e, self->s.pos.trBase, 2 );
 
 			e->client->sess.wins++;

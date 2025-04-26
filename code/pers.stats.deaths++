@@ -1,0 +1,385 @@
+game/g_trigger.c:	if (!VectorCompare (self->s.angles, vec3_origin))
+game/g_trigger.c:		G_SetMovedir (self->s.angles, self->movedir);
+game/g_trigger.c:	trap_SetBrushModel( self, self->model );
+game/g_trigger.c:	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
+game/g_trigger.c:	self->r.svFlags = SVF_NOCLIENT;
+game/g_trigger.c:	BG_TouchJumpPad( &other->client->ps, &self->s );
+game/g_trigger.c:	VectorAdd( self->r.absmin, self->r.absmax, origin );
+game/g_trigger.c:	ent = G_PickTarget( self->target );
+game/g_trigger.c:	VectorSubtract ( ent->s.origin, origin, self->s.origin2 );
+game/g_trigger.c:	self->s.origin2[2] = 0;
+game/g_trigger.c:	dist = VectorNormalize( self->s.origin2);
+game/g_trigger.c:	VectorScale( self->s.origin2, forward, self->s.origin2 );
+game/g_trigger.c:	self->s.origin2[2] = time * gravity;
+game/g_trigger.c:	self->r.svFlags &= ~SVF_NOCLIENT;
+game/g_trigger.c:	self->s.eType = ET_PUSH_TRIGGER;
+game/g_trigger.c:	self->touch = trigger_push_touch;
+game/g_trigger.c:	self->think = AimAtTarget;
+game/g_trigger.c:	self->nextthink = level.time + FRAMETIME;
+game/g_trigger.c:	VectorCopy (self->s.origin2, activator->client->ps.velocity);
+game/g_trigger.c:		G_Sound( activator, CHAN_AUTO, self->noise_index );
+game/g_trigger.c:	if (!self->speed) {
+game/g_trigger.c:		self->speed = 1000;
+game/g_trigger.c:	G_SetMovedir (self->s.angles, self->s.origin2);
+game/g_trigger.c:	VectorScale (self->s.origin2, self->speed, self->s.origin2);
+game/g_trigger.c:	if ( self->spawnflags & 1 ) {
+game/g_trigger.c:		self->noise_index = G_SoundIndex("sound/world/jumppad.wav");
+game/g_trigger.c:		self->noise_index = G_SoundIndex("sound/misc/windfly.wav");
+game/g_trigger.c:	if ( self->target ) {
+game/g_trigger.c:		VectorCopy( self->s.origin, self->r.absmin );
+game/g_trigger.c:		VectorCopy( self->s.origin, self->r.absmax );
+game/g_trigger.c:		self->think = AimAtTarget;
+game/g_trigger.c:		self->nextthink = level.time + FRAMETIME;
+game/g_trigger.c:	self->use = Use_target_push;
+game/g_trigger.c:	if ( ( self->spawnflags & 1 ) && 
+game/g_trigger.c:	dest = 	G_PickTarget( self->target );
+game/g_trigger.c:	if ( self->spawnflags & 1 ) {
+game/g_trigger.c:		self->r.svFlags |= SVF_NOCLIENT;
+game/g_trigger.c:		self->r.svFlags &= ~SVF_NOCLIENT;
+game/g_trigger.c:	self->s.eType = ET_TELEPORT_TRIGGER;
+game/g_trigger.c:	self->touch = trigger_teleporter_touch;
+game/g_trigger.c:	if ( self->r.linked ) {
+game/g_trigger.c:	if ( self->timestamp > level.time ) {
+game/g_trigger.c:	if ( self->spawnflags & 16 ) {
+game/g_trigger.c:		self->timestamp = level.time + 1000;
+game/g_trigger.c:		self->timestamp = level.time + FRAMETIME;
+game/g_trigger.c:	if ( !(self->spawnflags & 4) ) {
+game/g_trigger.c:		G_Sound( other, CHAN_AUTO, self->noise_index );
+game/g_trigger.c:	if (self->spawnflags & 8)
+game/g_trigger.c:	G_Damage (other, self, self, NULL, NULL, self->damage, dflags, MOD_TRIGGER_HURT);
+game/g_trigger.c:	self->noise_index = G_SoundIndex( "sound/world/electro.wav" );
+game/g_trigger.c:	self->touch = hurt_touch;
+game/g_trigger.c:	if ( !self->damage ) {
+game/g_trigger.c:		self->damage = 5;
+game/g_trigger.c:	self->r.contents = CONTENTS_TRIGGER;
+game/g_trigger.c:	if ( self->spawnflags & 2 ) {
+game/g_trigger.c:		self->use = hurt_use;
+game/g_trigger.c:	if ( ! (self->spawnflags & 1) ) {
+game/g_trigger.c:	G_UseTargets (self, self->activator);
+game/g_trigger.c:	self->nextthink = level.time + 1000 * ( self->wait + crandom() * self->random );
+game/g_trigger.c:	self->activator = activator;
+game/g_trigger.c:	if ( self->nextthink ) {
+game/g_trigger.c:		self->nextthink = 0;
+game/g_trigger.c:	G_SpawnFloat( "random", "1", &self->random);
+game/g_trigger.c:	G_SpawnFloat( "wait", "1", &self->wait );
+game/g_trigger.c:	self->use = func_timer_use;
+game/g_trigger.c:	self->think = func_timer_think;
+game/g_trigger.c:	if ( self->random >= self->wait ) {
+game/g_trigger.c:		self->random = self->wait - FRAMETIME;
+game/g_trigger.c:		G_Printf( "func_timer at %s has random >= wait\n", vtos( self->s.origin ) );
+game/g_trigger.c:	if ( self->spawnflags & 1 ) {
+game/g_trigger.c:		self->nextthink = level.time + FRAMETIME;
+game/g_trigger.c:		self->activator = self;
+game/g_trigger.c:	self->r.svFlags = SVF_NOCLIENT;
+game/g_freeze.c:	if ( self->freezeState ) {
+game/g_freeze.c:		player_free( self->target_ent );
+game/g_freeze.c:	if ( self->s.eFlags & EF_KAMIKAZE ) {
+game/g_freeze.c:	self->s.powerups = 0;
+game/g_freeze.c:		if ( e->client->sess.sessionTeam != self->spawnflags ) continue;
+game/g_freeze.c:		VectorSubtract( self->s.pos.trBase, e->s.pos.trBase, point );
+game/g_freeze.c:		if ( !self->count ) {
+game/g_freeze.c:				self->count = level.time + g_thawTime.value * 1000;
+game/g_freeze.c:				self->count = level.time + g_thawTime.value * 1000;
+game/g_freeze.c:			G_Sound( self, CHAN_AUTO, self->noise_index );
+game/g_freeze.c:			self->activator = e;
+game/g_freeze.c:		} else if ( self->count < level.time ) {
+game/g_freeze.c:			if ( self->activator == e ) {
+game/g_freeze.c:			} else if ( !self->activator->inuse ) {
+game/g_freeze.c:			} else if ( self->activator->health < 1 ) {
+game/g_freeze.c:				VectorSubtract( self->s.pos.trBase, self->activator->s.pos.trBase, point );
+game/g_freeze.c:				} else if ( is_spectator( self->activator->client ) ) {
+game/g_freeze.c:					e = self->activator;
+game/g_freeze.c:			tent = G_TempEntity( self->target_ent->r.currentOrigin, EV_OBITUARY );
+game/g_freeze.c:			tent->s.otherEntityNum = self->target_ent->s.number;
+game/g_freeze.c:			G_LogPrintf( "Kill: %i %i %i: %s killed %s by %s\n", e->s.number, self->target_ent->s.number, MOD_UNKNOWN, e->client->pers.netname, self->target_ent->client->pers.netname, "MOD_UNKNOWN" );
+game/g_freeze.c:			self->client->pers.stats.thaws++;
+game/g_freeze.c:			AddScore( e, self->s.pos.trBase, 2 );
+game/g_freeze.c:	self->count = 0;
+game/g_freeze.c:	VectorCopy( self->r.currentOrigin, point );
+game/g_freeze.c:		if ( level.time - self->timestamp > 5000 ) {
+game/g_freeze.c:	if ( self->s.pos.trType == TR_STATIONARY && contents & CONTENTS_NODROP ) {
+game/g_freeze.c:		if ( level.time - self->timestamp > 5000 ) {
+game/g_freeze.c:	previous_waterlevel = self->waterlevel;
+game/g_freeze.c:	self->waterlevel = 0;
+game/g_freeze.c:		self->waterlevel = 3;
+game/g_freeze.c:	self->watertype = contents;
+game/g_freeze.c:	if ( !previous_waterlevel && self->waterlevel ) {
+game/g_freeze.c:	if ( previous_waterlevel && !self->waterlevel ) {
+game/g_freeze.c:	VectorAdd( self->r.currentOrigin, self->r.mins, mins );
+game/g_freeze.c:	VectorAdd( self->r.currentOrigin, self->r.maxs, maxs );
+game/g_freeze.c:			if ( self->s.pos.trDelta[ 2 ] < 100 ) {
+game/g_freeze.c:			VectorCopy( hit->s.origin2, self->s.pos.trDelta );
+game/g_freeze.c:			self->s.pos.trType = TR_GRAVITY;
+game/g_freeze.c:			self->s.pos.trTime = level.time;
+game/g_freeze.c:				G_TempEntity( self->r.currentOrigin, EV_PLAYER_TELEPORT_OUT );
+game/g_freeze.c:	self->timestamp = level.time;
+game/g_freeze.c:	self->nextthink = level.time + 5000;
+game/g_freeze.c:	if ( self->s.eFlags & EF_KAMIKAZE ) {
+game/g_freeze.c:	self->s.eFlags |= EF_DEAD;
+game/g_freeze.c:	self->s.powerups = 0;
+game/g_freeze.c:	self->r.maxs[ 2 ] = -8;
+game/g_freeze.c:	self->r.contents = CONTENTS_CORPSE;
+game/g_freeze.c:	self->freezeState = qfalse;
+game/g_freeze.c:	self->s.weapon = WP_NONE;
+game/g_freeze.c:	self->s.torsoAnim = self->s.legsAnim = anim;
+game/g_freeze.c:		self->takedamage = qfalse;
+game/g_freeze.c:	self->nextthink = level.time + FRAMETIME;
+game/g_freeze.c:	if ( !self->target_ent || !self->target_ent->client || !self->target_ent->inuse ) {
+game/g_freeze.c:	if ( self->s.otherEntityNum != self->target_ent->s.number ) {
+game/g_freeze.c:	if ( level.time - self->timestamp > 150000 || ( ( g_dmflags.integer & 1024 || g_gametype.integer == GT_CTF ) && level.time - self->timestamp >= ( g_autoThawTime.integer * 1000 ) ) ) {
+game/g_freeze.c:		tent = G_TempEntity( self->r.currentOrigin, EV_GIB_PLAYER );
+game/g_freeze.c:		if ( self->freezeState ) {
+game/g_freeze.c:		player_free( self->target_ent );
+game/g_freeze.c:	if ( self->freezeState ) {
+game/g_freeze.c:		if ( !self->target_ent->freezeState ) {
+game/g_freeze.c:		if ( self->last_move_time < level.time - 1000 ) {
+game/g_freeze.c:			self->last_move_time = level.time;
+game/g_freeze.c:	if ( level.time - self->timestamp > 6500 ) {
+game/g_freeze.c:		self->s.pos.trBase[ 2 ] -= 1;
+game/g_freeze.c:	if ( self->health > GIB_HEALTH ) {
+game/g_freeze.c:	if ( self->freezeState && !g_blood.integer ) {
+game/g_freeze.c:		tent = G_TempEntity( self->r.currentOrigin, EV_GIB_PLAYER );
+game/g_freeze.c:		if ( self->freezeState ) {
+game/g_freeze.c:		player_free( self->target_ent );
+game/g_freeze.c:	tent = G_TempEntity( self->r.currentOrigin, EV_GIB_PLAYER );
+game/g_freeze.c:	if ( self->freezeState ) {
+game/g_freeze.c:		VectorSubtract( redflag, self->s.pos.trBase, dist1 );
+game/g_freeze.c:		VectorSubtract( blueflag, self->s.pos.trBase, dist2 );
+game/g_freeze.c:		if ( self->client->sess.sessionTeam == TEAM_RED ) {
+game/g_freeze.c:		} else if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
+game/g_freeze.c:	self->r.maxs[ 2 ] = -8;
+game/g_freeze.c:	self->freezeState = qtrue;
+game/g_freeze.c:	self->takedamage = qfalse;
+game/g_freeze.c:	self->s.eType = ET_INVISIBLE;
+game/g_freeze.c:	self->r.contents = 0;
+game/g_freeze.c:	self->health = GIB_HEALTH;
+game/g_team.c:	self->nextthink = level.time + g_obeliskRegenPeriod.integer * 1000;
+game/g_team.c:	if( self->health >= g_obeliskHealth.integer ) {
+game/g_team.c:	self->health += g_obeliskRegenAmount.integer;
+game/g_team.c:	if ( self->health > g_obeliskHealth.integer ) {
+game/g_team.c:		self->health = g_obeliskHealth.integer;
+game/g_team.c:	self->activator->s.modelindex2 = self->health * 0xff / g_obeliskHealth.integer;
+game/g_team.c:	self->activator->s.frame = 0;
+game/g_team.c:	self->takedamage = qtrue;
+game/g_team.c:	self->health = g_obeliskHealth.integer;
+game/g_team.c:	self->think = ObeliskRegen;
+game/g_team.c:	self->nextthink = level.time + g_obeliskRegenPeriod.integer * 1000;
+game/g_team.c:	self->activator->s.frame = 0;
+game/g_team.c:	otherTeam = OtherTeam( self->spawnflags );
+game/g_team.c:	AddTeamScore(self->s.pos.trBase, otherTeam, 1);
+game/g_team.c:	self->takedamage = qfalse;
+game/g_team.c:	self->think = ObeliskRespawn;
+game/g_team.c:	self->nextthink = level.time + g_obeliskRespawnDelay.integer * 1000;
+game/g_team.c:	self->activator->s.modelindex2 = 0xff;
+game/g_team.c:	self->activator->s.frame = 2;
+game/g_team.c:	G_AddEvent( self->activator, EV_OBELISKEXPLODE, 0 );
+game/g_team.c:	AddScore(attacker, self->r.currentOrigin, CTF_CAPTURE_BONUS);
+game/g_team.c:	if ( OtherTeam(other->client->sess.sessionTeam) != self->spawnflags ) {
+game/g_team.c:	AddTeamScore(self->s.pos.trBase, other->client->sess.sessionTeam, tokens);
+game/g_team.c:	AddScore(other, self->r.currentOrigin, CTF_CAPTURE_BONUS*tokens);
+game/g_team.c:	Team_CaptureFlagSound( self, self->spawnflags );
+game/g_team.c:	self->activator->s.modelindex2 = self->health * 0xff / g_obeliskHealth.integer;
+game/g_team.c:	if (!self->activator->s.frame) {
+game/g_team.c:	self->activator->s.frame = 1;
+game/g_team.c:	AddScore(attacker, self->r.currentOrigin, actualDamage);
+game/g_mover.c:	if ( !self->targetname ) {
+game/g_mover.c:		G_Printf ("path_corner with no targetname at %s\n", vtos(self->s.origin));
+game/g_mover.c:	VectorClear (self->s.angles);
+game/g_mover.c:	if (self->spawnflags & TRAIN_BLOCK_STOPS) {
+game/g_mover.c:		self->damage = 0;
+game/g_mover.c:		if (!self->damage) {
+game/g_mover.c:			self->damage = 2;
+game/g_mover.c:	if ( !self->speed ) {
+game/g_mover.c:		self->speed = 100;
+game/g_mover.c:	if ( !self->target ) {
+game/g_mover.c:		G_Printf ("func_train without a target at %s\n", vtos(self->r.absmin));
+game/g_mover.c:	trap_SetBrushModel( self, self->model );
+game/g_mover.c:	self->reached = Reached_Train;
+game/g_mover.c:	self->nextthink = level.time + FRAMETIME;
+game/g_mover.c:	self->think = Think_SetupTrainTargets;
+game/g_combat.c:		weapon = self->s.weapon;
+game/g_combat.c:			if ( self->client->ps.weaponstate == WEAPON_DROPPING ) {
+game/g_combat.c:				weapon = self->client->pers.cmd.weapon;
+game/g_combat.c:			if ( !( self->client->ps.stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+game/g_combat.c:				self->client->ps.ammo[ weapon ] ) {
+game/g_combat.c:			if ( self->client->ps.powerups[ i ] > level.time ) {
+game/g_combat.c:				drop->count = ( self->client->ps.powerups[ i ] - level.time ) / 1000;
+game/g_combat.c:			if ( bg_itemlist[ self->client->ps.stats[ STAT_HOLDABLE_ITEM ] ].giTag == i ) {
+game/g_combat.c:			if ( self->client->ps.powerups[ i ] > level.time ) {
+game/g_combat.c:				drop->count = ( self->client->ps.powerups[ i ] - level.time ) / 1000;
+game/g_combat.c:	self->client->ps.generic1 = 0;
+game/g_combat.c:	if( self->client->sess.sessionTeam == TEAM_RED ) {
+game/g_combat.c:	drop->spawnflags = self->client->sess.sessionTeam;
+game/g_combat.c:		VectorSubtract (attacker->s.pos.trBase, self->s.pos.trBase, dir);
+game/g_combat.c:		VectorSubtract (inflictor->s.pos.trBase, self->s.pos.trBase, dir);
+game/g_combat.c:		self->client->ps.stats[STAT_DEAD_YAW] = self->s.angles[YAW];
+game/g_combat.c:	self->client->ps.stats[STAT_DEAD_YAW] = vectoyaw ( dir );
+game/g_combat.c:	if (self->s.eFlags & EF_KAMIKAZE) {
+game/g_combat.c:	self->takedamage = qfalse;
+game/g_combat.c:	self->s.eType = ET_INVISIBLE;
+game/g_combat.c:	self->r.contents = 0;
+game/g_combat.c:	if ( self->health > GIB_HEALTH ) {
+game/g_combat.c:		self->health = GIB_HEALTH+1;
+game/g_combat.c:	VectorCopy(self->s.pos.trBase, ent->s.pos.trBase);
+game/g_combat.c:	if ( self->client->ps.powerups[PW_REDFLAG] ||
+game/g_combat.c:		self->client->ps.powerups[PW_BLUEFLAG] ||
+game/g_combat.c:		self->client->ps.powerups[PW_NEUTRALFLAG] ) {
+game/g_combat.c:			if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
+game/g_combat.c:			if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
+game/g_combat.c:			VectorSubtract( self->client->ps.origin, ent->s.origin, dir );
+game/g_combat.c:				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+game/g_combat.c:	if ( self->client->ps.generic1 ) {
+game/g_combat.c:		if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
+game/g_combat.c:			VectorSubtract( self->client->ps.origin, ent->s.origin, dir );
+game/g_combat.c:				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+game/g_combat.c:	self->client->pers.stats.deaths++;
+game/g_combat.c:	ResetFreezeTimeEvent( self, self->s.clientNum );
+game/g_combat.c:    event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
+game/g_combat.c:	self->freezeTime = level.time + (g_autoThawTime.integer * 1000);
+game/g_combat.c:    event->s.time = self->freezeTime; // Store the freezeTime value in the event
+game/g_combat.c:    event->r.singleClient = self->s.clientNum;
+game/g_combat.c:	event->s.eventParm = self->s.clientNum;
+game/g_combat.c:	self->client->freezeEvent = event;
+game/g_combat.c:	if ( self->client->ps.pm_type == PM_DEAD ) {
+game/g_combat.c:			self->client->pers.stats.weaponStats[weapon].deaths++;
+game/g_combat.c:	if (self->client && self->client->hook) {
+game/g_combat.c:		Weapon_HookFree(self->client->hook);
+game/g_combat.c:	if ((self->client->ps.eFlags & EF_TICKING) && self->activator) {
+game/g_combat.c:		self->client->ps.eFlags &= ~EF_TICKING;
+game/g_combat.c:		self->activator->think = G_FreeEntity;
+game/g_combat.c:		self->activator->nextthink = level.time;
+game/g_combat.c:	self->client->ps.pm_type = PM_DEAD;
+game/g_combat.c:		killer, self->s.number, meansOfDeath, killerName, 
+game/g_combat.c:		self->client->pers.netname, obit );
+game/g_combat.c:	ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
+game/g_combat.c:	self->enemy = attacker;
+game/g_combat.c:	self->client->ps.persistant[PERS_KILLED]++;
+game/g_combat.c:			self->client->pers.stats.weaponStats[weapon].deaths++;
+game/g_combat.c:		attacker->client->lastkilled_client = self->s.number;
+game/g_combat.c:			AddScore( attacker, self->r.currentOrigin, -1 );
+game/g_combat.c:			AddScore( attacker, self->r.currentOrigin, 1 );
+game/g_combat.c:				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
+game/g_combat.c:		AddScore( self, self->r.currentOrigin, -1 );
+game/g_combat.c:		self->client->pers.stats.suicides++;
+game/g_combat.c:		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
+game/g_combat.c:			self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
+game/g_combat.c:		if ( self->client->ps.powerups[PW_REDFLAG] ) {		// only happens in standard CTF
+game/g_combat.c:			self->client->ps.powerups[PW_REDFLAG] = 0;
+game/g_combat.c:		else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
+game/g_combat.c:			self->client->ps.powerups[PW_BLUEFLAG] = 0;
+game/g_combat.c:	contents = trap_PointContents( self->r.currentOrigin, -1 );
+game/g_combat.c:		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
+game/g_combat.c:		else if ( self->client->ps.powerups[PW_REDFLAG] ) {		// only happens in standard CTF
+game/g_combat.c:		else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
+game/g_combat.c:		if ( client->sess.spectatorClient == self->s.number ) {
+game/g_combat.c:	self->takedamage = qtrue;	// can still be gibbed
+game/g_combat.c:	self->s.weapon = WP_NONE;
+game/g_combat.c:	self->s.powerups = 0;
+game/g_combat.c:	self->r.contents = CONTENTS_CORPSE;
+game/g_combat.c:	self->s.angles[0] = 0;
+game/g_combat.c:	self->s.angles[2] = 0;
+game/g_combat.c:	VectorCopy( self->s.angles, self->client->ps.viewangles );
+game/g_combat.c:	self->s.loopSound = 0;
+game/g_combat.c:	self->r.maxs[2] = -8;
+game/g_combat.c:	self->client->respawnTime = level.time + 1700;
+game/g_combat.c:	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
+game/g_combat.c:		if ( self->freezeState ) {
+game/g_combat.c:		self->r.maxs[ 2 ] = -8;
+game/g_combat.c:	if ( (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE) {
+game/g_combat.c:		if ( self->health <= GIB_HEALTH ) {
+game/g_combat.c:			self->health = GIB_HEALTH+1;
+game/g_combat.c:		self->client->ps.legsAnim = 
+game/g_combat.c:			( ( self->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
+game/g_combat.c:		self->client->ps.torsoAnim = 
+game/g_combat.c:			( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
+game/g_combat.c:		self->die = body_die;
+game/g_combat.c:		if (self->s.eFlags & EF_KAMIKAZE) {
+game/g_weapon.c:	self->count += 100;
+game/g_weapon.c:	if (self->count >= KAMI_SHOCKWAVE_STARTTIME) {
+game/g_weapon.c:		t = self->count - KAMI_SHOCKWAVE_STARTTIME;
+game/g_weapon.c:		KamikazeShockWave(self->s.pos.trBase, self->activator, 25, 400,	(int) (float) t * KAMI_SHOCKWAVE_MAXRADIUS / (KAMI_SHOCKWAVE_ENDTIME - KAMI_SHOCKWAVE_STARTTIME) );
+game/g_weapon.c:	if (self->count >= KAMI_EXPLODE_STARTTIME) {
+game/g_weapon.c:		t = self->count - KAMI_EXPLODE_STARTTIME;
+game/g_weapon.c:		KamikazeRadiusDamage( self->s.pos.trBase, self->activator, 400,	(int) (float) t * KAMI_BOOMSPHERE_MAXRADIUS / (KAMI_IMPLODE_STARTTIME - KAMI_EXPLODE_STARTTIME) );
+game/g_weapon.c:	if( self->count >= KAMI_SHOCKWAVE_ENDTIME ) {
+game/g_weapon.c:	self->nextthink = level.time + 100;
+game/g_weapon.c:		ent->client->ps.delta_angles[0] += ANGLE2SHORT(newangles[0] - self->movedir[0]);
+game/g_weapon.c:		ent->client->ps.delta_angles[1] += ANGLE2SHORT(newangles[1] - self->movedir[1]);
+game/g_weapon.c:		ent->client->ps.delta_angles[2] += ANGLE2SHORT(newangles[2] - self->movedir[2]);
+game/g_weapon.c:	VectorCopy(newangles, self->movedir);
+game/g_missile.c:	bolt->r.ownerNum = self->s.number;
+game/g_missile.c:	bolt->s.clientNum = self->s.clientNum;
+game/g_missile.c:	bolt->s.otherEntityNum = self->s.number;
+game/g_missile.c:	bolt->r.ownerNum = self->s.number;
+game/g_missile.c:	if ( self->s.powerups & (1 << PW_QUAD) )
+game/g_missile.c:	bolt->s.clientNum = self->s.clientNum;
+game/g_missile.c:	bolt->s.otherEntityNum = self->s.number;
+game/g_missile.c:	bolt->r.ownerNum = self->s.number;
+game/g_missile.c:	if ( self->s.powerups & (1 << PW_QUAD) )
+game/g_missile.c:	bolt->s.clientNum = self->s.clientNum;
+game/g_missile.c:	bolt->s.otherEntityNum = self->s.number;
+game/g_missile.c:	bolt->r.ownerNum = self->s.number;
+game/g_missile.c:	if ( self->s.powerups & (1 << PW_QUAD) )
+game/g_missile.c:	bolt->s.clientNum = self->s.clientNum;
+game/g_missile.c:	bolt->s.otherEntityNum = self->s.number;
+game/g_missile.c:	hook->r.ownerNum = self->s.number;
+game/g_missile.c:	hook->s.clientNum = self->s.clientNum;
+game/g_missile.c:	hook->s.otherEntityNum = self->s.number;
+game/g_missile.c:	if ( self->client ) {
+game/g_missile.c:		hooktime = self->client->pers.cmd.serverTime + MISSILE_PRESTEP_TIME;
+game/g_missile.c:	self->client->hook = hook;
+game/g_missile.c:	bolt->r.ownerNum = self->s.number;
+game/g_missile.c:	bolt->r.ownerNum = self->s.number;
+game/g_missile.c:	bolt->s.generic1 = self->client->sess.sessionTeam;
+game/g_misc.c:	G_SetOrigin( self, self->s.origin );
+game/g_misc.c:	G_SetOrigin( self, self->s.origin );
+game/g_misc.c://	if( other->client->ps.persistant[PERS_TEAM] != self->spawnflags ) {
+game/g_misc.c:		if( destination->count == self->count ) {
+game/g_misc.c:		if( self->pos1[0] || self->pos1[1] || self->pos1[2] ) {
+game/g_misc.c:			TeleportPlayer( other, self->pos1, self->s.angles );
+game/g_misc.c:	self->touch = PortalTouch;
+game/g_misc.c:	self->think = G_FreeEntity;
+game/g_misc.c:	self->nextthink = level.time + 2 * 60 * 1000;
+game/g_target.c:	if ( self->enemy ) {
+game/g_target.c:		VectorMA (self->enemy->s.origin, 0.5, self->enemy->r.mins, point);
+game/g_target.c:		VectorMA (point, 0.5, self->enemy->r.maxs, point);
+game/g_target.c:		VectorSubtract (point, self->s.origin, self->movedir);
+game/g_target.c:		VectorNormalize (self->movedir);
+game/g_target.c:	VectorMA (self->s.origin, 2048, self->movedir, end);
+game/g_target.c:	trap_Trace( &tr, self->s.origin, NULL, NULL, end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE);
+game/g_target.c:		G_Damage ( &g_entities[tr.entityNum], self, self->activator, self->movedir, 
+game/g_target.c:			tr.endpos, self->damage, DAMAGE_NO_KNOCKBACK, MOD_TARGET_LASER);
+game/g_target.c:	VectorCopy (tr.endpos, self->s.origin2);
+game/g_target.c:	self->nextthink = level.time + FRAMETIME;
+game/g_target.c:	if (!self->activator)
+game/g_target.c:		self->activator = self;
+game/g_target.c:	self->nextthink = 0;
+game/g_target.c:	self->activator = activator;
+game/g_target.c:	if ( self->nextthink > 0 )
+game/g_target.c:	self->s.eType = ET_BEAM;
+game/g_target.c:	if (self->target) {
+game/g_target.c:		ent = G_Find (NULL, FOFS(targetname), self->target);
+game/g_target.c:			G_Printf ("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
+game/g_target.c:		self->enemy = ent;
+game/g_target.c:		G_SetMovedir (self->s.angles, self->movedir);
+game/g_target.c:	self->use = target_laser_use;
+game/g_target.c:	self->think = target_laser_think;
+game/g_target.c:	if ( !self->damage ) {
+game/g_target.c:		self->damage = 1;
+game/g_target.c:	if (self->spawnflags & 1)
+game/g_target.c:	self->think = target_laser_start;
+game/g_target.c:	self->nextthink = level.time + FRAMETIME;
+game/g_target.c:	dest = 	G_PickTarget( self->target );
+game/g_target.c:	if (!self->targetname)
+game/g_target.c:		G_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
+game/g_target.c:	self->use = target_teleporter_use;
+game/g_target.c:	if ( ( self->spawnflags & 1 ) && activator && activator->client 
+game/g_target.c:	if ( ( self->spawnflags & 2 ) && activator && activator->client 
+game/g_target.c:	if ( self->spawnflags & 4 ) {
+game/g_target.c:		ent = G_PickTarget( self->target );
+game/g_target.c:	self->use = target_relay_use;
+game/g_target.c:	self->use = target_kill_use;
+game/g_target.c:	G_SetOrigin( self, self->s.origin );
+game/g_target.c:	self->think = target_location_linkup;
+game/g_target.c:	self->nextthink = level.time + 200;  // Let them all spawn first
+game/g_target.c:	G_SetOrigin( self, self->s.origin );
