@@ -2149,7 +2149,7 @@ static void G_RunFrame( int levelTime ) {
 	level.frameStartTime = trap_Milliseconds();
 }
 
-float roundUp(float value) {
+int roundUp(float value) {
     int intValue = (int)value; // Convert to integer
     if (value > intValue) {
         return intValue + 1; // Add 1 if there's a fractional part

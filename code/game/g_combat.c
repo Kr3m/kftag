@@ -997,11 +997,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if(!OnSameTeam(targ, attacker)) {
 			if( g_dmflags.integer & 1024 ) {
 				if( mod != MOD_GRAPPLE ) {
-					attacker->client->pers.stats.damageGiven += (int)((float)damage / 8);
-					targ->client->pers.stats.damageReceived += (int)((float)damage / 8);
-				} else {
 					attacker->client->pers.stats.damageGiven += damage;
 					targ->client->pers.stats.damageReceived += damage;
+				} else {
+					attacker->client->pers.stats.grappleDamageGiven += damage;
+					targ->client->pers.stats.grappleDamageReceived += damage;
 				}
 			} else {
 				attacker->client->pers.stats.damageGiven += damage;

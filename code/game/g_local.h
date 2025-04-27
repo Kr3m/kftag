@@ -243,8 +243,10 @@ typedef struct {
     int suicides;
     int teamKills;
     int damageGiven;
+	int grappleDamageGiven;
 	int teamDamageGiven;
     int damageReceived;
+	int grappleDamageReceived;
     int armorTaken;
     int healthTaken;
     int MH; // Mega Health pickups
@@ -1056,7 +1058,7 @@ void	trap_SnapVector( float *v );
 // Rail jumping
 void G_RailgunRadiusDamage (vec3_t origin, gentity_t *ent);
 
-float roundUp(float value);
+int roundUp(float value);
 
 // extension interface
 

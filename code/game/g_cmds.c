@@ -1885,13 +1885,18 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
     playerTeamState_t *teamstats;
     int i, len = 0, weapons = 0;
     int losses;
-	float sgHits;
+    float sgHits;
 
     #define CombineNumbers(a, b) (a + b + (b * 65535))
 
     if (is_spectator(ent->client)) {
-        if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW)
+        if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW) {
             return;
+        }
+        if (ent->client->sess.spectatorClient < 0 || ent->client->sess.spectatorClient >= level.maxclients) {
+            Com_Printf("Invalid spectator client for %s\n", ent->client->pers.netname);
+            return;
+        }
         ent2 = &level.gentities[ent->client->sess.spectatorClient];
     }
 
@@ -1902,14 +1907,16 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
 
     for (i = 1; i < 10; i++) {
         weaponStats_t *ws = &stats->weaponStats[i];
-		if ( i == WP_SHOTGUN ) {
-			sgHits = (float)ws->hits / DEFAULT_SHOTGUN_COUNT;
-			ws->hits = (int)roundUp(sgHits);
-		}
-		G_Printf("Weapon %d: attacks=%d, hits=%d, kills=%d, deaths=%d, pickups=%d, drops=%d\n",
-			i, ws->attacks, ws->hits, ws->kills, ws->deaths, ws->pickups, ws->drops);
+        if (i == WP_SHOTGUN) {
+            sgHits = (float)ws->hits / DEFAULT_SHOTGUN_COUNT;
+            ws->hits = roundUp(sgHits);
+        }
         if (ws->attacks || ws->hits || ws->kills || ws->deaths || ws->pickups || ws->drops) {
             weapons += 1 << i;
+            if (len + 50 >= sizeof(buffer)) { // Prevent overflow
+                Com_Printf("Warning: statsinfo string truncated for player %s\n", ent->client->pers.netname);
+                break;
+            }
             len += Com_sprintf(buffer + len, sizeof(buffer) - len, " %i %i %i %i",
                 CombineNumbers(ws->hits, ws->drops),
                 CombineNumbers(ws->attacks, ws->pickups),
@@ -1918,8 +1925,11 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
         }
     }
     buffer[len] = '\0';
-    
-        statsinfo = va("statsinfo %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i  %i%s",
+
+	stats->damageGiven = roundUp(((float)stats->damageGiven / 8)) + stats->grappleDamageGiven;
+	stats->damageReceived = roundUp(((float)stats->damageReceived / 8)) + stats->grappleDamageReceived;
+
+    statsinfo = va("statsinfo %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i  %i%s",
         1, // unknown. always 1
         ent2->client->ps.persistant[PERS_SCORE],
         ent2->client->sess.sessionTeam,
@@ -1944,8 +1954,8 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
         weapons,
         buffer);
 
-	Com_Printf("StatsInfo: %s\n", statsinfo);
-	trap_SendServerCommand(ent - g_entities, statsinfo);
+    Com_Printf("StatsInfo for %s: %s\n", ent->client->pers.netname, statsinfo);
+    trap_SendServerCommand(ent - g_entities, statsinfo);
 }
 
 
