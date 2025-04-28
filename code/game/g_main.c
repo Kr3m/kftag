@@ -1429,7 +1429,7 @@ static void CheckExitRules( void ) {
 		return;
 	}
 
-	if ( g_gametype.integer < GT_CTF && g_fraglimit.integer ) {
+	if ( g_gametype.integer < GT_CTF && g_fraglimit.integer && !g_freezeTag.integer ) {
 		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) {
 			G_BroadcastServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
 			LogExit( "Fraglimit hit." );
@@ -1468,6 +1468,8 @@ static void CheckExitRules( void ) {
 
 		if ( level.teamScores[TEAM_RED] >= g_capturelimit.integer ) {
 			G_BroadcastServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
+			Com_Printf("DEBUG: Red wins! Team Red Score: %d, Team Blue Score: %d, Capture Limit: %d\n",
+				level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], g_capturelimit.integer);
 			for ( i = 0; i < level.maxclients; i++ ) {
 				cl = level.clients + i;
 				if ( cl->pers.connected != CON_CONNECTED ) {
@@ -1475,6 +1477,10 @@ static void CheckExitRules( void ) {
 				}
 				if ( cl->sess.sessionTeam == TEAM_RED ) {
 					cl->sess.wins++;
+					ClientUserinfoChanged( cl->ps.clientNum );
+				} else {
+					cl->sess.losses++;
+					ClientUserinfoChanged( cl->ps.clientNum );
 				}
 			}
 			LogExit( "Capturelimit hit." );
@@ -1483,13 +1489,20 @@ static void CheckExitRules( void ) {
 
 		if ( level.teamScores[TEAM_BLUE] >= g_capturelimit.integer ) {
 			G_BroadcastServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
+			Com_Printf("DEBUG: Blue wins! Team Red Score: %d, Team Blue Score: %d, Capture Limit: %d\n",
+				level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], g_capturelimit.integer);
 			for ( i = 0; i < level.maxclients; i++ ) {
 				cl = level.clients + i;
 				if ( cl->pers.connected != CON_CONNECTED ) {
 					continue;
 				}
 				if ( cl->sess.sessionTeam == TEAM_BLUE ) {
+					// Com_Printf("Team Blue Score: %d, Capture Limit: %d\n", level.teamScores[TEAM_BLUE], g_capturelimit.integer);
 					cl->sess.wins++;
+					ClientUserinfoChanged( cl->ps.clientNum );
+				} else {
+					cl->sess.losses++;
+					ClientUserinfoChanged( cl->ps.clientNum );
 				}
 			}
 			LogExit( "Capturelimit hit." );

@@ -1430,6 +1430,7 @@ void ClientDisconnect( int clientNum ) {
 	G_LogPrintf( "ClientDisconnect: %i\n", clientNum );
 
 	// if we are playing in tourney mode and losing, give a win to the other player
+	//if ( (g_gametype.integer == GT_TOURNAMENT )
 	if ( (g_gametype.integer == GT_TOURNAMENT )
 		&& !level.intermissiontime
 		&& !level.warmupTime && level.sortedClients[1] == clientNum ) {
