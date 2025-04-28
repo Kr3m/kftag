@@ -155,7 +155,8 @@ qboolean G_RemoveItem ( gitem_t *item ) {
 		|| ( ( g_removeitem.integer & 32 ) && ( !Q_stricmp( item->classname, "item_health_large" ) ) )
 		|| ( ( g_removeitem.integer & 64 ) && ( !Q_stricmp( item->classname, "item_health_mega" ) ) )
 		|| ( ( g_removeitem.integer & 128 ) && ( !Q_stricmp( item->classname, "holdable_teleporter" ) ) )
-		|| ( ( g_removeitem.integer & 256 ) && ( !Q_stricmp( item->classname, "holdable_medkit" ) ) ) )
+		|| ( ( g_removeitem.integer & 256 ) && ( !Q_stricmp( item->classname, "holdable_medkit" ) ) )
+		|| ( ( g_removeitem.integer & 512 ) && ( !Q_stricmp( item->classname, "item_armor_jacket" ) ) ) )
 			return qtrue;
 #ifdef MISSIONPACK
 	if ( ( ( g_removeitem.integer & 512 ) && ( !Q_stricmp( item->classname, "holdable_kamikaze" ) ) )

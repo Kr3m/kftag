@@ -939,7 +939,7 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 //qlone -  freezetag
 	if (g_freezeTag.integer) {
 		if ( g_gametype.integer != GT_TOURNAMENT )
-			client->sess.wins = 0;
+			//client->sess.wins = 0;
 		ent->freezeState = qfalse;
 		ent->readyBegin = qfalse;
 	}

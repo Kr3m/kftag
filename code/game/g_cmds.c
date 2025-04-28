@@ -47,7 +47,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		perfect = ( cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
 
 //qlone - freezetag
-		if ( g_freezeTag.integer ) scoreFlags = cl->sess.wins;
+		if ( g_freezeTag.integer ) scoreFlags = cl->pers.stats.thaws;
 //qlone - freezetag
 
 		j = BG_sprintf( entry, " %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
@@ -1890,7 +1890,7 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
     #define CombineNumbers(a, b) (a + b + (b * 65535))
 
     if (is_spectator(ent->client)) {
-        if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW) {
+        if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW && !ent->freezeState) {
             return;
         }
         if (ent->client->sess.spectatorClient < 0 || ent->client->sess.spectatorClient >= level.maxclients) {
@@ -1926,8 +1926,13 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
     }
     buffer[len] = '\0';
 
-	stats->damageGiven = roundUp(((float)stats->damageGiven / 8)) + stats->grappleDamageGiven;
-	stats->damageReceived = roundUp(((float)stats->damageReceived / 8)) + stats->grappleDamageReceived;
+	if( g_dmflags.integer & 1024 ) {
+		stats->damageGiven = roundUp(((float)stats->damageGiven / 8)) + stats->grappleDamageGiven;
+		stats->damageReceived = roundUp(((float)stats->damageReceived / 8)) + stats->grappleDamageReceived;
+	} else {
+		stats->damageGiven += stats->grappleDamageGiven;
+		stats->damageReceived += stats->grappleDamageReceived;
+	}
 
     statsinfo = va("statsinfo %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i  %i%s",
         1, // unknown. always 1

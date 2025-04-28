@@ -1468,12 +1468,30 @@ static void CheckExitRules( void ) {
 
 		if ( level.teamScores[TEAM_RED] >= g_capturelimit.integer ) {
 			G_BroadcastServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
+			for ( i = 0; i < level.maxclients; i++ ) {
+				cl = level.clients + i;
+				if ( cl->pers.connected != CON_CONNECTED ) {
+					continue;
+				}
+				if ( cl->sess.sessionTeam == TEAM_RED ) {
+					cl->sess.wins++;
+				}
+			}
 			LogExit( "Capturelimit hit." );
 			return;
 		}
 
 		if ( level.teamScores[TEAM_BLUE] >= g_capturelimit.integer ) {
 			G_BroadcastServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
+			for ( i = 0; i < level.maxclients; i++ ) {
+				cl = level.clients + i;
+				if ( cl->pers.connected != CON_CONNECTED ) {
+					continue;
+				}
+				if ( cl->sess.sessionTeam == TEAM_BLUE ) {
+					cl->sess.wins++;
+				}
+			}
 			LogExit( "Capturelimit hit." );
 			return;
 		}

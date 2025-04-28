@@ -626,8 +626,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 	}
 
-	Com_Printf("MOD: %s", obit);
-
 	// if I committed suicide, the flag does not fall, it returns.
 	if (meansOfDeath == MOD_SUICIDE) {
 #ifdef MISSIONPACK
@@ -983,13 +981,15 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// reduce damage by the attacker's handicap value
 	// unless they are rocket jumping
 	if ( attacker->client && attacker != targ ) {
-		max = attacker->client->ps.stats[STAT_MAX_HEALTH];
+		if (!(g_dmflags.integer & 1024)) { // Disable handicap when dmflags & 1024
+			max = attacker->client->ps.stats[STAT_MAX_HEALTH];
 #ifdef MISSIONPACK
-		if( bg_itemlist[attacker->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
-			max /= 2;
-		}
+			if (bg_itemlist[attacker->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD) {
+				max /= 2;
+			}
 #endif
-		damage = damage * max / 100;
+			damage = damage * max / 100;
+		}
 	}
 
 	//damage stats
@@ -1009,11 +1009,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		} 
 		
-		// else if ( g_friendlyFire.integer || mod != MOD_TELEFRAG ) {
-		// 	attacker->client->pers.stats.teamDamageGiven += damage;
-		// } else {
-		// 	attacker->client->pers.stats.teamDamageGiven += 0;
-		// }
+		else if ( g_friendlyFire.integer ) {
+			attacker->client->pers.stats.teamDamageGiven += damage;
+		} else {
+			attacker->client->pers.stats.teamDamageGiven = 0;
+		}
 	}
 
 	client = targ->client;
