@@ -1890,14 +1890,15 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
     #define CombineNumbers(a, b) (a + b + (b * 65535))
 
     if (is_spectator(ent->client)) {
-        if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW && !ent->freezeState) {
-            return;
+        if (!ent->freezeState && ent->client->sess.spectatorState != SPECTATOR_FOLLOW) {
+            return; // Allow frozen players to see stats
         }
         if (ent->client->sess.spectatorClient < 0 || ent->client->sess.spectatorClient >= level.maxclients) {
-            Com_Printf("Invalid spectator client for %s\n", ent->client->pers.netname);
-            return;
+            Com_Printf("Invalid spectator client for %s, showing own stats.\n", ent->client->pers.netname);
+            ent2 = ent; // Show stats for the player themselves
+        } else {
+            ent2 = &level.gentities[ent->client->sess.spectatorClient];
         }
-        ent2 = &level.gentities[ent->client->sess.spectatorClient];
     }
 
     stats = &ent2->client->pers.stats;
