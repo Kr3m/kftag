@@ -1890,6 +1890,7 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
     #define CombineNumbers(a, b) (a + b + (b * 65535))
 
     if (is_spectator(ent->client)) {
+		// Check if the player was frozen
         if (ent->wasFrozen) {
             // Frozen players always see their own stats
             ent2 = ent;
