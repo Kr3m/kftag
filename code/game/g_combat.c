@@ -971,10 +971,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     }
 
 	if ( !level.warmupTime ) {
-		if ( mod == MOD_GAUNTLET && attacker && attacker->client && attacker->client->ps.weapon == WP_GAUNTLET ) {
+		if ( mod == MOD_GAUNTLET && targ && targ->client && attacker && attacker->client && attacker->client->ps.weapon == WP_GAUNTLET ) {
 			// Only register a hit if one hasn't already been registered for this attack
 			if (!attacker->client->gauntletHitRegistered) {
 				attacker->client->pers.stats.weaponStats[WP_GAUNTLET].hits++;
+				attacker->client->pers.stats.damageGiven += damage;
+				targ->client->pers.stats.damageReceived += damage;
 				attacker->client->gauntletHitRegistered = qtrue; // Mark that a hit has been registered
 			}
 		}
