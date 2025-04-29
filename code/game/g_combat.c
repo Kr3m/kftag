@@ -473,8 +473,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	int weapon = attacker->client->ps.weapon;
 
-	if( self && self->client ) {
-		self->client->pers.stats.deaths++;
+	if ( !level.warmupTime ) {
+		if( self && self->client ) {
+			self->client->pers.stats.deaths++;
+		}
 	}
 
 	// Create a temporary event entity to carry the freezeTime value
@@ -499,11 +501,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	//death stats
-	if ( self && self->client && attacker && attacker->client ) {
-		if( OnSameTeam ( self, attacker ) ) {
-			attacker->client->pers.stats.teamKills++;
-		} else {
-			attacker->client->pers.stats.kills++;
+	if ( !level.warmupTime ) {
+		if ( self && self->client && attacker && attacker->client && self != attacker ) {
+			if( OnSameTeam ( self, attacker ) ) {
+				attacker->client->pers.stats.teamKills++;				
+			} else {
+				attacker->client->pers.stats.kills++;
+			}
 		}
 	}
 
@@ -568,12 +572,14 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if (attacker && attacker->client && self && self->client) {
 		//weapon stats
 		
-		if(!OnSameTeam(self, attacker)) {
-			attacker->client->pers.stats.weaponStats[weapon].kills++;
-		}
-		if ( attacker != self ) {
-			if( weapon && weapon < WP_NUM_WEAPONS ) {
-				self->client->pers.stats.weaponStats[weapon].deaths++;
+		if ( !level.warmupTime ) {
+			if(!OnSameTeam(self, attacker)) {
+				attacker->client->pers.stats.weaponStats[weapon].kills++;
+			}
+			if ( attacker != self ) {
+				if( weapon && weapon < WP_NUM_WEAPONS ) {
+					self->client->pers.stats.weaponStats[weapon].deaths++;
+				}
 			}
 		}
 		
@@ -993,26 +999,28 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	//damage stats
-	if( targ && targ->client && attacker && attacker->client ) {
-		if(!OnSameTeam(targ, attacker)) {
-			if( g_dmflags.integer & 1024 ) {
-				if( mod != MOD_GRAPPLE ) {
+	if ( !level.warmupTime ) {
+		if( targ && targ->client && attacker && attacker->client ) {
+			if(!OnSameTeam(targ, attacker)) {
+				if( g_dmflags.integer & 1024 ) {
+					if( mod != MOD_GRAPPLE ) {
+						attacker->client->pers.stats.damageGiven += damage;
+						targ->client->pers.stats.damageReceived += damage;
+					} else {
+						attacker->client->pers.stats.grappleDamageGiven += damage;
+						targ->client->pers.stats.grappleDamageReceived += damage;
+					}
+				} else {
 					attacker->client->pers.stats.damageGiven += damage;
 					targ->client->pers.stats.damageReceived += damage;
-				} else {
-					attacker->client->pers.stats.grappleDamageGiven += damage;
-					targ->client->pers.stats.grappleDamageReceived += damage;
 				}
+			} 
+			
+			else if ( g_friendlyFire.integer ) {
+				attacker->client->pers.stats.teamDamageGiven += damage;
 			} else {
-				attacker->client->pers.stats.damageGiven += damage;
-				targ->client->pers.stats.damageReceived += damage;
+				attacker->client->pers.stats.teamDamageGiven = 0;
 			}
-		} 
-		
-		else if ( g_friendlyFire.integer ) {
-			attacker->client->pers.stats.teamDamageGiven += damage;
-		} else {
-			attacker->client->pers.stats.teamDamageGiven = 0;
 		}
 	}
 

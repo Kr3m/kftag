@@ -1890,10 +1890,12 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
     #define CombineNumbers(a, b) (a + b + (b * 65535))
 
     if (is_spectator(ent->client)) {
-        if (!ent->freezeState && ent->client->sess.spectatorState != SPECTATOR_FOLLOW) {
-            return; // Allow frozen players to see stats
-        }
-        if (ent->client->sess.spectatorClient < 0 || ent->client->sess.spectatorClient >= level.maxclients) {
+        if (ent->freezeState) {
+            // Frozen players always see their own stats
+            ent2 = ent;
+        } else if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW) {
+            return; // Skip stats for spectators not in follow mode
+        } else if (ent->client->sess.spectatorClient < 0 || ent->client->sess.spectatorClient >= level.maxclients) {
             Com_Printf("Invalid spectator client for %s, showing own stats.\n", ent->client->pers.netname);
             ent2 = ent; // Show stats for the player themselves
         } else {

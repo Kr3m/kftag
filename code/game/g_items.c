@@ -508,21 +508,26 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		break;
 	case IT_ARMOR:
 		respawn = Pickup_Armor(ent, other);
-		if ( ent->item->giTag != ARMOR_SHARD ) {
-			other->client->pers.stats.armorTaken++;
-		}
-		if ( ent->item->giTag == ARMOR_YELLOW ) {
-			other->client->pers.stats.YA++;
-		}
-		if ( ent->item->giTag == ARMOR_RED ) {
-			other->client->pers.stats.RA++;
-		}
-		if ( ent->item->giTag == ARMOR_GREEN ) {
-			other->client->pers.stats.GA++;
+		if ( !level.warmupTime ) {
+			if ( ent->item->giTag != ARMOR_SHARD ) {
+				other->client->pers.stats.armorTaken++;
+			}
+			if ( ent->item->giTag == ARMOR_YELLOW ) {
+				other->client->pers.stats.YA++;
+			}
+			if ( ent->item->giTag == ARMOR_RED ) {
+				other->client->pers.stats.RA++;
+			}
+			if ( ent->item->giTag == ARMOR_GREEN ) {
+				other->client->pers.stats.GA++;
+			}
 		}
 		break;
 	case IT_HEALTH:
 		respawn = Pickup_Health(ent, other);
+		if ( !level.warmupTime ) {
+			other->client->pers.stats.healthTaken++;
+		}
 		break;
 	case IT_POWERUP:
 		respawn = Pickup_Powerup(ent, other);
