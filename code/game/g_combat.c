@@ -1000,7 +1000,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	//damage stats
 	if ( !level.warmupTime ) {
-		if( targ && targ->client && attacker && attacker->client ) {
+		if( targ && targ->client && attacker && attacker->client && targ != attacker ) {
 			if(!OnSameTeam(targ, attacker)) {
 				if( g_dmflags.integer & 1024 ) {
 					if( mod != MOD_GRAPPLE ) {
