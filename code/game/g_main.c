@@ -550,6 +550,7 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
         gentity_t *ent = &g_entities[i];
         if (ent->inuse && ent->client) {
             ent->freezeState = qfalse;
+			ent->wasFrozen = qfalse;
             ResetFreezeTimeEvent(ent, i);
         }
     }

@@ -128,6 +128,7 @@ static void player_free( gentity_t *ent ) {
 
 void Body_free( gentity_t *self ) {
 	if ( self->freezeState ) {
+		self->wasFrozen = qfalse;
 		player_free( self->target_ent );
 	}
 #ifdef MISSIONPACK
@@ -640,6 +641,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	CopyToBody( self );
 	self->r.maxs[ 2 ] = -8;
 	self->freezeState = qtrue;
+	self->wasFrozen = qtrue;
 	check_time = ( level.time - 3000 ) + 200;
 
 	self->takedamage = qfalse;

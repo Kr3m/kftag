@@ -157,6 +157,7 @@ struct gentity_s {
 	gitem_t		*item;			// for bonus items
 
 	qboolean	freezeState;
+	qboolean	wasFrozen;
 	qboolean	readyBegin;
 	int			freezeTime; //freeze timer
 
@@ -349,10 +350,15 @@ struct gclient_s {
 	// timeResidual is used to handle events that happen every second
 	// like health / armor countdowns and regeneration
 	int			timeResidual;
+	
 	//spawn protection
 	int			spawnProtectionTime;
+	
 	//freeze
 	gentity_t	*freezeEvent;	// Reference to the EV_FREEZE_TIME temporary entity
+
+	//stats
+	qboolean	gauntletHitRegistered; // Tracks if a hit has been registered for the current attack
 
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;

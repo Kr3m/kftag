@@ -970,6 +970,16 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
         return;
     }
 
+	if ( !level.warmupTime ) {
+		if ( mod == MOD_GAUNTLET && attacker && attacker->client && attacker->client->ps.weapon == WP_GAUNTLET ) {
+			// Only register a hit if one hasn't already been registered for this attack
+			if (!attacker->client->gauntletHitRegistered) {
+				attacker->client->pers.stats.weaponStats[WP_GAUNTLET].hits++;
+				attacker->client->gauntletHitRegistered = qtrue; // Mark that a hit has been registered
+			}
+		}
+	}
+
     //end spawn protection
 
 	// shootable doors / buttons don't actually have any health

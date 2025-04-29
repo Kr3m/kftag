@@ -129,8 +129,6 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
 
     damage = 50 * s_quadFactor;
 
-	ent->client->pers.stats.weaponStats[WP_GAUNTLET].hits++;
-
 	G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_GAUNTLET );
 
 	return qtrue;
@@ -913,6 +911,9 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 
 	if ( attacker && attacker->client ) {
 		weapon = attacker->client->ps.weapon;
+		if ( weapon == WP_GAUNTLET ) {
+			return qfalse;
+		}
 		if( weapon >= 0 && weapon < WP_NUM_WEAPONS ) {
 			attacker->client->pers.stats.weaponStats[weapon].hits++;
 		}
