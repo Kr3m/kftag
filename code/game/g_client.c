@@ -1005,15 +1005,6 @@ void ClientBegin( int clientNum ) {
 
 	// Re-send EV_FREEZE_TIME if the client was frozen
 	ResetFreezeTimeEvent(ent, clientNum);
-    // if (ent->freezeState) {
-    //     gentity_t *event = G_TempEntity(ent->r.currentOrigin, EV_FREEZE_TIME);
-    //     event->s.time = ent->client->freezeTime; // Send the remaining freeze time
-    //     event->r.svFlags |= SVF_SINGLECLIENT; // Send only to the specific client
-    //     event->r.singleClient = clientNum;
-    // } else {
-    //     // Reset EV_FREEZE_TIME if the client is not frozen
-    //     ResetFreezeTimeEvent(ent, clientNum);
-    // }
 
 	if ( ent->r.linked ) {
 		trap_UnlinkEntity( ent );
