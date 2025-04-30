@@ -915,7 +915,9 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 			return qfalse;
 		}
 		if( weapon >= 0 && weapon < WP_NUM_WEAPONS ) {
-			attacker->client->pers.stats.weaponStats[weapon].hits++;
+			if ( !level.warmupTime ) {
+				attacker->client->pers.stats.weaponStats[weapon].hits++;
+			}			
 		}
 	}
 	
@@ -930,7 +932,9 @@ FireWeapon
 */
 void FireWeapon( gentity_t *ent ) {
 	int weapon = ent->s.weapon;
-	ent->client->pers.stats.weaponStats[weapon].attacks++;
+	if ( !level.warmupTime ) {
+		ent->client->pers.stats.weaponStats[weapon].attacks++;
+	}
 
 	if ( ent->client->ps.powerups[PW_QUAD] ) {
 		s_quadFactor = g_quadfactor.value;
