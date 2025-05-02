@@ -39,6 +39,7 @@ static void G_RunFrame( int levelTime );
 static void G_ShutdownGame( int restart );
 static void CheckExitRules( void );
 static void SendScoreboardMessageToAllClients( void );
+static void UpdateHitBoxConfigString(void);
 
 // extension interface
 #ifdef Q3_VM

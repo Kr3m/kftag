@@ -1067,6 +1067,8 @@ void G_RailgunRadiusDamage (vec3_t origin, gentity_t *ent);
 
 int roundUp(float value);
 
+void ResetGrappleState(gentity_t *ent);
+
 // extension interface
 
 #ifdef Q3_VM
