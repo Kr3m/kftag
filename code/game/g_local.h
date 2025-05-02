@@ -359,6 +359,7 @@ struct gclient_s {
 
 	//stats
 	qboolean	gauntletHitRegistered; // Tracks if a hit has been registered for the current attack
+	qboolean	statsInitialized; // Tracks if the stats have been initialized
 
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;

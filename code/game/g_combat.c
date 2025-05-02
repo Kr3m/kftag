@@ -975,8 +975,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			// Only register a hit if one hasn't already been registered for this attack
 			if (!attacker->client->gauntletHitRegistered) {
 				attacker->client->pers.stats.weaponStats[WP_GAUNTLET].hits++;
-				attacker->client->pers.stats.damageGiven += damage;
-				targ->client->pers.stats.damageReceived += damage;
 				attacker->client->gauntletHitRegistered = qtrue; // Mark that a hit has been registered
 			}
 		}
@@ -1011,27 +1009,35 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	//damage stats
-	if ( !level.warmupTime ) {
-		if( targ && targ->client && attacker && attacker->client && targ != attacker ) {
-			if(!OnSameTeam(targ, attacker)) {
-				if( g_dmflags.integer & 1024 ) {
-					if( mod != MOD_GRAPPLE ) {
+	if ( targ && targ->client && attacker && attacker->client ) {
+		if ( !level.warmupTime ) {
+			if(!OnSameTeam(targ, attacker) && !(dflags & DAMAGE_RADIUS )) {
+				if ( g_dmflags.integer & 1024 ) {
+					if (mod == MOD_RAILGUN || mod == MOD_GAUNTLET ) {
+						// Attacker is using the grappling hook
+						attacker->client->pers.stats.damageGiven += 100;
+						targ->client->pers.stats.damageReceived += 100;
+					} else {
 						attacker->client->pers.stats.damageGiven += damage;
 						targ->client->pers.stats.damageReceived += damage;
-					} else {
-						attacker->client->pers.stats.grappleDamageGiven += damage;
-						targ->client->pers.stats.grappleDamageReceived += damage;
 					}
-				} else {
+				}
+				else {
 					attacker->client->pers.stats.damageGiven += damage;
 					targ->client->pers.stats.damageReceived += damage;
 				}
-			} 
-			
-			else if ( g_friendlyFire.integer ) {
-				attacker->client->pers.stats.teamDamageGiven += damage;
 			} else {
-				attacker->client->pers.stats.teamDamageGiven = 0;
+				if ( g_dmflags.integer & 1024 && g_friendlyFire.integer ) {
+					if ( mod == MOD_RAILGUN || mod == MOD_GAUNTLET ) {
+						attacker->client->pers.stats.teamDamageGiven += 100;
+					}
+					else {
+						attacker->client->pers.stats.teamDamageGiven += damage;
+					}
+				}
+				else if ( g_friendlyFire.integer ) {
+					attacker->client->pers.stats.teamDamageGiven += damage;
+				}
 			}
 		}
 	}

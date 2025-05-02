@@ -1003,6 +1003,13 @@ void ClientBegin( int clientNum ) {
 
 	client = level.clients + clientNum;
 
+	// Initialize stats only once
+    if (!client->statsInitialized) {
+        memset(&client->pers.stats, 0, sizeof(playerStats_t));
+        memset(&client->pers.teamState, 0, sizeof(playerTeamState_t));
+        client->statsInitialized = qtrue; // Mark as initialized
+    }
+
 	// Re-send EV_FREEZE_TIME if the client was frozen
 	ResetFreezeTimeEvent(ent, clientNum);
 

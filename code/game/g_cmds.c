@@ -1907,7 +1907,7 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
     stats = &ent2->client->pers.stats;
     teamstats = &ent2->client->pers.teamState;
 
-    losses = ent2->client->sess.losses;
+	losses = ent2->client->sess.losses;
 
     for (i = 1; i < 10; i++) {
         weaponStats_t *ws = &stats->weaponStats[i];
@@ -1929,14 +1929,6 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
         }
     }
     buffer[len] = '\0';
-
-	if( g_dmflags.integer & 1024 ) {
-		stats->damageGiven = roundUp(((float)stats->damageGiven / 8)) + stats->grappleDamageGiven;
-		stats->damageReceived = roundUp(((float)stats->damageReceived / 8)) + stats->grappleDamageReceived;
-	} else {
-		stats->damageGiven += stats->grappleDamageGiven;
-		stats->damageReceived += stats->grappleDamageReceived;
-	}
 
     statsinfo = va("statsinfo %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i  %i%s",
         1, // unknown. always 1
