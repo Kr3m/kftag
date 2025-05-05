@@ -276,7 +276,8 @@ typedef struct {
 	int			teamVoted;
 
 	qboolean	inGame;
-	float			pelletsHit;
+	float		pelletsHit;
+	int			PERS_SPAWNTIME;
 
 	//player stats
 	playerStats_t stats;
