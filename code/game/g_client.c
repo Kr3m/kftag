@@ -1347,8 +1347,7 @@ void ClientSpawn(gentity_t *ent) {
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
 	client->pers.cmd.serverTime = level.time;
-	client->pers.PERS_SPAWNTIME = level.time;
-	ent->s.generic1 = client->pers.PERS_SPAWNTIME;
+	ent->s.time2 = level.time;
 	ClientThink( ent-g_entities );
 
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );

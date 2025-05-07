@@ -277,7 +277,6 @@ typedef struct {
 
 	qboolean	inGame;
 	float		pelletsHit;
-	int			PERS_SPAWNTIME;
 
 	//player stats
 	playerStats_t stats;
