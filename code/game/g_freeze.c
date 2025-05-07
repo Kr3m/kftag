@@ -124,7 +124,6 @@ static void player_free( gentity_t *ent ) {
 		ent->client->ps.pm_time = 100;
 	}
 	ent->client->inactivityTime = level.time + g_inactivity.integer * 1000;
-	ent->client->ps.pm_type = PM_NORMAL;
 }
 
 void Body_free( gentity_t *self ) {
@@ -649,7 +648,6 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 	self->health = GIB_HEALTH;
-	self->client->ps.pm_type = PM_FREEZE;
 
 	if ( attacker->client && self != attacker && NearbyBody( self ) ) {
 		attacker->client->ps.persistant[ PERS_DEFEND_COUNT ]++;
