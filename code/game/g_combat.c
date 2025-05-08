@@ -503,8 +503,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	//death stats
 	if ( !level.warmupTime ) {
 		if ( self && self->client && attacker && attacker->client && self != attacker ) {
-			if( OnSameTeam ( self, attacker ) ) {
-				attacker->client->pers.stats.teamKills++;				
+			if( OnSameTeam ( self, attacker ) && g_friendlyFire.integer ) {
+				attacker->client->pers.stats.teamKills++;			
 			} else {
 				attacker->client->pers.stats.kills++;
 			}
