@@ -1060,7 +1060,7 @@ void ClientThink( int clientNum ) {
 	ent = g_entities + clientNum;
 	trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
 
-	CheckLastPlayerAlive(ent->client->sess.sessionTeam);
+	// CheckLastPlayerAlive(ent->client->sess.sessionTeam);
 
 	// mark the time we got info, so we can display the
 	// phone jack if they don't get any for a while
@@ -1098,7 +1098,7 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 
 		clientNum = ent->client->sess.spectatorClient;
 
-		CheckLastPlayerAlive( ent->client->sess.sessionTeam );
+		// CheckLastPlayerAlive( ent->client->sess.sessionTeam );
 
 		// team follow1 and team follow2 go to whatever clients are playing
 		if ( clientNum == -1 ) {
