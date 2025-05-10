@@ -1353,7 +1353,6 @@ void ClientSpawn(gentity_t *ent) {
 	client->ps.commandTime = level.time - 100;
 	client->pers.cmd.serverTime = level.time;
 	ent->s.time2 = level.time;
-	CheckLastPlayerAlive(client->sess.sessionTeam);
 	ClientThink( ent-g_entities );
 
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );

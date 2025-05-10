@@ -1060,6 +1060,8 @@ void ClientThink( int clientNum ) {
 	ent = g_entities + clientNum;
 	trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
 
+	CheckLastPlayerAlive(ent->client->sess.sessionTeam);
+
 	// mark the time we got info, so we can display the
 	// phone jack if they don't get any for a while
 #if 0 // unlagged
@@ -1096,6 +1098,8 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 
 		clientNum = ent->client->sess.spectatorClient;
 
+		CheckLastPlayerAlive( ent->client->sess.sessionTeam );
+
 		// team follow1 and team follow2 go to whatever clients are playing
 		if ( clientNum == -1 ) {
 			clientNum = level.follow1;
@@ -1124,7 +1128,7 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 //qlone - freezetag
 					if ( g_freezeTag.integer ) {
 						StopFollowing( ent, qtrue );
-						CheckLastPlayerAlive( ent->client->sess.sessionTeam );
+						//CheckLastPlayerAlive( ent->client->sess.sessionTeam );
 					}
 					else {
 //qlone - freezetag
