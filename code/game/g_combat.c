@@ -1009,12 +1009,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	//damage stats
-	if ( targ && targ->client && attacker && attacker->client ) {
+	if ( targ && targ->client && attacker && attacker->client && attacker != targ ) {
 		if ( !level.warmupTime ) {
 			if(!OnSameTeam(targ, attacker) && !(dflags & DAMAGE_RADIUS )) {
 				if ( g_dmflags.integer & 1024 ) {
 					if (mod == MOD_RAILGUN || mod == MOD_GAUNTLET ) {
-						// Attacker is using the grappling hook
 						attacker->client->pers.stats.damageGiven += 100;
 						targ->client->pers.stats.damageReceived += 100;
 					} else {

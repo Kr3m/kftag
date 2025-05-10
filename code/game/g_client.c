@@ -1342,12 +1342,18 @@ void ClientSpawn(gentity_t *ent) {
 		ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
 		ent->client->spawnProtectionTime = ent->client->respawnTime + ( g_spawnProtection.integer * 1000 );		
 	}
+
+	if (ent->r.svFlags & SVF_BOT) {
+		client->ps.stats[STAT_MAX_HEALTH] = 100; // Full health for bots
+		ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
+	}
 	
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
 	client->pers.cmd.serverTime = level.time;
 	ent->s.time2 = level.time;
+	CheckLastPlayerAlive(client->sess.sessionTeam);
 	ClientThink( ent-g_entities );
 
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );

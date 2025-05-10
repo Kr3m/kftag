@@ -1122,8 +1122,10 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 				// drop them to free spectators unless they are dedicated camera followers
 				if ( ent->client->sess.spectatorClient >= 0 ) {
 //qlone - freezetag
-					if ( g_freezeTag.integer )
+					if ( g_freezeTag.integer ) {
 						StopFollowing( ent, qtrue );
+						CheckLastPlayerAlive( ent->client->sess.sessionTeam );
+					}
 					else {
 //qlone - freezetag
 						ent->client->sess.spectatorState = SPECTATOR_FREE;
@@ -1171,6 +1173,8 @@ void ClientEndFrame( gentity_t *ent ) {
 	}
 
 	client = ent->client;
+
+	// CheckLastPlayerAlive( client->sess.sessionTeam );
 
 	// turn off any expired powerups
 	for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {

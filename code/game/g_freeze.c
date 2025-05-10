@@ -115,6 +115,9 @@ static void player_free( gentity_t *ent ) {
 	ent->freezeState = qfalse;
 	ent->client->respawnTime = level.time + 1700;
 
+	// check if the player is last alive
+	CheckLastPlayerAlive(ent->client->sess.sessionTeam);
+
 	// Reset EV_FREEZE_TIME (s.time) for the client
 	ResetFreezeTimeEvent(ent, ent->s.clientNum);
 
@@ -622,6 +625,9 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 			}
 		}
 	}
+
+	CheckLastPlayerAlive(self->client->sess.sessionTeam);
+
 	switch ( mod ) {
 	case MOD_UNKNOWN:
 	case MOD_WATER:
@@ -1041,4 +1047,65 @@ void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
     }
 
     ent->freezeTime = 0;
+}
+
+void CheckLastPlayerAlive(int team) {
+    int i, aliveCount = 0, lastPlayer = -1;
+    gentity_t *ent;
+
+	if (level.warmupTime > level.time) {
+		return;
+	}
+
+	#define THAW_TIME_GRACE_PERIOD 1500
+
+    // Iterate through all clients
+    for (i = 0; i < level.maxclients; i++) {
+        ent = &g_entities[i];
+        if (!ent->inuse || !ent->client) {
+            continue;
+        }
+		if ( ent->s.clientNum == level.sortedClients[0] && ent->health > 0 && level.time - ent->client->respawnTime < THAW_TIME_GRACE_PERIOD ) {
+			continue;
+		}
+
+        // Check if the player is on the specified team and alive
+        if (ent->client->sess.sessionTeam == team && ent->health > 0) {
+            aliveCount++;
+            lastPlayer = i;
+        }
+    }
+
+    // If only one player is alive, notify them and spectators
+    if (aliveCount == 1 && lastPlayer != -1) {
+        gentity_t *lastEnt = &g_entities[lastPlayer];
+
+        // Notify the last player
+        trap_SendServerCommand(lastEnt - g_entities, "lastplayer 1");
+
+        // Notify spectators watching the last player
+        for (i = 0; i < level.maxclients; i++) {
+            ent = &g_entities[i];
+            if (!ent->inuse || !ent->client) {
+                continue;
+            }
+
+            if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW &&
+                ent->client->sess.spectatorClient == lastPlayer) {
+                trap_SendServerCommand(ent - g_entities, "lastplayer 1");
+            }
+        }
+    } else {
+        // Notify all players on the team that the warning is no longer active
+        for (i = 0; i < level.maxclients; i++) {
+            ent = &g_entities[i];
+            if (!ent->inuse || !ent->client) {
+                continue;
+            }
+
+            if (ent->client->sess.sessionTeam == team) {
+                trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+            }
+        }
+    }
 }

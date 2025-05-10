@@ -1069,6 +1069,8 @@ int roundUp(float value);
 
 void ResetGrappleState(gentity_t *ent);
 
+void CheckLastPlayerAlive(int team);
+
 // extension interface
 
 #ifdef Q3_VM
