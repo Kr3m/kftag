@@ -115,11 +115,9 @@ static void player_free( gentity_t *ent ) {
 	ent->freezeState = qfalse;
 	ent->client->respawnTime = level.time + 1700;
 
-	// check if the player is last alive
-	CheckLastPlayerAlive(ent->client->sess.sessionTeam);
-
 	// Reset EV_FREEZE_TIME (s.time) for the client
 	ResetFreezeTimeEvent(ent, ent->s.clientNum);
+	CheckLastPlayerAlive(ent->client->sess.sessionTeam);
 
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
 		StopFollowing( ent, qtrue );
@@ -1053,21 +1051,12 @@ void CheckLastPlayerAlive(int team) {
     int i, aliveCount = 0, lastPlayer = -1;
     gentity_t *ent;
 
-	if (level.warmupTime > level.time) {
-		return;
-	}
-
-	#define THAW_TIME_GRACE_PERIOD 1500
-
     // Iterate through all clients
     for (i = 0; i < level.maxclients; i++) {
         ent = &g_entities[i];
         if (!ent->inuse || !ent->client) {
             continue;
         }
-		if ( ent->s.clientNum == level.sortedClients[0] && ent->health > 0 && level.time - ent->client->respawnTime < THAW_TIME_GRACE_PERIOD ) {
-			continue;
-		}
 
         // Check if the player is on the specified team and alive
         if (ent->client->sess.sessionTeam == team && ent->health > 0) {
