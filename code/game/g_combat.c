@@ -1242,8 +1242,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if ( client )
 				targ->flags |= FL_NO_KNOCKBACK;
 
-			if (targ->health < -999)
-				targ->health = -999;
+			if ( g_dmflags.integer & 1024 ) {
+				if ( targ->health < -40)
+					targ->health = -40;
+			} else {
+				if (targ->health < -999)
+					targ->health = -999;
+			}
 
 			targ->enemy = attacker;
 			targ->die (targ, inflictor, attacker, take, mod);
@@ -1252,7 +1257,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			targ->pain (targ, attacker, take);
 		}
 	}
-
 }
 
 

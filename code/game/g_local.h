@@ -702,6 +702,7 @@ void QDECL G_LogPrintf( const char *fmt, ... );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
 void G_BroadcastServerCommand( int ignoreClient, const char *command );
+void UpdateSpectatorClient(playerState_t *ps, int spectatedClient);
 
 //kftag
 qboolean G_IsTeamStringValid();

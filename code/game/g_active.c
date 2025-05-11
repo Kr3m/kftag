@@ -331,6 +331,9 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		trap_UnlinkEntity( ent );
 	}
 
+	if (client->sess.spectatorState == SPECTATOR_FOLLOW)
+		UpdateSpectatorClient( &ent->client->ps, client->sess.spectatorClient );
+
 	client->oldbuttons = client->buttons;
 	client->buttons = ucmd->buttons;
 
@@ -1098,6 +1101,8 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 
 		clientNum = ent->client->sess.spectatorClient;
 
+		UpdateSpectatorClient(&ent->client->ps, clientNum);
+
 		// CheckLastPlayerAlive( ent->client->sess.sessionTeam );
 
 		// team follow1 and team follow2 go to whatever clients are playing
@@ -1138,6 +1143,10 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 				}
 			}
 		}
+	}
+
+	else {
+		UpdateSpectatorClient(&ent->client->ps, -1);
 	}
 
 	if ( ent->client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {

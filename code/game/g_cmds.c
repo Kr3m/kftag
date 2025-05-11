@@ -467,7 +467,13 @@ void Cmd_Kill_f( gentity_t *ent ) {
 		return;
 	}
 	ent->flags &= ~FL_GODMODE;
-	ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
+
+	if (g_freezeTag.integer) {
+		ent->client->ps.stats[STAT_HEALTH] = ent->health = -40;
+	} else {
+		ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
+	}
+	
 //qlone - freezetag
 	if ( g_freezeTag.integer )
 		player_die (ent, ent, ent, 100000, MOD_BFG_SPLASH);
@@ -725,6 +731,8 @@ void StopFollowing( gentity_t *ent, qboolean release ) {
 
 	client = ent->client;
 
+	client->ps.stats[STAT_SPECTATED_CLIENT] = -1; // Reset spectator client
+
 	client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;	
 //qlone - freezetag
 	if ( !g_freezeTag.integer )
@@ -836,6 +844,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	}
 //qlone - freezetag
 	} else {
+		CheckLastPlayerAlive( level.clients[ i ].sess.sessionTeam );
 		if ( ent->freezeState && !is_spectator( ent->client ) ) return;
 		if ( is_spectator( &level.clients[ i ] ) ) return;
 	}
@@ -866,6 +875,8 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	int		clientnum;
 	int		original;
 	gclient_t	*client;
+
+	ent->client->ps.stats[STAT_SPECTATED_CLIENT] = ent->client->sess.spectatorClient;
 
 	//qlone - freezetag
 	if (g_freezeTag.integer) {

@@ -555,6 +555,18 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
             ResetFreezeTimeEvent(ent, i);
         }
     }
+
+	//spectated clients
+	for (i = 0; i < level.maxclients; i++) {
+		gclient_t *client = &level.clients[i];
+		if (client->pers.connected != CON_CONNECTED) {
+			continue;
+		}
+		if (client->sess.spectatorState == SPECTATOR_FOLLOW &&
+			client->sess.spectatorClient) {
+			client->ps.stats[STAT_SPECTATED_CLIENT] = -1; // Reset spectator client
+		}
+	}
 }
 
 
@@ -2184,4 +2196,12 @@ static void G_RunFrame( int levelTime ) {
 
 int roundUp(float value) {
     return (int)(value + 0.9999f); // Ensures rounding up for non-integer values
+}
+
+void UpdateSpectatorClient(playerState_t *ps, int spectatedClient) {
+    if (ps->pm_type == PM_SPECTATOR) {
+        ps->stats[STAT_SPECTATED_CLIENT] = spectatedClient;
+    } else {
+        ps->stats[STAT_SPECTATED_CLIENT] = -1; // Not spectating anyone
+    }
 }

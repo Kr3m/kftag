@@ -1108,6 +1108,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	if(isSpectator) {
 		ResetFreezeTimeEvent(ent, ent->s.clientNum);
+		client->ps.stats[STAT_SPECTATED_CLIENT] = -1; // Default to no client being spectated
 	}
 
 	// find a spawn point
