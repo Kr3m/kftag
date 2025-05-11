@@ -160,6 +160,8 @@ struct gentity_s {
 	qboolean	wasFrozen;
 	qboolean	readyBegin;
 	int			freezeTime; //freeze timer
+	qboolean	lastState; //last state of the player
+	qboolean	justLost;
 
 	// team for spawn spot
 	team_t		fteam;

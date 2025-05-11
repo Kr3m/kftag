@@ -1100,9 +1100,11 @@ void ClientSpawn(gentity_t *ent) {
 	//qlone
 
 	index = ent - g_entities;
-	client = ent->client;	
+	client = ent->client;
 
 	trap_UnlinkEntity( ent );
+
+	ent->lastState = qfalse;
 
 	isSpectator = client->sess.sessionTeam == TEAM_SPECTATOR;
 
@@ -1393,6 +1395,7 @@ void ClientDisconnect( int clientNum ) {
 
 	// Reset freeze state and freeze time.
 	ent->freezeState = qfalse;
+	ent->lastState = qfalse;
 
 	// Reset EV_FREEZE_TIME (s.time) for the disconnecting client
 	ResetFreezeTimeEvent(ent, clientNum);

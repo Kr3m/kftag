@@ -718,6 +718,19 @@ void team_wins( int team ) {
 	int	flight;
 	gclient_t	*cl;
 	gentity_t	*te;
+	int			losers;
+
+	// Determine the losing team
+    if (team == TEAM_RED) {
+        losers = TEAM_BLUE;
+    } else if (team == TEAM_BLUE) {
+        losers = TEAM_RED;
+    } else {
+        // Handle unexpected cases (e.g., invalid team)
+        losers = -1; // Invalid team
+    }
+
+	ResetLastStateForAllLosers( losers );
 
 	spawnPoint = SelectRandomDeathmatchSpawnPoint();
 	for ( i = 0; i < g_maxclients.integer; i++ ) {
@@ -726,6 +739,7 @@ void team_wins( int team ) {
 		if ( !e->inuse ) continue;
 		if ( e->freezeState ) {
 			if ( !( g_dmflags.integer & 128 ) || cl->sess.sessionTeam != team ) {
+				e->lastState = qfalse;
 				player_free( e );
 			}
 			continue;
@@ -1050,41 +1064,45 @@ void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
 void CheckLastPlayerAlive(int team) {
     int i, aliveCount = 0, team_count = 0, lastPlayer = -1;
     gentity_t *ent;
+	//qboolean justLost = qfalse;
 
-    #define THAW_GRACE_TIME 2500
+	//#define THAW_GRACE_PERIOD 2500
+
+	if (level.warmupTime > level.time)
+		return;
 
     // Iterate through all clients
     for (i = 0; i < level.maxclients; i++) {
         ent = &g_entities[i];
-        // Skip entities that are not in use, not clients, or not on the correct team
+
+		// Skip entities that are not in use, not clients, or not on the correct team
         if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team) {
             continue;
         }
 
         team_count++;
 
+		//ent->justLost = (level.time - ent->client->respawnTime) < THAW_GRACE_PERIOD;
+		if ( ent->client->ps.pm_type == PM_INTERMISSION)
+			return;
+
         // Count alive players on the team
         if (ent->health > 1 && !ent->freezeState) {
             aliveCount++;
             lastPlayer = i;
         }
-        Com_Printf("DEBUG: Entity %d (name: %s, inuse: %d, client: %s, team: %d, health: %d, freezeState: %d)\n",
-           i,
-           ent->client->pers.netname,
-           ent->inuse,
-           ent->client ? "yes" : "no",
-           ent->client ? ent->client->sess.sessionTeam : -1,
-           ent->health,
-           ent->freezeState);
     }
 
     // If only one player is alive, notify them and spectators
     if (aliveCount == 1 && lastPlayer != -1 && team_count > 1) {
         gentity_t *lastEnt = &g_entities[lastPlayer];
 
-        // Notify the last player
-        trap_SendServerCommand(lastEnt - g_entities, "lastplayer 1");
-        Com_Printf("DEBUG: Sending lastplayer 1 to player %d (%s)\n", lastPlayer, lastEnt->client->pers.netname);
+        // Notify the last player if their state has changed
+        // if (!lastEnt->lastState && !ent->justLost) {
+        if (!lastEnt->lastState) {
+            trap_SendServerCommand(lastEnt - g_entities, "lastplayer 1");
+            lastEnt->lastState = qtrue; // Update the state
+        }
 
         // Notify spectators watching the last player
         for (i = 0; i < level.maxclients; i++) {
@@ -1093,16 +1111,14 @@ void CheckLastPlayerAlive(int team) {
                 continue;
             }
 
-            // // Ensure the spectator is not in the thaw grace period
-            // if (level.time - ent->s.time < THAW_GRACE_TIME) {
-            //     continue;
-            // }
-
             if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW &&
                 ent->client->sess.spectatorClient == lastPlayer) {
-				UpdateSpectatorClient(&ent->client->ps, lastPlayer);
-                trap_SendServerCommand(ent - g_entities, "lastplayer 1");
-                Com_Printf("DEBUG: Sending lastplayer 1 to spectator %d (%s)\n", i, ent->client->pers.netname);
+                // if (!ent->lastState && !ent->justLost) {
+                if (!ent->lastState) {
+                    UpdateSpectatorClient(&ent->client->ps, lastPlayer);
+                    trap_SendServerCommand(ent - g_entities, "lastplayer 1");
+                    ent->lastState = qtrue; // Update the state
+                }
             }
         }
     } else {
@@ -1114,9 +1130,22 @@ void CheckLastPlayerAlive(int team) {
             }
 
             if (ent->client->sess.sessionTeam == team) {
-                trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-                Com_Printf("DEBUG: Sending lastplayer 0 to player %d (%s)\n", i, ent->client->pers.netname);
+                if (ent->lastState) {
+                    trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+                    ent->lastState = qfalse; // Update the state
+                }
             }
         }
+    }
+}
+
+void ResetLastStateForAllLosers(int losers) {
+	int i;
+    for (i = 0; i < level.maxclients; i++) {
+        gentity_t *ent = &g_entities[i];
+        if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != losers) {
+            continue;
+        }
+        ent->lastState = qfalse; // Reset the lastState for all players and spectators
     }
 }

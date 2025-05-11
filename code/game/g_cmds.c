@@ -844,7 +844,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	}
 //qlone - freezetag
 	} else {
-		CheckLastPlayerAlive( level.clients[ i ].sess.sessionTeam );
+		// CheckLastPlayerAlive( level.clients[ i ].sess.sessionTeam );
 		if ( ent->freezeState && !is_spectator( ent->client ) ) return;
 		if ( is_spectator( &level.clients[ i ] ) ) return;
 	}
@@ -875,8 +875,11 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	int		clientnum;
 	int		original;
 	gclient_t	*client;
+	gentity_t	*cent;
 
 	ent->client->ps.stats[STAT_SPECTATED_CLIENT] = ent->client->sess.spectatorClient;
+	cent = &g_entities[ent->client->sess.spectatorClient];
+	CheckLastPlayerAlive( cent->client->sess.sessionTeam );
 
 	//qlone - freezetag
 	if (g_freezeTag.integer) {
@@ -951,6 +954,17 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 		// this is good, we can use it
 		ent->client->sess.spectatorClient = clientnum;
 		ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+
+		// Check if the new spectated player is marked as the last player
+        cent = &g_entities[clientnum];
+        if (cent->lastState) {
+            trap_SendServerCommand(ent - g_entities, "lastplayer 1");
+            ent->lastState = qtrue; // Update the spectator's state
+        } else {
+            trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+            ent->lastState = qfalse; // Reset the spectator's state
+        }
+
 		return;
 	} while ( clientnum != original );
 

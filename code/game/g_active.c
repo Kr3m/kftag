@@ -1063,8 +1063,6 @@ void ClientThink( int clientNum ) {
 	ent = g_entities + clientNum;
 	trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
 
-	// CheckLastPlayerAlive(ent->client->sess.sessionTeam);
-
 	// mark the time we got info, so we can display the
 	// phone jack if they don't get any for a while
 #if 0 // unlagged
@@ -1103,8 +1101,6 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 
 		UpdateSpectatorClient(&ent->client->ps, clientNum);
 
-		// CheckLastPlayerAlive( ent->client->sess.sessionTeam );
-
 		// team follow1 and team follow2 go to whatever clients are playing
 		if ( clientNum == -1 ) {
 			clientNum = level.follow1;
@@ -1133,7 +1129,6 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 //qlone - freezetag
 					if ( g_freezeTag.integer ) {
 						StopFollowing( ent, qtrue );
-						//CheckLastPlayerAlive( ent->client->sess.sessionTeam );
 					}
 					else {
 //qlone - freezetag
@@ -1172,6 +1167,9 @@ void ClientEndFrame( gentity_t *ent ) {
 	gclient_t	*client;
 	// unlagged
 	int			frames;
+	static int	lastCheckTime = 0;
+
+	//#define CHECK_TIME 16
 
 	if ( !ent->client )
 		return;
@@ -1187,7 +1185,10 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	client = ent->client;
 
-	// CheckLastPlayerAlive( client->sess.sessionTeam );
+	// if (level.time > lastCheckTime + CHECK_TIME) {
+		//CheckLastPlayerAlive( client->sess.sessionTeam );
+		// lastCheckTime = level.time;
+	// }
 
 	// turn off any expired powerups
 	for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
