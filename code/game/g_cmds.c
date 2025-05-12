@@ -725,7 +725,6 @@ to free floating spectator mode
 */
 void StopFollowing( gentity_t *ent, qboolean release ) {
 	gclient_t *client;
-	gentity_t *newTarget;
 
 	if ( ent->r.svFlags & SVF_BOT || !ent->inuse )
 		return;
