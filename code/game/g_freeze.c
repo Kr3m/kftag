@@ -624,6 +624,8 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 		}
 	}
 
+	CheckLastPlayerAlive(self->client->sess.sessionTeam);
+
 	switch ( mod ) {
 	case MOD_UNKNOWN:
 	case MOD_WATER:
@@ -650,9 +652,6 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 	self->health = GIB_HEALTH;
-	// self->client->freezeTime = level.time;
-
-	CheckLastPlayerAlive(self->client->sess.sessionTeam);
 
 	if ( attacker->client && self != attacker && NearbyBody( self ) ) {
 		attacker->client->ps.persistant[ PERS_DEFEND_COUNT ]++;
@@ -1066,10 +1065,9 @@ void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
 void CheckLastPlayerAlive(int team) {
     int i, aliveCount = 0, team_count = 0, lastPlayer = -1;
     gentity_t *ent;
-	int thawTime = 0;
-	//qboolean justLost = qfalse;
+	int respawnTime;
 
-	#define THAW_GRACE_PERIOD 2000
+	#define SPAWN_GRACE_PERIOD 1700
 
 	if (level.warmupTime > level.time || level.intermissiontime)
 		return;
@@ -1085,15 +1083,15 @@ void CheckLastPlayerAlive(int team) {
 
         team_count++;
 
-		// thawTime = ent->client->freezeTime + (g_autoThawTime.integer * 1000);
+		respawnTime = ent->client->respawnTime;
 
-		// ent->justLost = !ent->freezeState && level.time > thawTime && (level.time - thawTime) <= THAW_GRACE_PERIOD;
+		ent->justLost = !ent->freezeState && respawnTime > level.time && respawnTime - level.time <= SPAWN_GRACE_PERIOD;
 
-		// Com_Printf("DEBUG: name: %s - justLost = %d, thawTime = %d, elapsed = %d, THAW_GRACE_PERIOD = %d\n",
-		// 	ent->client->pers.netname, ent->justLost, thawTime, level.time - thawTime, THAW_GRACE_PERIOD);
+		Com_Printf("DEBUG: name: %s - justLost = %d, respawnTime = %d, elapsed = %d, SPAWN_GRACE_PERIOD = %d\n",
+			ent->client->pers.netname, ent->justLost, respawnTime, respawnTime - level.time, SPAWN_GRACE_PERIOD);
 
         // Count alive players on the team
-        if ((ent->health > 1 && !ent->freezeState)) {
+        if ((ent->health > 1 && !ent->freezeState) || ent->justLost) {
             aliveCount++;
             lastPlayer = i;
         }

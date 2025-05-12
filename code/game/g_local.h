@@ -163,6 +163,7 @@ struct gentity_s {
 	qboolean	lastState; //last state of the player
 	qboolean	justLost;
 	int			lastTime;
+	int			thawTime;
 
 	// team for spawn spot
 	team_t		fteam;
@@ -365,7 +366,6 @@ struct gclient_s {
 	qboolean	statsInitialized; // Tracks if the stats have been initialized
 
 	int			scoreTime;
-	int			freezeTime;
 
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;
