@@ -1304,6 +1304,8 @@ void ClientEndFrame( gentity_t *ent ) {
 		client->damage.team = 0;
 	}
 
+	CheckLastPlayerAlive( client->sess.sessionTeam );
+
 	// set the bit for the reachability area the client is currently in
 //	i = trap_AAS_PointReachabilityAreaIndex( ent->client->ps.origin );
 //	ent->client->areabits[i >> 3] |= 1 << (i & 7);

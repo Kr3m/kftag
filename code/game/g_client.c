@@ -556,6 +556,9 @@ void respawn( gentity_t *ent ) {
 	if ( level.intermissiontime && ent->r.svFlags & SVF_BOT )
 		return;
 
+	// Reset the lastState flag
+    ent->lastState = qfalse;
+
 	// add a teleportation effect
 	tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 	tent->s.clientNum = ent->s.clientNum;

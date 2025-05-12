@@ -650,6 +650,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 	self->health = GIB_HEALTH;
+	// self->client->freezeTime = level.time;
 
 	CheckLastPlayerAlive(self->client->sess.sessionTeam);
 
@@ -1059,16 +1060,18 @@ void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
     }
 
     ent->freezeTime = 0;
+	//ent->lastTime = level.time;
 }
 
 void CheckLastPlayerAlive(int team) {
     int i, aliveCount = 0, team_count = 0, lastPlayer = -1;
     gentity_t *ent;
+	int thawTime = 0;
 	//qboolean justLost = qfalse;
 
-	//#define THAW_GRACE_PERIOD 2500
+	#define THAW_GRACE_PERIOD 2000
 
-	if (level.warmupTime > level.time)
+	if (level.warmupTime > level.time || level.intermissiontime)
 		return;
 
     // Iterate through all clients
@@ -1082,12 +1085,15 @@ void CheckLastPlayerAlive(int team) {
 
         team_count++;
 
-		//ent->justLost = (level.time - ent->client->respawnTime) < THAW_GRACE_PERIOD;
-		if ( ent->client->ps.pm_type == PM_INTERMISSION)
-			return;
+		// thawTime = ent->client->freezeTime + (g_autoThawTime.integer * 1000);
+
+		// ent->justLost = !ent->freezeState && level.time > thawTime && (level.time - thawTime) <= THAW_GRACE_PERIOD;
+
+		// Com_Printf("DEBUG: name: %s - justLost = %d, thawTime = %d, elapsed = %d, THAW_GRACE_PERIOD = %d\n",
+		// 	ent->client->pers.netname, ent->justLost, thawTime, level.time - thawTime, THAW_GRACE_PERIOD);
 
         // Count alive players on the team
-        if (ent->health > 1 && !ent->freezeState) {
+        if ((ent->health > 1 && !ent->freezeState)) {
             aliveCount++;
             lastPlayer = i;
         }
@@ -1147,5 +1153,7 @@ void ResetLastStateForAllLosers(int losers) {
             continue;
         }
         ent->lastState = qfalse; // Reset the lastState for all players and spectators
+		ent->client->scoreTime = level.time;
+		ent->justLost = qtrue; // Reset the justLost state
     }
 }

@@ -162,6 +162,7 @@ struct gentity_s {
 	int			freezeTime; //freeze timer
 	qboolean	lastState; //last state of the player
 	qboolean	justLost;
+	int			lastTime;
 
 	// team for spawn spot
 	team_t		fteam;
@@ -362,6 +363,9 @@ struct gclient_s {
 	//stats
 	qboolean	gauntletHitRegistered; // Tracks if a hit has been registered for the current attack
 	qboolean	statsInitialized; // Tracks if the stats have been initialized
+
+	int			scoreTime;
+	int			freezeTime;
 
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;

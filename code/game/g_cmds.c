@@ -725,6 +725,7 @@ to free floating spectator mode
 */
 void StopFollowing( gentity_t *ent, qboolean release ) {
 	gclient_t *client;
+	gentity_t *newTarget;
 
 	if ( ent->r.svFlags & SVF_BOT || !ent->inuse )
 		return;
@@ -742,6 +743,10 @@ void StopFollowing( gentity_t *ent, qboolean release ) {
 		client->ps.stats[STAT_HEALTH] = ent->health = 1;
 		memset( client->ps.powerups, 0, sizeof ( client->ps.powerups ) );
 	}
+
+	// Reset the lastState flag
+    ent->lastState = qfalse;
+
 	SetClientViewAngle( ent, client->ps.viewangles );
 
 	client->sess.spectatorState = SPECTATOR_FREE;
