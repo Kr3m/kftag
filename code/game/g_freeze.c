@@ -1063,84 +1063,97 @@ void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
 }
 
 void CheckLastPlayerAlive(int team) {
-    int i, aliveCount = 0, team_count = 0, lastPlayer = -1;
+    int i, j, aliveCount = 0, lastPlayer = -1;
     gentity_t *ent;
-	int respawnTime;
+    int respawnTime;
+    int gracePeriodEnd;
 
-	#define SPAWN_GRACE_PERIOD 1700
+    #define SPAWN_GRACE_PERIOD 2000
 
-	if (level.warmupTime > level.time || level.intermissiontime)
-		return;
+    // Log the start of the function
+    G_LogPrintf("CheckLastPlayerAlive: Starting check for team %d\n", team);
+
+    if (level.warmupTime > level.time || level.intermissiontime) {
+        G_LogPrintf("CheckLastPlayerAlive: Skipping check due to warmup or intermission\n");
+        return;
+    }
+
+    // Calculate the grace period expiration time
+    gracePeriodEnd = level.time + SPAWN_GRACE_PERIOD;
 
     // Iterate through all clients
     for (i = 0; i < level.maxclients; i++) {
         ent = &g_entities[i];
 
-		// Skip entities that are not in use, not clients, or not on the correct team
+        // Skip entities that are not in use, not clients, or not on the correct team
         if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team) {
             continue;
         }
 
-        team_count++;
+        respawnTime = ent->client->respawnTime;
 
-		respawnTime = ent->client->respawnTime;
+        // Determine if the player has just lost based on the grace period
+        if (!ent->freezeState && respawnTime > level.time && respawnTime <= gracePeriodEnd) {
+            ent->justLost = qtrue;
+        } else {
+            ent->justLost = qfalse;
+        }
 
-		ent->justLost = !ent->freezeState && respawnTime > level.time && respawnTime - level.time <= SPAWN_GRACE_PERIOD;
-
-		Com_Printf("DEBUG: name: %s - justLost = %d, respawnTime = %d, elapsed = %d, SPAWN_GRACE_PERIOD = %d\n",
-			ent->client->pers.netname, ent->justLost, respawnTime, respawnTime - level.time, SPAWN_GRACE_PERIOD);
+        // Log the player's state
+        G_LogPrintf("CheckLastPlayerAlive: Player %d - freezeState: %d, health: %d, respawnTime: %d, gracePeriodEnd: %d, justLost: %d\n",
+                    i, ent->freezeState, ent->health, respawnTime, gracePeriodEnd, ent->justLost);
 
         // Count alive players on the team
-        if ((ent->health > 1 && !ent->freezeState) || ent->justLost) {
+        if (ent->health > 1 && !ent->freezeState) {
             aliveCount++;
             lastPlayer = i;
         }
-    }
 
-    // If only one player is alive, notify them and spectators
-    if (aliveCount == 1 && lastPlayer != -1 && team_count > 1) {
-        gentity_t *lastEnt = &g_entities[lastPlayer];
-
-        // Notify the last player if their state has changed
-        // if (!lastEnt->lastState && !ent->justLost) {
-        if (!lastEnt->lastState) {
-            trap_SendServerCommand(lastEnt - g_entities, "lastplayer 1");
-            lastEnt->lastState = qtrue; // Update the state
+        if (ent->justLost) {
+            trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+            G_LogPrintf("CheckLastPlayerAlive: Player %d just lost\n", i);
         }
 
-        // Notify spectators watching the last player
-        for (i = 0; i < level.maxclients; i++) {
-            ent = &g_entities[i];
-            if (!ent->inuse || !ent->client) {
-                continue;
+        // Handle the last player logic
+        else if (aliveCount == 1 && lastPlayer == i) {
+            if (!ent->lastState && !ent->justLost) {
+                trap_SendServerCommand(ent - g_entities, "lastplayer 1");
+                ent->lastState = qtrue; // Update the state
+                G_LogPrintf("CheckLastPlayerAlive: Player %d is the last player alive\n", i);
             }
 
-            if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW &&
-                ent->client->sess.spectatorClient == lastPlayer) {
-                // if (!ent->lastState && !ent->justLost) {
-                if (!ent->lastState) {
-                    UpdateSpectatorClient(&ent->client->ps, lastPlayer);
-                    trap_SendServerCommand(ent - g_entities, "lastplayer 1");
-                    ent->lastState = qtrue; // Update the state
+            // Notify spectators watching the last player
+            for (j = 0; j < level.maxclients; j++) {
+                gentity_t *spectator = &g_entities[j];
+                if (!spectator->inuse || !spectator->client) {
+                    continue;
                 }
-            }
-        }
-    } else {
-        // Notify all players on the team that the warning is no longer active
-        for (i = 0; i < level.maxclients; i++) {
-            ent = &g_entities[i];
-            if (!ent->inuse || !ent->client) {
-                continue;
-            }
 
-            if (ent->client->sess.sessionTeam == team) {
-                if (ent->lastState) {
-                    trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-                    ent->lastState = qfalse; // Update the state
+                if (spectator->client->sess.spectatorState == SPECTATOR_FOLLOW &&
+                    spectator->client->sess.spectatorClient == i) {
+                    if (!spectator->lastState && !spectator->justLost) {
+                        UpdateSpectatorClient(&spectator->client->ps, i);
+                        trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
+                        spectator->lastState = qtrue; // Update the state
+                        G_LogPrintf("CheckLastPlayerAlive: Spectator %d notified about last player %d\n", j, i);
+                    }
                 }
+            }
+        } else {
+            // Reset last state for players who are no longer the last player
+            if (ent->lastState) {
+                trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+                ent->lastState = qfalse; // Update the state
+                G_LogPrintf("CheckLastPlayerAlive: Reset last state for player %d\n", i);
             }
         }
     }
+
+    // Log the alive count and last player
+    G_LogPrintf("CheckLastPlayerAlive: Alive count: %d, Last player: %d\n", aliveCount, lastPlayer);
+
+    // Log the end of the function
+    G_LogPrintf("CheckLastPlayerAlive: Finished check for team %d\n", team);
 }
 
 void ResetLastStateForAllLosers(int losers) {
