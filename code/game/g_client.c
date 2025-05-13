@@ -1015,6 +1015,7 @@ void ClientBegin( int clientNum ) {
 
 	// Re-send EV_FREEZE_TIME if the client was frozen
 	ResetFreezeTimeEvent(ent, clientNum);
+	CheckLastPlayerAlive( ent->client->sess.sessionTeam );
 
 	if ( ent->r.linked ) {
 		trap_UnlinkEntity( ent );
