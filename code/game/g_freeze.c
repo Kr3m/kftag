@@ -1182,7 +1182,7 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
             trap_SendServerCommand(ent - g_entities, "lastplayer 0");
             ent->lastState = qfalse; // Reset the state
             // G_LogPrintf("DEBUG: Resetting lastplayer state for spectator %d (%s) following player %d.\n",
-                        i, ent->client->pers.netname, lastPlayer);
+                        // i, ent->client->pers.netname, lastPlayer);
         }
     }
 }
