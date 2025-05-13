@@ -443,8 +443,14 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	// set some level globals
 	memset( &level, 0, sizeof( level ) );
 	level.time = levelTime;
-
-	level.startTime = levelTime;
+	if ( g_warmup.integer)
+	{
+		level.warmupTime = levelTime + g_warmup.integer * 1000;
+		level.startTime = level.warmupTime;
+	} else {
+		level.warmupTime = levelTime;
+		level.startTime = levelTime;
+	}
 
 	level.previousTime = levelTime;
 	level.msec = FRAMETIME;
@@ -2199,9 +2205,9 @@ int roundUp(float value) {
 }
 
 void UpdateSpectatorClient(playerState_t *ps, int spectatedClient) {
-    if (ps->pm_type == PM_SPECTATOR) {
-        ps->stats[STAT_SPECTATED_CLIENT] = spectatedClient;
+    if (spectatedClient < 0 || spectatedClient >= MAX_CLIENTS) {
+        ps->stats[STAT_SPECTATED_CLIENT] = -1; // Use a default value
     } else {
-        ps->stats[STAT_SPECTATED_CLIENT] = -1; // Not spectating anyone
+        ps->stats[STAT_SPECTATED_CLIENT] = spectatedClient;
     }
 }

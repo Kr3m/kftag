@@ -365,8 +365,6 @@ struct gclient_s {
 	qboolean	gauntletHitRegistered; // Tracks if a hit has been registered for the current attack
 	qboolean	statsInitialized; // Tracks if the stats have been initialized
 
-	int			scoreTime;
-
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;
 	int			portalID;
