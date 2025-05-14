@@ -1168,6 +1168,7 @@ void ClientEndFrame( gentity_t *ent ) {
 	// unlagged
 	int			frames;
 	static int	lastCheckTime = 0;
+	int checkInterval = 50;
 
 	//#define CHECK_TIME 16
 
@@ -1304,7 +1305,11 @@ void ClientEndFrame( gentity_t *ent ) {
 		client->damage.team = 0;
 	}
 
-	CheckLastPlayerAlive( client->sess.sessionTeam );
+	// Call CheckLastPlayerAlive only if enough time has passed
+    if (level.time > lastCheckTime + checkInterval) {
+        CheckLastPlayerAlive(client->sess.sessionTeam);
+        lastCheckTime = level.time;
+    }
 
 	// set the bit for the reachability area the client is currently in
 //	i = trap_AAS_PointReachabilityAreaIndex( ent->client->ps.origin );
