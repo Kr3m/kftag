@@ -1168,7 +1168,7 @@ void ClientEndFrame( gentity_t *ent ) {
 	// unlagged
 	int			frames;
 	static int	lastCheckTime = 0;
-	int checkInterval = 50;
+	int checkInterval = 100;
 
 	//#define CHECK_TIME 16
 
