@@ -1178,7 +1178,7 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
     int i;
     for (i = 0; i < level.maxclients; i++) {
         gentity_t *ent = &g_entities[i];
-        if (!ent->inuse || !ent->client) {
+        if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team) {
             continue;
         }
 

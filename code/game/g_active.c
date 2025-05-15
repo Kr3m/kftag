@@ -1186,11 +1186,6 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	client = ent->client;
 
-	// if (level.time > lastCheckTime + CHECK_TIME) {
-		//CheckLastPlayerAlive( client->sess.sessionTeam );
-		// lastCheckTime = level.time;
-	// }
-
 	// turn off any expired powerups
 	for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
 		if ( client->ps.powerups[ i ] < client->pers.cmd.serverTime ) {

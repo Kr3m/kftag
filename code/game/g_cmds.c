@@ -848,7 +848,6 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	}
 //qlone - freezetag
 	} else {
-		// CheckLastPlayerAlive( level.clients[ i ].sess.sessionTeam );
 		if ( ent->freezeState && !is_spectator( ent->client ) ) return;
 		if ( is_spectator( &level.clients[ i ] ) ) return;
 	}
