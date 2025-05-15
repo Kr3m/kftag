@@ -196,6 +196,8 @@ static void Body_Explode( gentity_t *self ) {
 			G_LogPrintf( "Thaw: %i %i %i: %s thawed %s by %s\n", e->s.number, self->target_ent->s.number, MOD_UNKNOWN, e->client->pers.netname, self->target_ent->client->pers.netname, "MOD_UNKNOWN" );
 			e->client->pers.stats.thaws++;
 			AddScore( e, self->s.pos.trBase, 2 );
+			self->freezeState = qfalse;
+			CheckLastPlayerAlive( self->client->sess.sessionTeam );
 			CheckLastPlayerAlive( e->client->sess.sessionTeam );
 
 			G_Damage( self, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
