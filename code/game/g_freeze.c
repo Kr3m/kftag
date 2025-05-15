@@ -625,9 +625,6 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 		}
 	}
 
-	self->lastState = qfalse;
-	CheckLastPlayerAlive(self->client->sess.sessionTeam);
-
 	switch ( mod ) {
 	case MOD_UNKNOWN:
 	case MOD_WATER:
@@ -654,6 +651,8 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 	self->health = GIB_HEALTH;
+
+	CheckLastPlayerAlive(self->client->sess.sessionTeam);
 
 	if ( attacker->client && self != attacker && NearbyBody( self ) ) {
 		attacker->client->ps.persistant[ PERS_DEFEND_COUNT ]++;
@@ -1073,17 +1072,17 @@ void CheckLastPlayerAlive(int team) {
     #define SPAWN_GRACE_PERIOD 2000
 
     // Debugging: Start logging
-    // G_LogPrintf("DEBUG: CheckLastPlayerAlive called for team %d at level.time %d\n", team, level.time);
+    G_LogPrintf("DEBUG: CheckLastPlayerAlive called for team %d at level.time %d\n", team, level.time);
 
     // Skip processing if warmup or intermission is active
     if ((g_warmup.integer * 1000 + level.startTime) > level.time || level.intermissiontime || level.intermissionQueued) {
-		// G_LogPrintf("DEBUG: Skipping CheckLastPlayerAlive due to warmup or intermission. level.time: %d\n", level.time);
+		G_LogPrintf("DEBUG: Skipping CheckLastPlayerAlive due to warmup or intermission. level.time: %d\n", level.time);
         return;
     }
 
     // Calculate the grace period expiration time
     gracePeriodEnd = level.time + SPAWN_GRACE_PERIOD;
-    // G_LogPrintf("DEBUG: Grace period ends at %d (SPAWN_GRACE_PERIOD: %d ms)\n", gracePeriodEnd, SPAWN_GRACE_PERIOD);
+    G_LogPrintf("DEBUG: Grace period ends at %d (SPAWN_GRACE_PERIOD: %d ms)\n", gracePeriodEnd, SPAWN_GRACE_PERIOD);
 
     // Iterate through all clients to determine alive players and update states
     for (i = 0; i < level.maxclients; i++) {
@@ -1100,8 +1099,8 @@ void CheckLastPlayerAlive(int team) {
                          ent->client->respawnTime <= gracePeriodEnd);
 
         // Debugging: Log player details
-		// G_LogPrintf("DEBUG: Player %d (%s) - freezeState: %d, respawnTime: %d, health: %d, justLost: %d, lastState: %d\n",
-            // i, ent->client->pers.netname, ent->freezeState, ent->client->respawnTime, ent->health, ent->justLost, ent->lastState);
+		G_LogPrintf("DEBUG: Player %d (%s) - freezeState: %d, respawnTime: %d, health: %d, justLost: %d, lastState: %d\n",
+            i, ent->client->pers.netname, ent->freezeState, ent->client->respawnTime, ent->health, ent->justLost, ent->lastState);
 		
 		// Count alive players and temporarily set lastPlayer
         if (!ent->freezeState) {
@@ -1114,12 +1113,12 @@ void CheckLastPlayerAlive(int team) {
         // Reset lastState for players who just lost
         if (ent->justLost && ent->lastState) {
             trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-            // G_LogPrintf("DEBUG: Player %d (%s) just lost. Resetting lastplayer state.\n", i, ent->client->pers.netname);
+            G_LogPrintf("DEBUG: Player %d (%s) just lost. Resetting lastplayer state.\n", i, ent->client->pers.netname);
         }
     }
 
     // Debugging: Log alive player count
-    // G_LogPrintf("DEBUG: Alive player count for team %d: %d\n", team, aliveCount);
+    G_LogPrintf("DEBUG: Alive player count for team %d: %d\n", team, aliveCount);
 
     // Determine if there is a single last player
     if (aliveCount != 1) {
@@ -1128,10 +1127,10 @@ void CheckLastPlayerAlive(int team) {
 
     // Handle the last player logic
     if (lastPlayer != -1) {
-        // G_LogPrintf("DEBUG: Last player alive for team %d: Player %d (%s)\n", team, lastPlayer, g_entities[lastPlayer].client->pers.netname);
+        G_LogPrintf("DEBUG: Last player alive for team %d: Player %d (%s)\n", team, lastPlayer, g_entities[lastPlayer].client->pers.netname);
         HandleLastPlayerLogic(lastPlayer);
     } else {
-        // G_LogPrintf("DEBUG: No single last player alive for team %d. Resetting states.\n", team);
+        G_LogPrintf("DEBUG: No single last player alive for team %d. Resetting states.\n", team);
         ResetLastPlayerStates(team, lastPlayer);
     }
 }
@@ -1153,8 +1152,8 @@ void HandleLastPlayerLogic(int lastPlayer) {
             if (!spectator->lastState) {
                 UpdateSpectatorClient(&spectator->client->ps, lastPlayer);
                 trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
-                // G_LogPrintf("DEBUG: Spectator %d (%s) notified of last player %d (%s).\n",
-                            // i, spectator->client->pers.netname, lastPlayer, lastEnt->client->pers.netname);
+                G_LogPrintf("DEBUG: Spectator %d (%s) notified of last player %d (%s).\n",
+                            i, spectator->client->pers.netname, lastPlayer, lastEnt->client->pers.netname);
                 spectator->lastState = qtrue;
             }
         } else {
@@ -1170,7 +1169,7 @@ void HandleLastPlayerLogic(int lastPlayer) {
     if (!lastEnt->lastState) {
         trap_SendServerCommand(lastEnt - g_entities, "lastplayer 1");
         lastEnt->lastState = qtrue; // Update the state
-        // G_LogPrintf("DEBUG: Last player %d (%s) state set to lastplayer 1.\n", lastPlayer, lastEnt->client->pers.netname);
+        G_LogPrintf("DEBUG: Last player %d (%s) state set to lastplayer 1.\n", lastPlayer, lastEnt->client->pers.netname);
     }
 }
 
@@ -1186,7 +1185,7 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
 		if (ent->client->sess.sessionTeam == team) {
 			trap_SendServerCommand(ent - g_entities, "lastplayer 0");
 			if (ent->lastState) {
-				// G_LogPrintf("DEBUG: Resetting lastplayer state for player %d (%s) on team %d.\n", i, ent->client->pers.netname, team);
+				G_LogPrintf("DEBUG: Resetting lastplayer state for player %d (%s) on team %d.\n", i, ent->client->pers.netname, team);
 			}
 			ent->lastState = qfalse; // Always reset
 		}
@@ -1196,8 +1195,8 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
 			ent->client->sess.spectatorClient == lastPlayer) {
 			trap_SendServerCommand(ent - g_entities, "lastplayer 0");
 			if (ent->lastState) {
-				// G_LogPrintf("DEBUG: Resetting lastplayer state for spectator %d (%s) following player %d.\n",
-							// i, ent->client->pers.netname, lastPlayer);
+				G_LogPrintf("DEBUG: Resetting lastplayer state for spectator %d (%s) following player %d.\n",
+							i, ent->client->pers.netname, lastPlayer);
 			}
 			ent->lastState = qfalse; // Always reset
 		}
@@ -1211,8 +1210,8 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
                 if (followedEnt->client && followedEnt->client->sess.sessionTeam == team) {
                     trap_SendServerCommand(ent - g_entities, "lastplayer 0");
                     if(ent->lastState) {
-						// G_LogPrintf("DEBUG: Resetting lastplayer state for spectator %d (%s) following player %d (%s) on team %d.\n",
-                                // i, ent->client->pers.netname, followedPlayer, followedEnt->client->pers.netname, team);
+						G_LogPrintf("DEBUG: Resetting lastplayer state for spectator %d (%s) following player %d (%s) on team %d.\n",
+                                i, ent->client->pers.netname, followedPlayer, followedEnt->client->pers.netname, team);
 					}
 					ent->lastState = qfalse; // Reset the state
                 }
