@@ -1302,8 +1302,10 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	// Call CheckLastPlayerAlive only if enough time has passed
     if (level.time > lastCheckTime + checkInterval) {
-        CheckLastPlayerAlive(client->sess.sessionTeam);
-        lastCheckTime = level.time;
+		if (!ent->freezeState) {
+			CheckLastPlayerAlive(client->sess.sessionTeam);
+			lastCheckTime = level.time;
+		}			
     }
 
 	// set the bit for the reachability area the client is currently in

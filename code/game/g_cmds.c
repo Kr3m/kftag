@@ -739,7 +739,9 @@ void StopFollowing( gentity_t *ent, qboolean release ) {
 	client->sess.sessionTeam = TEAM_SPECTATOR;	
 //qlone - freezetag
 	if ( release ) {
-		client->ps.stats[STAT_HEALTH] = ent->health = 1;
+		if ( !g_freezeTag.integer) {
+			client->ps.stats[STAT_HEALTH] = ent->health = 1;
+		}
 		memset( client->ps.powerups, 0, sizeof ( client->ps.powerups ) );
 	}
 
@@ -882,7 +884,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 
 	ent->client->ps.stats[STAT_SPECTATED_CLIENT] = ent->client->sess.spectatorClient;
 	cent = &g_entities[ent->client->sess.spectatorClient];
-	CheckLastPlayerAlive( cent->client->sess.sessionTeam );
+	CheckLastPlayerAlive( ent->client->sess.sessionTeam );
 
 	//qlone - freezetag
 	if (g_freezeTag.integer) {
