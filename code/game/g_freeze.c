@@ -116,7 +116,6 @@ static void player_free( gentity_t *ent ) {
 	ent->client->respawnTime = level.time + 1700;
 
 	// Reset EV_FREEZE_TIME (s.time) for the client
-	CheckLastPlayerAlive(ent->client->sess.sessionTeam);
 	ResetFreezeTimeEvent(ent, ent->s.clientNum);
 
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
@@ -196,6 +195,7 @@ static void Body_Explode( gentity_t *self ) {
 			G_LogPrintf( "Thaw: %i %i %i: %s thawed %s by %s\n", e->s.number, self->target_ent->s.number, MOD_UNKNOWN, e->client->pers.netname, self->target_ent->client->pers.netname, "MOD_UNKNOWN" );
 			e->client->pers.stats.thaws++;
 			AddScore( e, self->s.pos.trBase, 2 );
+			G_LogPrintf("CALL: CheckLastPlayerAlive from Body_Explode\n");
 			CheckLastPlayerAlive( e->client->sess.sessionTeam );
 
 			G_Damage( self, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
@@ -652,8 +652,8 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->r.contents = 0;
 	self->health = GIB_HEALTH;
 
+	G_LogPrintf("CALL: CheckLastPlayerAlive from player_freeze target\n");
 	CheckLastPlayerAlive(self->client->sess.sessionTeam);
-	CheckLastPlayerAlive(attacker->client->sess.sessionTeam);
 
 	if ( attacker->client && self != attacker && NearbyBody( self ) ) {
 		attacker->client->ps.persistant[ PERS_DEFEND_COUNT ]++;
@@ -826,6 +826,7 @@ void team_wins( int team ) {
 
 	AddTeamScore( vec3_origin, team, 1 );
 	Team_ForceGesture( team );
+	G_LogPrintf("CALL: CheckLastPlayerAlive from team_wins\n");
 	CheckLastPlayerAlive( team );
 
 	CalculateRanks();
@@ -1120,7 +1121,7 @@ void CheckLastPlayerAlive(int team) {
             i, ent->client->pers.netname, ent->freezeState, ent->client->respawnTime, ent->health, ent->justLost, ent->lastState);
 		
 		// Count alive players and temporarily set lastPlayer
-        if (!ent->freezeState && ent->health > 0) {
+        if (!ent->freezeState && ent->health > 0 || ent->justLost) {
             aliveCount++;
             lastPlayer = i;
         } else {
@@ -1134,6 +1135,10 @@ void CheckLastPlayerAlive(int team) {
             G_LogPrintf("DEBUG: Player %d (%s) just lost. Resetting lastplayer state.\n", i, ent->client->pers.netname);
         }
     }
+
+	if (aliveCount > teamCount) {
+		aliveCount = teamCount; // Ensure aliveCount does not exceed total players
+	}
 
     // Debugging: Log alive player count
     G_LogPrintf("DEBUG: Alive player count for team %d: %d\n", team, aliveCount);
@@ -1186,8 +1191,11 @@ void HandleLastPlayerLogic(int lastPlayer) {
 				spectator->lastState = qtrue;
 			}
 		} else {
-			trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
-			spectator->lastState = qfalse; // Reset lastState for all players
+			if (spectator->client->sess.sessionTeam == TEAM_SPECTATOR) {
+				trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
+				spectator->lastState = qfalse; // Reset lastState for all spectators
+				G_LogPrintf("DEBUG: Spectator %d (%s) reset lastplayer state.\n", i, spectator->client->pers.netname);
+			}
 		}
 	}
 

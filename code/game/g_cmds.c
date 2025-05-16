@@ -884,6 +884,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 
 	ent->client->ps.stats[STAT_SPECTATED_CLIENT] = ent->client->sess.spectatorClient;
 	cent = &g_entities[ent->client->sess.spectatorClient];
+	G_LogPrintf("CALL: CheckLastPlayerAlive from Cmd_FollowCycle_f\n");
 	CheckLastPlayerAlive( ent->client->sess.sessionTeam );
 
 	//qlone - freezetag
