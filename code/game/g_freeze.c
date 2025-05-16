@@ -1068,10 +1068,25 @@ void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
 
 void CheckLastPlayerAlive(int team) {
     int i, aliveCount = 0, lastPlayer = -1;
+	int teamCount = 0;
 	static int gracePeriodEnd;
     gentity_t *ent;
 
     #define SPAWN_GRACE_PERIOD 2000
+
+	// Count the number of players on the team
+    for (i = 0; i < level.maxclients; i++) {
+        ent = &g_entities[i];
+        if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team)
+            continue;
+        teamCount++;
+    }
+
+    // Return early if less than 2 players on the team
+    if (teamCount < 2) {
+        G_LogPrintf("DEBUG: Not enough players on team %d (%d found), skipping CheckLastPlayerAlive.\n", team, teamCount);
+        return;
+    }
 
     // Debugging: Start logging
     G_LogPrintf("DEBUG: CheckLastPlayerAlive called for team %d at level.time %d\n", team, level.time);
@@ -1105,7 +1120,7 @@ void CheckLastPlayerAlive(int team) {
             i, ent->client->pers.netname, ent->freezeState, ent->client->respawnTime, ent->health, ent->justLost, ent->lastState);
 		
 		// Count alive players and temporarily set lastPlayer
-        if (!ent->freezeState) {
+        if (!ent->freezeState && ent->health > 0) {
             aliveCount++;
             lastPlayer = i;
         } else {
@@ -1115,6 +1130,7 @@ void CheckLastPlayerAlive(int team) {
         // Reset lastState for players who just lost
         if (ent->justLost && ent->lastState) {
             trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+			ent->lastState = qfalse; // Reset lastState for all players
             G_LogPrintf("DEBUG: Player %d (%s) just lost. Resetting lastplayer state.\n", i, ent->client->pers.netname);
         }
     }
@@ -1157,6 +1173,10 @@ void HandleLastPlayerLogic(int lastPlayer) {
 			spectator->client->sess.spectatorClient == lastPlayer
 		);
 
+		if ( isFollowing && spectator->lastState ) {
+			spectator->lastState = qfalse; // Reset lastState for all players
+		}
+
 		if (isFollowing) {
 			if (!spectator->lastState) {
 				UpdateSpectatorClient(&spectator->client->ps, lastPlayer);
@@ -1166,10 +1186,8 @@ void HandleLastPlayerLogic(int lastPlayer) {
 				spectator->lastState = qtrue;
 			}
 		} else {
-			if (spectator->lastState) {
-				trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
-				spectator->lastState = qfalse;
-			}
+			trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
+			spectator->lastState = qfalse; // Reset lastState for all players
 		}
 	}
 
