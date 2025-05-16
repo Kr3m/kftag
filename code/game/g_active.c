@@ -1303,7 +1303,7 @@ void ClientEndFrame( gentity_t *ent ) {
 	// Call CheckLastPlayerAlive only if enough time has passed
     if (level.time > lastCheckTime + checkInterval) {
 		if (!ent->freezeState) {
-			CheckLastPlayerAlive(client->sess.sessionTeam);
+			// CheckLastPlayerAlive(client->sess.sessionTeam);
 			lastCheckTime = level.time;
 		}			
     }

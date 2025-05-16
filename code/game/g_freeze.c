@@ -653,6 +653,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->health = GIB_HEALTH;
 
 	CheckLastPlayerAlive(self->client->sess.sessionTeam);
+	CheckLastPlayerAlive(attacker->client->sess.sessionTeam);
 
 	if ( attacker->client && self != attacker && NearbyBody( self ) ) {
 		attacker->client->ps.persistant[ PERS_DEFEND_COUNT ]++;
@@ -825,6 +826,7 @@ void team_wins( int team ) {
 
 	AddTeamScore( vec3_origin, team, 1 );
 	Team_ForceGesture( team );
+	CheckLastPlayerAlive( team );
 
 	CalculateRanks();
 }
