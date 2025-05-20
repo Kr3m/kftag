@@ -822,6 +822,7 @@ Cmd_Follow_f
 void Cmd_Follow_f( gentity_t *ent ) {
 	int		i;
 	char	arg[MAX_TOKEN_CHARS];
+	gentity_t	*cent;
 
 	if ( trap_Argc() != 2 ) {
 		if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
@@ -866,8 +867,22 @@ void Cmd_Follow_f( gentity_t *ent ) {
 		SetTeam( ent, "spectator" );
 	}
 
+	G_LogPrintf("CALL: CheckLastPlayerAlive from Cmd_Follow_f\n");
+	CheckLastPlayerAlive( ent->client->sess.sessionTeam );
+	ent->client->ps.stats[STAT_SPECTATED_CLIENT] = i;
+
 	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
 	ent->client->sess.spectatorClient = i;
+
+	// Check if the new spectated player is marked as the last player
+	cent = &g_entities[i];
+	if (cent->lastState) {
+		trap_SendServerCommand(ent - g_entities, "lastplayer 1");
+		ent->lastState = qtrue; // Update the spectator's state
+	} else {
+		trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+		ent->lastState = qfalse; // Reset the spectator's state
+	}
 }
 
 
