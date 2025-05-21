@@ -1209,6 +1209,8 @@ void HandleLastPlayerLogic(int lastPlayer) {
 
 void ResetLastPlayerStates(int team, int lastPlayer) {
     int i;
+	gentity_t *followedEnt;
+
     for (i = 0; i < level.maxclients; i++) {
         gentity_t *ent = &g_entities[i];
         if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team) {
@@ -1227,12 +1229,13 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
         if (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
 			ent->client->sess.spectatorState == SPECTATOR_FOLLOW &&
 			ent->client->sess.spectatorClient == lastPlayer) {
-			trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-			if (ent->lastState) {
+			followedEnt = &g_entities[lastPlayer];
+			if (followedEnt->lastState) {
 				// G_LogPrintf("DEBUG: Resetting lastplayer state for spectator %d (%s) following player %d.\n",
 							// i, ent->client->pers.netname, lastPlayer);
+				trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+				ent->lastState = qfalse; // Always reset
 			}
-			ent->lastState = qfalse; // Always reset
 		}
 
         // Reset spectators following any player on the same team
@@ -1242,26 +1245,26 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
             if (followedPlayer >= 0 && followedPlayer < level.maxclients) {
                 gentity_t *followedEnt = &g_entities[followedPlayer];
                 if (followedEnt->client && followedEnt->client->sess.sessionTeam == team) {
-                    trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-                    if(ent->lastState) {
+                    if(followedEnt->lastState) {
 						// G_LogPrintf("DEBUG: Resetting lastplayer state for spectator %d (%s) following player %d (%s) on team %d.\n",
                                 // i, ent->client->pers.netname, followedPlayer, followedEnt->client->pers.netname, team);
-					}
-					ent->lastState = qfalse; // Reset the state
+						trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+						followedEnt->lastState = qfalse; // Reset the state
+					}					
                 }
             }
         }
     }
 }
 
-void ResetLastStateForAllLosers(int losers) {
-	int i;
-    for (i = 0; i < level.maxclients; i++) {
-        gentity_t *ent = &g_entities[i];
-        if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != losers) {
-            continue;
-        }
-        ent->lastState = qfalse; // Reset the lastState for all players and spectators
-		ent->justLost = qtrue; // Reset the justLost state
-    }
-}
+// void ResetLastStateForAllLosers(int losers) {
+// 	int i;
+//     for (i = 0; i < level.maxclients; i++) {
+//         gentity_t *ent = &g_entities[i];
+//         if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != losers) {
+//             continue;
+//         }
+//         ent->lastState = qfalse; // Reset the lastState for all players and spectators
+// 		ent->justLost = qtrue; // Reset the justLost state
+//     }
+// }
