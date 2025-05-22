@@ -1016,7 +1016,7 @@ void ClientBegin( int clientNum ) {
 	// Re-send EV_FREEZE_TIME if the client was frozen
 	ResetFreezeTimeEvent(ent, clientNum);
 	G_LogPrintf("CALL: CheckLastPlayerAlive from ClientBegin\n");
-	CheckLastPlayerAlive( ent->client->sess.sessionTeam );
+	CheckLastPlayerAlive( ent->client->ps.persistant[PERS_TEAM] );
 
 	if ( ent->r.linked ) {
 		trap_UnlinkEntity( ent );
@@ -1362,7 +1362,7 @@ void ClientSpawn(gentity_t *ent) {
 	client->pers.cmd.serverTime = level.time;
 	ent->s.time2 = level.time;
 	G_LogPrintf("CALL: CheckLastPlayerAlive from ClientSpawn\n");
-	CheckLastPlayerAlive( client->sess.sessionTeam );
+	CheckLastPlayerAlive( client->ps.persistant[PERS_TEAM] );
 	ClientThink( ent-g_entities );
 
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );

@@ -196,7 +196,7 @@ static void Body_Explode( gentity_t *self ) {
 			e->client->pers.stats.thaws++;
 			AddScore( e, self->s.pos.trBase, 2 );
 			G_LogPrintf("CALL: CheckLastPlayerAlive from Body_Explode\n");
-			CheckLastPlayerAlive( e->client->sess.sessionTeam );
+			CheckLastPlayerAlive( e->client->ps.persistant[ PERS_TEAM ] );
 
 			G_Damage( self, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
 		}
@@ -653,7 +653,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->health = GIB_HEALTH;
 
 	G_LogPrintf("CALL: CheckLastPlayerAlive from player_freeze target\n");
-	CheckLastPlayerAlive(self->client->sess.sessionTeam);
+	CheckLastPlayerAlive(self->client->ps.persistant[PERS_TEAM]);
 
 	if ( attacker->client && self != attacker && NearbyBody( self ) ) {
 		attacker->client->ps.persistant[ PERS_DEFEND_COUNT ]++;
