@@ -1128,7 +1128,7 @@ void CheckLastPlayerAlive(int team) {
             // i, ent->client->pers.netname, ent->freezeState, ent->client->respawnTime, ent->health, ent->justLost, ent->lastState);
 		
 		// Count alive players and temporarily set lastPlayer
-        if (!ent->freezeState && ent->health > 0 || ent->justLost) {
+        if (!ent->freezeState || ent->justLost) {
             aliveCount++;
             lastPlayer = i;
         } else {
