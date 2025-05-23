@@ -1078,6 +1078,10 @@ void CheckLastPlayerAlive(int team) {
 
     #define SPAWN_GRACE_PERIOD 2000
 
+	if (team != TEAM_RED && team != TEAM_BLUE) {
+		return; // Invalid team
+	}
+
 	// Count the number of players on the team
     for (i = 0; i < level.maxclients; i++) {
         ent = &g_entities[i];
