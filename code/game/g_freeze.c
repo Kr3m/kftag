@@ -32,6 +32,9 @@ qboolean Set_spectator( gentity_t *ent ) {
 		ent->client->sess.spectatorState = SPECTATOR_FREE;
 		ent->client->sess.spectatorClient = 0;
 
+		G_LogPrintf("CALL: CheckLastPlayerAlive from Set_spectator\n");
+		CheckLastPlayerAlive( ent->client->sess.sessionTeam );
+
 		trap_UnlinkEntity( ent );
 	}
 	return qtrue;
