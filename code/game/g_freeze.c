@@ -773,7 +773,10 @@ void team_wins( int team ) {
 		G_SpawnWeapon( cl );
 		if ( g_dmflags.integer & 1024 ) G_SetInfiniteAmmo( cl );
 
+		// Save flight powerup state
 		flight = cl->ps.powerups[ PW_FLIGHT ];
+
+		// Always handle flags at round end
 		if ( cl->ps.powerups[ PW_REDFLAG ] ) {
 			memset( cl->ps.powerups, 0, sizeof ( cl->ps.powerups ) );
 			cl->ps.powerups[ PW_REDFLAG ] = INT_MAX;
@@ -783,11 +786,13 @@ void team_wins( int team ) {
 		} else if ( cl->ps.powerups[ PW_NEUTRALFLAG ] ) {
 			memset( cl->ps.powerups, 0, sizeof ( cl->ps.powerups ) );
 			cl->ps.powerups[ PW_NEUTRALFLAG ] = INT_MAX;
-		} else {
+		} else if (g_powerupReset.integer) {
+			// Only reset other powerups if g_powerupReset is enabled
 			memset( cl->ps.powerups, 0, sizeof ( cl->ps.powerups ) );
 		}
 		cl->ps.powerups[ PW_FLIGHT ] = flight;
 
+		// Always reset armor
 		cl->ps.stats[ STAT_ARMOR ] = 0;
 
 		if ( !( g_dmflags.integer & 1024 ) ) G_UseTargets( spawnPoint, e );
