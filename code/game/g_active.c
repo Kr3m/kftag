@@ -457,7 +457,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 #endif
 		} else {
 			// count down health when over max
-			if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] ) {
+			if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] && g_healthDown.integer ) {
 				ent->health--;
 			}
 		}

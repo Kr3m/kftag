@@ -724,6 +724,7 @@ void team_wins( int team ) {
 	gclient_t	*cl;
 	gentity_t	*te;
 	int			losers;
+	vec3_t spawnOrigin, spawnAngles;
 
 	// Determine the losing team
     if (team == TEAM_RED) {
@@ -738,7 +739,6 @@ void team_wins( int team ) {
 	//ResetLastPlayerStates( losers, -1 );
 	//ResetLastPlayerStates( team, -1 );
 
-	spawnPoint = SelectRandomDeathmatchSpawnPoint();
 	for ( i = 0; i < g_maxclients.integer; i++ ) {
 		e = g_entities + i;
 		cl = e->client;
@@ -753,6 +753,12 @@ void team_wins( int team ) {
 		if ( e->health < 1 ) continue;
 		if ( is_spectator( cl ) ) continue;
 		if ( g_dmflags.integer & 64 ) continue;
+
+		if (g_freezeSpawns.integer == 1) {
+			spawnPoint = SelectFreezeSpawnPoint(e, team, TEAM_BEGIN, spawnOrigin, spawnAngles);
+		} else {
+			spawnPoint = SelectRandomDeathmatchSpawnPoint();
+		}
 
 		if ( e->health < cl->ps.stats[ STAT_MAX_HEALTH ] ) {
 			e->health = cl->ps.stats[ STAT_MAX_HEALTH ];
@@ -805,13 +811,6 @@ void team_wins( int team ) {
 		}
 		if ( cl->ps.stats[ STAT_WEAPONS ] & ( 1 << WP_ROCKET_LAUNCHER ) ) {
 			cl->ps.weapon = WP_ROCKET_LAUNCHER;
-		}
-
-		if ( g_startArmor.integer > 0 ) {
-			cl->ps.stats[ STAT_ARMOR ] += g_startArmor.integer;
-			if ( cl->ps.stats[ STAT_ARMOR ] > cl->ps.stats[ STAT_MAX_HEALTH ] * 2 ) {
-				cl->ps.stats[ STAT_ARMOR ] = cl->ps.stats[ STAT_MAX_HEALTH ] * 2;
-			}
 		}
 	}
 
