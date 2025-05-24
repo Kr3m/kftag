@@ -1332,15 +1332,8 @@ void ClientSpawn(gentity_t *ent) {
 			}
 		}
 //qlone - freezetag
-                if ( g_freezeTag.integer && ( client->ps.stats[ STAT_WEAPONS ] & ( 1 << WP_ROCKET_LAUNCHER ) ) ) {
-                        client->ps.weapon = WP_ROCKET_LAUNCHER;
-                }
-
-		if ( g_startArmor.integer > 0 ) {
-			client->ps.stats[ STAT_ARMOR ] += g_startArmor.integer;
-			if ( client->ps.stats[ STAT_ARMOR ] > client->ps.stats[ STAT_MAX_HEALTH ] * 2 ) {
-				client->ps.stats[ STAT_ARMOR ] = client->ps.stats[ STAT_MAX_HEALTH ] * 2;
-			}
+		if ( g_freezeTag.integer && ( client->ps.stats[ STAT_WEAPONS ] & ( 1 << WP_ROCKET_LAUNCHER ) ) ) {
+				client->ps.weapon = WP_ROCKET_LAUNCHER;
 		}
 //qlone - freezetag
 

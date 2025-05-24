@@ -116,6 +116,45 @@ G_CVAR( g_startAmmoRG, "g_startAmmoRG", "10", 0, 0, qfalse, qfalse )
 G_CVAR( g_startAmmoPG, "g_startAmmoPG", "30", 0, 0, qfalse, qfalse )
 G_CVAR( g_startAmmoBFG, "g_startAmmoBFG", "15", 0, 0, qfalse, qfalse )
 
+G_CVAR( g_maxAmmoMG, "g_maxAmmoMG", "150", 0, 0, qfalse, qfalse )
+G_CVAR( g_maxAmmoSG, "g_maxAmmoSG", "25", 0, 0, qfalse, qfalse )
+G_CVAR( g_maxAmmoGL, "g_maxAmmoGL", "25", 0, 0, qfalse, qfalse )
+G_CVAR( g_maxAmmoRL, "g_maxAmmoRL", "25", 0, 0, qfalse, qfalse )
+G_CVAR( g_maxAmmoLG, "g_maxAmmoLG", "150", 0, 0, qfalse, qfalse )
+G_CVAR( g_maxAmmoRG, "g_maxAmmoRG", "25", 0, 0, qfalse, qfalse )
+G_CVAR( g_maxAmmoPG, "g_maxAmmoPG", "150", 0, 0, qfalse, qfalse )
+G_CVAR( g_maxAmmoBFG, "g_maxAmmoBFG", "30", 0, 0, qfalse, qfalse )
+
+G_CVAR( g_damageG, "g_damageG", "50", 0, 0, qfalse, qfalse )
+
+G_CVAR( g_damageMG, "g_damageMG", "7", 0, 0, qfalse, qfalse )
+G_CVAR( g_damageTeamMG, "g_damageTeamMG", "5", 0, 0, qfalse, qfalse )
+
+G_CVAR( g_damageSG, "g_damageSG", "10", 0, 0, qfalse, qfalse )
+G_CVAR( g_sgPellets, "g_sgPellets", "11", 0, 0, qfalse, qfalse )
+G_CVAR( g_sgPelletSpread, "g_sgPelletSpread", "700", 0, 0, qfalse, qfalse )
+
+G_CVAR( g_damageGL, "g_damageGL", "100", 0, 0, qfalse, qfalse )
+G_CVAR( g_splashDamageGL, "g_splashDamageGL", "100", 0, 0, qfalse, qfalse )
+G_CVAR( g_splashRadiusGL, "g_splashRadiusGL", "150", 0, 0, qfalse, qfalse )
+
+G_CVAR( g_damageRL, "g_damageRL", "100", 0, 0, qfalse, qfalse )
+G_CVAR( g_splashDamageRL, "g_splashDamageRL", "100", 0, 0, qfalse, qfalse )
+G_CVAR( g_splashRadiusRL, "g_splashRadiusRL", "120", 0, 0, qfalse, qfalse )
+G_CVAR( g_velocityRL, "g_velocityRL", "900", 0, 0, qfalse, qfalse )
+
+G_CVAR( g_damageLG, "g_damageLG", "8", 0, 0, qfalse, qfalse )
+
+G_CVAR( g_damageRG, "g_damageRG", "100", 0, 0, qfalse, qfalse )
+
+G_CVAR( g_damagePG, "g_damagePG", "20", 0, 0, qfalse, qfalse )
+G_CVAR( g_splashDamagePG, "g_splashDamagePG", "15", 0, 0, qfalse, qfalse )
+G_CVAR( g_splashRadiusPG, "g_splashRadiusPG", "20", 0, 0, qfalse, qfalse )
+
+G_CVAR( g_damageBFG, "g_damageBFG", "100", 0, 0, qfalse, qfalse )
+G_CVAR( g_splashDamageBFG, "g_splashDamageBFG", "100", 0, 0, qfalse, qfalse )
+G_CVAR( g_splashRadiusBFG, "g_splashRadiusBFG", "120", 0, 0, qfalse, qfalse )
+
 #ifdef MISSIONPACK
 G_CVAR( g_startAmmoNG, "g_startAmmoNG", "20", 0, 0, qfalse, qfalse )
 G_CVAR( g_startAmmoPL, "g_startAmmoPL", "10", 0, 0, qfalse, qfalse )
@@ -144,5 +183,8 @@ G_CVAR( g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVA
 
 G_CVAR( g_fpsCap, "g_fpsCap", "250", CVAR_SERVERINFO, 0, qtrue, qfalse )
 G_CVAR( g_hitBoxEnabled, "g_hitBoxEnabled", "0", CVAR_SERVERINFO, 0, qfalse, qfalse )
+
+G_CVAR( g_healthDown, "g_healthDown", "1", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_randomPU, "g_randomPU", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 
 #undef G_CVAR

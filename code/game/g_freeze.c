@@ -806,13 +806,6 @@ void team_wins( int team ) {
 		if ( cl->ps.stats[ STAT_WEAPONS ] & ( 1 << WP_ROCKET_LAUNCHER ) ) {
 			cl->ps.weapon = WP_ROCKET_LAUNCHER;
 		}
-
-		if ( g_startArmor.integer > 0 ) {
-			cl->ps.stats[ STAT_ARMOR ] += g_startArmor.integer;
-			if ( cl->ps.stats[ STAT_ARMOR ] > cl->ps.stats[ STAT_MAX_HEALTH ] * 2 ) {
-				cl->ps.stats[ STAT_ARMOR ] = cl->ps.stats[ STAT_MAX_HEALTH ] * 2;
-			}
-		}
 	}
 
 	if ( level.numPlayingClients < 2 || g_gametype.integer == GT_CTF ) {
