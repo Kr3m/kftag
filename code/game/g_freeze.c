@@ -118,9 +118,6 @@ static void player_free( gentity_t *ent ) {
 	ent->freezeState = qfalse;
 	ent->client->respawnTime = level.time + 1700;
 
-	// Reset EV_FREEZE_TIME (s.time) for the client
-	ResetFreezeTimeEvent(ent, ent->s.clientNum);
-
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
 		StopFollowing( ent, qtrue );
 		ent->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
@@ -1061,7 +1058,7 @@ void FT_ResetFlags ( void ) {
 
 void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
 	// Check if the player is a bot
-    if (ent->r.svFlags & SVF_BOT) {
+    if (ent->r.svFlags & SVF_BOT || ent->s.clientNum != clientNum) {
         return; // Skip output for bots
     }
 
@@ -1077,7 +1074,6 @@ void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
 void CheckLastPlayerAlive(int team) {
     int i, aliveCount = 0, lastPlayer = -1;
 	int teamCount = 0;
-	static int gracePeriodEnd;
     gentity_t *ent;
 
     #define SPAWN_GRACE_PERIOD 2000
@@ -1110,8 +1106,8 @@ void CheckLastPlayerAlive(int team) {
     }
 
     // Calculate the grace period expiration time
-    gracePeriodEnd = level.time + SPAWN_GRACE_PERIOD;
-    G_LogPrintf("DEBUG: Grace period ends at %d (SPAWN_GRACE_PERIOD: %d ms)\n", gracePeriodEnd, SPAWN_GRACE_PERIOD);
+    ent->gracePeriodEnd = level.time + SPAWN_GRACE_PERIOD;
+    G_LogPrintf("DEBUG: Grace period ends at %d (SPAWN_GRACE_PERIOD: %d ms)\n", ent->gracePeriodEnd, SPAWN_GRACE_PERIOD);
 
     // Iterate through all clients to determine alive players and update states
     for (i = 0; i < level.maxclients; i++) {
@@ -1125,7 +1121,7 @@ void CheckLastPlayerAlive(int team) {
         // Update justLost state based on the grace period
         ent->justLost = (!ent->freezeState && 
                          ent->client->respawnTime > level.time && 
-                         ent->client->respawnTime <= gracePeriodEnd);
+                         ent->client->respawnTime <= ent->gracePeriodEnd);
 
         // Debugging: Log player details
 		G_LogPrintf("DEBUG: Player %d (%s) - freezeState: %d, respawnTime: %d, health: %d, justLost: %d, lastState: %d\n",

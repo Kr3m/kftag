@@ -1013,11 +1013,6 @@ void ClientBegin( int clientNum ) {
         client->statsInitialized = qtrue; // Mark as initialized
     }
 
-	// Re-send EV_FREEZE_TIME if the client was frozen
-	ResetFreezeTimeEvent(ent, clientNum);
-	G_LogPrintf("CALL: CheckLastPlayerAlive from ClientBegin\n");
-	CheckLastPlayerAlive( ent->client->ps.persistant[PERS_TEAM] );
-
 	if ( ent->r.linked ) {
 		trap_UnlinkEntity( ent );
 	}
@@ -1114,7 +1109,6 @@ void ClientSpawn(gentity_t *ent) {
 	isSpectator = client->sess.sessionTeam == TEAM_SPECTATOR;
 
 	if(isSpectator) {
-		ResetFreezeTimeEvent(ent, ent->s.clientNum);
 		client->ps.stats[STAT_SPECTATED_CLIENT] = -1; // Default to no client being spectated
 	}
 
@@ -1355,7 +1349,7 @@ void ClientSpawn(gentity_t *ent) {
 	client->pers.cmd.serverTime = level.time;
 	ent->s.time2 = level.time;
 	G_LogPrintf("CALL: CheckLastPlayerAlive from ClientSpawn\n");
-	CheckLastPlayerAlive( client->ps.persistant[PERS_TEAM] );
+	CheckLastPlayerAlive( client->sess.sessionTeam );
 	ClientThink( ent-g_entities );
 
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
@@ -1395,9 +1389,6 @@ void ClientDisconnect( int clientNum ) {
 	// Reset freeze state and freeze time.
 	ent->freezeState = qfalse;
 	ent->lastState = qfalse;
-
-	// Reset EV_FREEZE_TIME (s.time) for the disconnecting client
-	ResetFreezeTimeEvent(ent, clientNum);
 
 	if (!ent->client || ent->client->pers.connected == CON_DISCONNECTED) {
 		return;

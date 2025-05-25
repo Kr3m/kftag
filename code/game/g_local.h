@@ -164,6 +164,13 @@ struct gentity_s {
 	qboolean	justLost;
 	int			lastTime;
 	int			thawTime;
+	int			gracePeriodEnd;
+
+	//plasma prestep
+	qboolean plasmaPrestep;
+	float plasmaPrestepDist;
+	float plasmaNormalSpeed;
+	vec3_t plasmaPrestepStart;
 
 	// team for spawn spot
 	team_t		fteam;
