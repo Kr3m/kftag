@@ -1128,7 +1128,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if ( client ) {
 				if ( targ != attacker && level.time - client->respawnTime < 1000 ) return;
 			} else {
-				if ( DamageBody( targ, attacker, dir, mod, knockback ) ) return;
+				if ( DamageBody( targ, attacker, dir, mod, damage, knockback ) ) return;
 			}
 		}
 //qlone - freezetag

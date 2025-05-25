@@ -386,7 +386,7 @@ static void Body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	Body_free( self );
 }
 
-qboolean DamageBody( gentity_t *targ, gentity_t *attacker, vec3_t dir, int mod, int knockback ) {
+qboolean DamageBody( gentity_t *targ, gentity_t *attacker, vec3_t dir, int mod, int damage, int knockback ) {
 	static float	mass;
 	vec3_t	kvel;
 
@@ -417,12 +417,17 @@ qboolean DamageBody( gentity_t *targ, gentity_t *attacker, vec3_t dir, int mod, 
 
 	if ( attacker->client && targ->freezeState ) {
 		if ( knockback ) {
-			VectorScale( dir, g_knockback.value * (float) knockback / mass, kvel );
-			if ( mass == 200 ) kvel[ 2 ] += 24;
-			VectorAdd( targ->s.pos.trDelta, kvel, targ->s.pos.trDelta );
+			if ( g_freezeKnockback.integer ) {
+				G_FrozenPlayerKnockback( targ, damage, dir );
+			}
+			else {
+				VectorScale( dir, g_knockback.value * (float) knockback / mass, kvel );
+				if ( mass == 200 ) kvel[ 2 ] += 24;
+				VectorAdd( targ->s.pos.trDelta, kvel, targ->s.pos.trDelta );
 
-			targ->s.pos.trType = TR_GRAVITY;
-			targ->s.pos.trTime = level.time;
+				targ->s.pos.trType = TR_GRAVITY;
+				targ->s.pos.trTime = level.time;
+			}
 
 			targ->pain_debounce_time = level.time;
 		}
@@ -633,13 +638,10 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	//case MOD_FALLING:
 	case MOD_SUICIDE:
 	case MOD_TARGET_LASER:
-	case MOD_LAVA:
-		return;
-	case MOD_SLIME:
-		return;
-	case MOD_TRIGGER_HURT:
-		return;
 	//case MOD_TRIGGER_HURT:
+	case MOD_LAVA:
+	case MOD_SLIME:
+	case MOD_TRIGGER_HURT:
 #ifdef MISSIONPACK
 	case MOD_JUICED:
 #endif
@@ -1268,6 +1270,31 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
             }
         }
     }
+}
+
+void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int damage, vec3_t dir) {
+	int knockback = damage;
+	float mass;
+	vec3_t kvel;
+
+	if (g_freezeKnockback.value <= 0) {
+		return;
+	}
+
+	if (knockback > 200) {
+		knockback = 200;
+	}
+	mass = 5;
+
+	//VectorClear(frozenRemnant->s.pos.trDelta);
+	frozenRemnant->s.pos.trType = TR_GRAVITY;
+	frozenRemnant->s.pos.trTime = level.time;
+	VectorCopy(frozenRemnant->r.currentOrigin, frozenRemnant->s.pos.trBase);
+	frozenRemnant->s.groundEntityNum = -1;
+
+	VectorNormalize(dir);
+	VectorScale(dir, g_freezeKnockback.value * (float)knockback / mass, kvel);
+	VectorAdd(frozenRemnant->s.pos.trDelta, kvel, frozenRemnant->s.pos.trDelta);
 }
 
 // void ResetLastStateForAllLosers(int losers) {
