@@ -633,6 +633,12 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	//case MOD_FALLING:
 	case MOD_SUICIDE:
 	case MOD_TARGET_LASER:
+	case MOD_LAVA:
+		return;
+	case MOD_SLIME:
+		return;
+	case MOD_TRIGGER_HURT:
+		return;
 	//case MOD_TRIGGER_HURT:
 #ifdef MISSIONPACK
 	case MOD_JUICED:
