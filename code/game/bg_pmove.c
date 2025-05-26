@@ -1478,7 +1478,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 	PM_AddEvent( EV_CHANGE_WEAPON );
 	pm->ps->weaponstate = WEAPON_DROPPING;
 	//pm->ps->weaponTime += 200;
-	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 10 : 200;
+	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 34 : 200;
 	PM_StartTorsoAnim( TORSO_DROP );
 }
 
@@ -1504,7 +1504,8 @@ static void PM_FinishWeaponChange( void ) {
 	pm->ps->weaponstate = WEAPON_RAISING;
 	pm->ps->eFlags &= ~EF_FIRING;
 	//pm->ps->weaponTime += 250;
-	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 10 : 250;
+	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 34 : 250;
+	pm->ps->pm_flags |= PMF_WEAPONSWITCHED;
 	PM_StartTorsoAnim( TORSO_RAISE );
 }
 
@@ -1553,6 +1554,14 @@ static void PM_Weapon( void ) {
 		return;
 	}
 
+	// Block firing for one frame after weapon switch
+	if ( pm->ps->pm_flags & PMF_WEAPONSWITCHED ) {
+		pm->ps->pm_flags &= ~PMF_WEAPONSWITCHED;
+		pm->ps->weaponTime = 0; // ensure weaponTime is zeroed
+		pm->ps->weaponstate = WEAPON_READY;
+		return;
+	}
+
 	// check for item using
 	if ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) {
 		if ( ! ( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) ) {
@@ -1574,6 +1583,10 @@ static void PM_Weapon( void ) {
 	// make weapon function
 	if ( pm->ps->weaponTime > 0 ) {
 		pm->ps->weaponTime -= pml.msec;
+		if ( pm->ps->weaponTime > 0 ) {
+			return;
+		}
+		pm->ps->weaponTime = 0; // Clamp to zero if negative
 	}
 
 	// check for weapon change
