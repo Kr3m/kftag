@@ -118,9 +118,6 @@ static void player_free( gentity_t *ent ) {
 	ent->freezeState = qfalse;
 	ent->client->respawnTime = level.time + 1700;
 
-	// Reset EV_FREEZE_TIME (s.time) for the client
-	ResetFreezeTimeEvent(ent, ent->s.clientNum);
-
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
 		StopFollowing( ent, qtrue );
 		ent->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
@@ -346,6 +343,13 @@ static void Body_think( gentity_t *self ) {
 	}
 
 	if ( self->freezeState ) {
+		// float friction = 0.99f; // Try 0.99–0.995 for more/less slickness
+		float friction = g_frozenFriction.value; // Try 0.99–0.995 for more/less slickness
+        self->s.pos.trDelta[0] *= friction;
+        self->s.pos.trDelta[1] *= friction;
+        // Optionally, less friction vertically:
+        // self->s.pos.trDelta[2] *= 0.99f;
+
 		if ( !self->target_ent->freezeState ) {
 			TossBody( self );
 			return;
@@ -420,12 +424,17 @@ qboolean DamageBody( gentity_t *targ, gentity_t *attacker, vec3_t dir, int mod, 
 
 	if ( attacker->client && targ->freezeState ) {
 		if ( knockback ) {
-			VectorScale( dir, g_knockback.value * (float) knockback / mass, kvel );
-			if ( mass == 200 ) kvel[ 2 ] += 24;
-			VectorAdd( targ->s.pos.trDelta, kvel, targ->s.pos.trDelta );
+			if ( g_freezeKnockback.integer ) {
+				G_FrozenPlayerKnockback( targ, 1000, dir );
+			}
+			else {
+				VectorScale( dir, g_knockback.value * (float) knockback / mass, kvel );
+				if ( mass == 200 ) kvel[ 2 ] += 24;
+				VectorAdd( targ->s.pos.trDelta, kvel, targ->s.pos.trDelta );
 
-			targ->s.pos.trType = TR_GRAVITY;
-			targ->s.pos.trTime = level.time;
+				targ->s.pos.trType = TR_GRAVITY;
+				targ->s.pos.trTime = level.time;
+			}
 
 			targ->pain_debounce_time = level.time;
 		}
@@ -637,6 +646,8 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	case MOD_SUICIDE:
 	case MOD_TARGET_LASER:
 	//case MOD_TRIGGER_HURT:
+	// case MOD_LAVA:
+	// case MOD_SLIME:
 #ifdef MISSIONPACK
 	case MOD_JUICED:
 #endif
@@ -654,6 +665,26 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 	self->health = GIB_HEALTH;
+
+	if (mod == MOD_LAVA || mod == MOD_SLIME || mod == MOD_TRIGGER_HURT) {
+		// Set up a 3-second thaw timer
+		if (self->target_ent) {
+			self->target_ent->count = level.time + 3000; // 3 seconds
+			self->target_ent->think = Body_free;
+			self->target_ent->nextthink = self->target_ent->count;
+		}
+		return;
+	}
+
+	if (mod == MOD_LAVA || mod == MOD_SLIME || mod == MOD_TRIGGER_HURT) {
+		// Set up a 3-second thaw timer
+		if (self->target_ent) {
+			self->target_ent->count = level.time + 3000; // 3 seconds
+			self->target_ent->think = Body_free;
+			self->target_ent->nextthink = self->target_ent->count;
+		}
+		return;
+	}
 
 	// G_LogPrintf("CALL: CheckLastPlayerAlive from player_freeze target\n");
 	CheckLastPlayerAlive(self->client->ps.persistant[PERS_TEAM]);
@@ -1061,7 +1092,7 @@ void FT_ResetFlags ( void ) {
 
 void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
 	// Check if the player is a bot
-    if (ent->r.svFlags & SVF_BOT) {
+    if (ent->r.svFlags & SVF_BOT || ent->s.clientNum != clientNum) {
         return; // Skip output for bots
     }
 
@@ -1077,7 +1108,6 @@ void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
 void CheckLastPlayerAlive(int team) {
     int i, aliveCount = 0, lastPlayer = -1;
 	int teamCount = 0;
-	static int gracePeriodEnd;
     gentity_t *ent;
 
     #define SPAWN_GRACE_PERIOD 2000
@@ -1110,8 +1140,8 @@ void CheckLastPlayerAlive(int team) {
     }
 
     // Calculate the grace period expiration time
-    gracePeriodEnd = level.time + SPAWN_GRACE_PERIOD;
-    // G_LogPrintf("DEBUG: Grace period ends at %d (SPAWN_GRACE_PERIOD: %d ms)\n", gracePeriodEnd, SPAWN_GRACE_PERIOD);
+    ent->gracePeriodEnd = level.time + SPAWN_GRACE_PERIOD;
+    G_LogPrintf("DEBUG: Grace period ends at %d (SPAWN_GRACE_PERIOD: %d ms)\n", ent->gracePeriodEnd, SPAWN_GRACE_PERIOD);
 
     // Iterate through all clients to determine alive players and update states
     for (i = 0; i < level.maxclients; i++) {
@@ -1125,7 +1155,7 @@ void CheckLastPlayerAlive(int team) {
         // Update justLost state based on the grace period
         ent->justLost = (!ent->freezeState && 
                          ent->client->respawnTime > level.time && 
-                         ent->client->respawnTime <= gracePeriodEnd);
+                         ent->client->respawnTime <= ent->gracePeriodEnd);
 
         // Debugging: Log player details
 		// G_LogPrintf("DEBUG: Player %d (%s) - freezeState: %d, respawnTime: %d, health: %d, justLost: %d, lastState: %d\n",
@@ -1266,6 +1296,28 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
             }
         }
     }
+}
+
+void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int knockback, vec3_t dir) {
+	float mass;
+	vec3_t kvel;
+
+	if (g_freezeKnockback.value <= 0) {
+		return;
+	}
+
+	mass = 5;
+
+	//VectorClear(frozenRemnant->s.pos.trDelta);
+	frozenRemnant->s.pos.trType = TR_GRAVITY;
+	frozenRemnant->s.pos.trTime = level.time;
+	VectorCopy(frozenRemnant->r.currentOrigin, frozenRemnant->s.pos.trBase);
+	frozenRemnant->s.groundEntityNum = -1;
+
+	VectorNormalize(dir);
+	kvel[2] += 24; // Add some vertical velocity to the frozen remnant
+	VectorScale(dir, g_freezeKnockback.value * (float)knockback / mass, kvel);
+	VectorAdd(frozenRemnant->s.pos.trDelta, kvel, frozenRemnant->s.pos.trDelta);
 }
 
 // void ResetLastStateForAllLosers(int losers) {

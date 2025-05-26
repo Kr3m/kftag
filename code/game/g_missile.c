@@ -4,6 +4,12 @@
 
 #define	MISSILE_PRESTEP_TIME	50
 
+static float VectorDistance(const vec3_t v1, const vec3_t v2) {
+    vec3_t diff;
+    VectorSubtract(v1, v2, diff);
+    return VectorLength(diff);
+}
+
 /*
 ================
 G_BounceMissile
@@ -449,6 +455,18 @@ void G_RunMissile( gentity_t *ent ) {
 	// get current position
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
+	if (ent->s.weapon == WP_PLASMAGUN && ent->plasmaPrestep) {
+        float traveled = VectorDistance(ent->plasmaPrestepStart, ent->r.currentOrigin);
+        if (traveled >= ent->plasmaPrestepDist) {
+            // Switch to normal speed
+            vec3_t dir;
+            VectorNormalize2(ent->s.pos.trDelta, dir);
+            VectorScale(dir, ent->plasmaNormalSpeed, ent->s.pos.trDelta);
+            SnapVector(ent->s.pos.trDelta);
+            ent->plasmaPrestep = qfalse;
+        }
+    }
+
 	// if this missile bounced off an invulnerability sphere
 	if ( ent->target_ent ) {
 		passent = ent->target_ent->s.number;
@@ -516,43 +534,61 @@ fire_plasma
 =================
 */
 gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
-	gentity_t	*bolt;
+    gentity_t	*bolt;
+    float plasmaSpeed = 2000.0f;
+    float qlPrestepSpeed = 3000.0f; // QL fast speed (tweak as needed)
+    float qlPrestepDist = 609.6f;   // 20 feet in units
 
-	VectorNormalize (dir);
+    VectorNormalize (dir);
 
-	bolt = G_Spawn();
-	bolt->classname = "plasma";
-	bolt->nextthink = level.time + 10000;
-	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
-	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.weapon = WP_PLASMAGUN;
-	bolt->r.ownerNum = self->s.number;
-	bolt->parent = self;
-	bolt->damage = g_damagePG.integer;
-	bolt->splashDamage = g_splashDamagePG.integer;
-	bolt->splashRadius = g_splashRadiusPG.integer;
-	bolt->methodOfDeath = MOD_PLASMA;
-	bolt->splashMethodOfDeath = MOD_PLASMA_SPLASH;
-	bolt->clipmask = MASK_SHOT;
-	bolt->target_ent = NULL;
+    bolt = G_Spawn();
+    bolt->classname = "plasma";
+    bolt->nextthink = level.time + 10000;
+    bolt->think = G_ExplodeMissile;
+    bolt->s.eType = ET_MISSILE;
+    bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+    bolt->s.weapon = WP_PLASMAGUN;
+    bolt->r.ownerNum = self->s.number;
+    bolt->parent = self;
+    bolt->damage = g_damagePG.integer;
+    bolt->splashDamage = g_splashDamagePG.integer;
+    bolt->splashRadius = g_splashRadiusPG.integer;
+    bolt->methodOfDeath = MOD_PLASMA;
+    bolt->splashMethodOfDeath = MOD_PLASMA_SPLASH;
+    bolt->clipmask = MASK_SHOT;
+    bolt->target_ent = NULL;
 
-	// missile owner
-	bolt->s.clientNum = self->s.clientNum;
-	// unlagged
-	bolt->s.otherEntityNum = self->s.number;
+    // missile owner
+    bolt->s.clientNum = self->s.clientNum;
+    // unlagged
+    bolt->s.otherEntityNum = self->s.number;
 
-	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
-	VectorCopy( start, bolt->s.pos.trBase );
-	SnapVector( bolt->s.pos.trBase );			// save net bandwidth
-	VectorScale( dir, 2000, bolt->s.pos.trDelta );
-	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
+    bolt->s.pos.trType = TR_LINEAR;
+    bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
+    VectorCopy( start, bolt->s.pos.trBase );
+    SnapVector( bolt->s.pos.trBase );			// save net bandwidth
 
-	VectorCopy (start, bolt->r.currentOrigin);
+    if (g_qlPlasmaVelocity.integer) {
+        // QL-style: fast for first 20 feet, then normal
+        VectorScale(dir, qlPrestepSpeed, bolt->s.pos.trDelta);
+        SnapVector(bolt->s.pos.trDelta);
 
-	return bolt;
-}	
+        // Store info for slowdown (add these fields to gentity_t if not present)
+        bolt->plasmaPrestep = qtrue;
+        bolt->plasmaPrestepDist = qlPrestepDist;
+        bolt->plasmaNormalSpeed = plasmaSpeed;
+        VectorCopy(start, bolt->plasmaPrestepStart);
+    } else {
+        // Q3-style: constant speed
+        VectorScale(dir, plasmaSpeed, bolt->s.pos.trDelta);
+        SnapVector(bolt->s.pos.trDelta);
+        bolt->plasmaPrestep = qfalse;
+    }
+
+    VectorCopy (start, bolt->r.currentOrigin);
+
+    return bolt;
+}
 
 //=============================================================================
 
