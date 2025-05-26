@@ -482,12 +482,21 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// Create a temporary event entity to carry the freezeTime value
 	ResetFreezeTimeEvent( self, self->s.clientNum );
 
-    event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
-	self->freezeTime = level.time + (g_autoThawTime.integer * 1000);
-    event->s.time = self->freezeTime; // Store the freezeTime value in the event
-    event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
-    event->r.singleClient = self->s.clientNum;
-	event->s.eventParm = self->s.clientNum;
+	if (meansOfDeath == MOD_LAVA || meansOfDeath == MOD_SLIME || meansOfDeath == MOD_TRIGGER_HURT) {
+		event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
+		self->freezeTime = level.time + (3000);
+		event->s.time = self->freezeTime; // Store the freezeTime value in the event
+		event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
+		event->r.singleClient = self->s.clientNum;
+		event->s.eventParm = self->s.clientNum;
+	} else {
+		event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
+		self->freezeTime = level.time + (g_autoThawTime.integer * 1000);
+		event->s.time = self->freezeTime; // Store the freezeTime value in the event
+		event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
+		event->r.singleClient = self->s.clientNum;
+		event->s.eventParm = self->s.clientNum;
+	}
 
 	// Track the temporary entity
 	self->client->freezeEvent = event;
@@ -1128,7 +1137,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if ( client ) {
 				if ( targ != attacker && level.time - client->respawnTime < 1000 ) return;
 			} else {
-				if ( DamageBody( targ, attacker, dir, mod, damage, knockback ) ) return;
+				if ( DamageBody( targ, attacker, dir, mod, knockback ) ) return;
 			}
 		}
 //qlone - freezetag

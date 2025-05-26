@@ -932,6 +932,11 @@ FireWeapon
 */
 void FireWeapon( gentity_t *ent ) {
 	int weapon = ent->s.weapon;
+
+	if ( ent->client->ps.ammo[weapon] <= 0 ) {
+		return; // no ammo
+	}
+	
 	if ( !level.warmupTime ) {
 		ent->client->pers.stats.weaponStats[weapon].attacks++;
 	}

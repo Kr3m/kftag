@@ -827,7 +827,7 @@ qboolean Set_Client( gentity_t *ent );
 void respawnSpectator( gentity_t *ent );
 void Persistant_spectator( gentity_t *ent, gclient_t *cl );
 void Body_free( gentity_t *self );
-qboolean DamageBody( gentity_t *targ, gentity_t *attacker, vec3_t dir, int mod, int damage, int knockback );
+qboolean DamageBody( gentity_t *targ, gentity_t *attacker, vec3_t dir, int mod, int knockback );
 qboolean is_body( gentity_t *ent );
 qboolean is_body_freeze( gentity_t *ent );
 void player_freeze( gentity_t *self, gentity_t *attacker, int mod );

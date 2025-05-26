@@ -343,6 +343,13 @@ static void Body_think( gentity_t *self ) {
 	}
 
 	if ( self->freezeState ) {
+		// float friction = 0.99f; // Try 0.99–0.995 for more/less slickness
+		float friction = g_frozenFriction.value; // Try 0.99–0.995 for more/less slickness
+        self->s.pos.trDelta[0] *= friction;
+        self->s.pos.trDelta[1] *= friction;
+        // Optionally, less friction vertically:
+        // self->s.pos.trDelta[2] *= 0.99f;
+
 		if ( !self->target_ent->freezeState ) {
 			TossBody( self );
 			return;
@@ -386,7 +393,7 @@ static void Body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	Body_free( self );
 }
 
-qboolean DamageBody( gentity_t *targ, gentity_t *attacker, vec3_t dir, int mod, int damage, int knockback ) {
+qboolean DamageBody( gentity_t *targ, gentity_t *attacker, vec3_t dir, int mod, int knockback ) {
 	static float	mass;
 	vec3_t	kvel;
 
@@ -418,7 +425,7 @@ qboolean DamageBody( gentity_t *targ, gentity_t *attacker, vec3_t dir, int mod, 
 	if ( attacker->client && targ->freezeState ) {
 		if ( knockback ) {
 			if ( g_freezeKnockback.integer ) {
-				G_FrozenPlayerKnockback( targ, damage, dir );
+				G_FrozenPlayerKnockback( targ, 1000, dir );
 			}
 			else {
 				VectorScale( dir, g_knockback.value * (float) knockback / mass, kvel );
@@ -639,9 +646,8 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	case MOD_SUICIDE:
 	case MOD_TARGET_LASER:
 	//case MOD_TRIGGER_HURT:
-	case MOD_LAVA:
-	case MOD_SLIME:
-	case MOD_TRIGGER_HURT:
+	// case MOD_LAVA:
+	// case MOD_SLIME:
 #ifdef MISSIONPACK
 	case MOD_JUICED:
 #endif
@@ -659,6 +665,16 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 	self->health = GIB_HEALTH;
+
+	if (mod == MOD_LAVA || mod == MOD_SLIME || mod == MOD_TRIGGER_HURT) {
+		// Set up a 3-second thaw timer
+		if (self->target_ent) {
+			self->target_ent->count = level.time + 3000; // 3 seconds
+			self->target_ent->think = Body_free;
+			self->target_ent->nextthink = self->target_ent->count;
+		}
+		return;
+	}
 
 	G_LogPrintf("CALL: CheckLastPlayerAlive from player_freeze target\n");
 	CheckLastPlayerAlive(self->client->ps.persistant[PERS_TEAM]);
@@ -1272,8 +1288,7 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
     }
 }
 
-void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int damage, vec3_t dir) {
-	int knockback = damage;
+void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int knockback, vec3_t dir) {
 	float mass;
 	vec3_t kvel;
 
@@ -1281,9 +1296,6 @@ void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int damage, vec3_t dir) {
 		return;
 	}
 
-	if (knockback > 200) {
-		knockback = 200;
-	}
 	mass = 5;
 
 	//VectorClear(frozenRemnant->s.pos.trDelta);
@@ -1293,6 +1305,7 @@ void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int damage, vec3_t dir) {
 	frozenRemnant->s.groundEntityNum = -1;
 
 	VectorNormalize(dir);
+	kvel[2] += 24; // Add some vertical velocity to the frozen remnant
 	VectorScale(dir, g_freezeKnockback.value * (float)knockback / mass, kvel);
 	VectorAdd(frozenRemnant->s.pos.trDelta, kvel, frozenRemnant->s.pos.trDelta);
 }
