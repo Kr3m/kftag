@@ -1478,7 +1478,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 	PM_AddEvent( EV_CHANGE_WEAPON );
 	pm->ps->weaponstate = WEAPON_DROPPING;
 	//pm->ps->weaponTime += 200;
-	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 0 : 200;
+	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 10 : 200;
 	PM_StartTorsoAnim( TORSO_DROP );
 }
 
@@ -1504,7 +1504,7 @@ static void PM_FinishWeaponChange( void ) {
 	pm->ps->weaponstate = WEAPON_RAISING;
 	pm->ps->eFlags &= ~EF_FIRING;
 	//pm->ps->weaponTime += 250;
-	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 0 : 250;
+	pm->ps->weaponTime += pm->fastWeaponSwitch > 0 ? 10 : 250;
 	PM_StartTorsoAnim( TORSO_RAISE );
 }
 
