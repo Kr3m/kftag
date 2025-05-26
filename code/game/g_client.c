@@ -1348,7 +1348,7 @@ void ClientSpawn(gentity_t *ent) {
 	client->ps.commandTime = level.time - 100;
 	client->pers.cmd.serverTime = level.time;
 	ent->s.time2 = level.time;
-	G_LogPrintf("CALL: CheckLastPlayerAlive from ClientSpawn\n");
+	// G_LogPrintf("CALL: CheckLastPlayerAlive from ClientSpawn\n");
 	CheckLastPlayerAlive( client->sess.sessionTeam );
 	ClientThink( ent-g_entities );
 

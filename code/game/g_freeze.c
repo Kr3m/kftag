@@ -1141,7 +1141,7 @@ void CheckLastPlayerAlive(int team) {
 
     // Calculate the grace period expiration time
     ent->gracePeriodEnd = level.time + SPAWN_GRACE_PERIOD;
-    G_LogPrintf("DEBUG: Grace period ends at %d (SPAWN_GRACE_PERIOD: %d ms)\n", ent->gracePeriodEnd, SPAWN_GRACE_PERIOD);
+    // G_LogPrintf("DEBUG: Grace period ends at %d (SPAWN_GRACE_PERIOD: %d ms)\n", ent->gracePeriodEnd, SPAWN_GRACE_PERIOD);
 
     // Iterate through all clients to determine alive players and update states
     for (i = 0; i < level.maxclients; i++) {
