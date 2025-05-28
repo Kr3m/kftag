@@ -679,7 +679,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	if (mod == MOD_LAVA || mod == MOD_SLIME || mod == MOD_TRIGGER_HURT) {
 		// Set up a 3-second thaw timer
 		if (self->target_ent) {
-			self->target_ent->count = level.time + 3000; // 3 seconds
+			self->target_ent->count = level.time + (g_lavaThawTime.integer * 1000);
 			self->target_ent->think = Body_free;
 			self->target_ent->nextthink = self->target_ent->count;
 		}
