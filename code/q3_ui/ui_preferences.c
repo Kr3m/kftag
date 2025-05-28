@@ -25,6 +25,7 @@ GAME OPTIONS MENU
 #define ART_FX_TEAL				"menu/art/fx_teal"
 #define ART_FX_WHITE				"menu/art/fx_white"
 #define ART_FX_YELLOW				"menu/art/fx_yel"
+#define ART_FX_GREY				"menu/art/fx_grey"
 
 #define PREFERENCES_X_POS		360
 
@@ -42,7 +43,7 @@ GAME OPTIONS MENU
 #define ID_BACK					138
 #define ID_CROSSHAIRCOLOR		139
 
-#define	NUM_CROSSHAIRS			10
+#define	NUM_CROSSHAIRS			82
 
 
 typedef struct {
@@ -87,17 +88,29 @@ static preferences_t s_preferences;
 =====================================================
 If any number isn't in the UI table to assign, it will always map to WHITE
 */
-static int gamecodetoui[] = {7,0,1,2,3,5,4,6};
-static int uitogamecode[] = {1,2,3,4,6,5,7,0};
+// static int gamecodetoui[] = {7,0,1,2,3,5,4,6};
+// static int uitogamecode[] = {1,2,3,4,6,5,7,0};
+static const char *crosshairColorNames[] = {
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "magenta",
+    "cyan",
+    "white",
+	"grey"
+};
+#define NUM_CROSSHAIR_COLORS 8
+
 static float *uiSliderColors[] = {
-	colorRed,
-	colorGreen,
-	colorYellow,
-	colorBlue,
-	colorMagenta,
-	colorCyan,		
-	colorWhite,
-	colorBlack
+    colorRed,
+    colorGreen,
+    colorYellow,
+    colorBlue,
+    colorMagenta,
+    colorCyan,
+    colorWhite,
+	colorDkGrey,
 };
 static int uiSliderColorIndex;
 
@@ -111,51 +124,58 @@ static const char *teamoverlay_names[] =
 };
 
 static void Preferences_SetMenuItems( void ) {
-	int c;
+    int i;
+    char cvarColor[64];
+    trap_Cvar_VariableStringBuffer("cg_crosshairColor", cvarColor, sizeof(cvarColor));
 
-	s_preferences.crosshair.curvalue		= (int)trap_Cvar_VariableValue( "cg_drawCrosshair" ) % NUM_CROSSHAIRS;
+    s_preferences.crosshair.curvalue = (int)trap_Cvar_VariableValue( "cg_drawCrosshair" ) % NUM_CROSSHAIRS;
 
-	c = (int)trap_Cvar_VariableValue( "cg_crosshairColor" );
-	if ( c < 0 || c > 7 ) { // if cvar is invalid, set to white
-		c = 7;
-	}
+    // Find the index for the current color string
+    for (i = 0; i < NUM_CROSSHAIR_COLORS; i++) {
+        if (!Q_stricmp(cvarColor, crosshairColorNames[i])) {
+            uiSliderColorIndex = s_preferences.crosshaircolor.curvalue = i;
+            break;
+        }
+    }
+    if (i == NUM_CROSSHAIR_COLORS) {
+        uiSliderColorIndex = s_preferences.crosshaircolor.curvalue = 0; // default to red
+    }
 
-	uiSliderColorIndex = s_preferences.crosshaircolor.curvalue = gamecodetoui[c];
-
-	s_preferences.simpleitems.curvalue	= trap_Cvar_VariableValue( "cg_simpleItems" ) != 0;
-	s_preferences.brass.curvalue		= trap_Cvar_VariableValue( "cg_brassTime" ) != 0;
-	s_preferences.wallmarks.curvalue	= trap_Cvar_VariableValue( "cg_marks" ) != 0;
-	s_preferences.identifytarget.curvalue	= trap_Cvar_VariableValue( "cg_drawCrosshairNames" ) != 0;
-	s_preferences.dynamiclights.curvalue	= trap_Cvar_VariableValue( "r_dynamiclight" ) != 0;
-	s_preferences.highqualitysky.curvalue	= trap_Cvar_VariableValue ( "r_fastsky" ) == 0;
-	s_preferences.synceveryframe.curvalue	= trap_Cvar_VariableValue( "r_swapinterval" ) != 0;
-	s_preferences.forcemodel.curvalue	= trap_Cvar_VariableValue( "cg_forcemodel" ) != 0;
-	s_preferences.drawteamoverlay.curvalue	= Com_Clamp( 0, 3, trap_Cvar_VariableValue( "cg_drawTeamOverlay" ) );
-	s_preferences.allowdownload.curvalue	= trap_Cvar_VariableValue( "cl_allowDownload" ) != 0;
+    s_preferences.simpleitems.curvalue	= trap_Cvar_VariableValue( "cg_simpleItems" ) != 0;
+    s_preferences.brass.curvalue		= trap_Cvar_VariableValue( "cg_brassTime" ) != 0;
+    s_preferences.wallmarks.curvalue	= trap_Cvar_VariableValue( "cg_marks" ) != 0;
+    s_preferences.identifytarget.curvalue	= trap_Cvar_VariableValue( "cg_drawCrosshairNames" ) != 0;
+    s_preferences.dynamiclights.curvalue	= trap_Cvar_VariableValue( "r_dynamiclight" ) != 0;
+    s_preferences.highqualitysky.curvalue	= trap_Cvar_VariableValue ( "r_fastsky" ) == 0;
+    s_preferences.synceveryframe.curvalue	= trap_Cvar_VariableValue( "r_swapinterval" ) != 0;
+    s_preferences.forcemodel.curvalue	= trap_Cvar_VariableValue( "cg_forcemodel" ) != 0;
+    s_preferences.drawteamoverlay.curvalue	= Com_Clamp( 0, 3, trap_Cvar_VariableValue( "cg_drawTeamOverlay" ) );
+    s_preferences.allowdownload.curvalue	= trap_Cvar_VariableValue( "cl_allowDownload" ) != 0;
 }
 
 
 static void Preferences_Event( void* ptr, int notification ) {
-	if( notification != QM_ACTIVATED ) {
-		return;
-	}
+    if( notification != QM_ACTIVATED ) {
+        return;
+    }
 
-	switch( ((menucommon_s*)ptr)->id ) {
-	case ID_CROSSHAIR:
-		s_preferences.crosshair.curvalue++;
-		if( s_preferences.crosshair.curvalue == NUM_CROSSHAIRS ) {
-			s_preferences.crosshair.curvalue = 0;
-		}
-		trap_Cvar_SetValue( "cg_drawCrosshair", s_preferences.crosshair.curvalue );
-		break;
+    switch( ((menucommon_s*)ptr)->id ) {
+    case ID_CROSSHAIR:
+        s_preferences.crosshair.curvalue++;
+        if( s_preferences.crosshair.curvalue == NUM_CROSSHAIRS ) {
+            s_preferences.crosshair.curvalue = 0;
+        }
+        trap_Cvar_SetValue( "cg_drawCrosshair", s_preferences.crosshair.curvalue );
+        break;
 
-	case ID_CROSSHAIRCOLOR:
-		uiSliderColorIndex++;
-		if( uiSliderColorIndex > ( ARRAY_LEN( uiSliderColors ) - 1 ) ) {
-			uiSliderColorIndex = 0;
-		}
-		trap_Cvar_SetValue( "cg_crosshairColor", uitogamecode[s_preferences.crosshaircolor.curvalue] );
-		break;
+    case ID_CROSSHAIRCOLOR:
+        uiSliderColorIndex++;
+        if( uiSliderColorIndex >= NUM_CROSSHAIR_COLORS ) {
+            uiSliderColorIndex = 0;
+        }
+        s_preferences.crosshaircolor.curvalue = uiSliderColorIndex;
+        trap_Cvar_Set( "cg_crosshairColor", crosshairColorNames[uiSliderColorIndex] );
+        break;
 
 	case ID_SIMPLEITEMS:
 		trap_Cvar_SetValue( "cg_simpleItems", s_preferences.simpleitems.curvalue );
@@ -280,8 +300,12 @@ static void CrosshairColor_Draw( void *self ) {
 	}
 	UI_DrawString( item->generic.x - SMALLCHAR_WIDTH, item->generic.y, item->generic.name, style|UI_RIGHT, color );
 
+	// Draw color bar and selector
 	UI_DrawHandlePic( item->generic.x + BIGCHAR_HEIGHT+4 - 20, item->generic.y + 8, 128, 8, s_preferences.fxBasePic );
 	UI_DrawHandlePic( item->generic.x + BIGCHAR_HEIGHT+4 + item->curvalue * 16 + 8 - 20, item->generic.y + 6, 16, 12, s_preferences.fxPic[item->curvalue] );
+
+	// Draw the color name
+	UI_DrawString( item->generic.x + 160, item->generic.y, crosshairColorNames[item->curvalue], style, uiSliderColors[item->curvalue] );
 }
 
 
@@ -345,7 +369,7 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.crosshaircolor.generic.bottom	= y + 20;
 	s_preferences.crosshaircolor.generic.left	= PREFERENCES_X_POS - ( ( (int)strlen(s_preferences.crosshaircolor.generic.name) + 1 ) * SMALLCHAR_WIDTH );
 	s_preferences.crosshaircolor.generic.right	= PREFERENCES_X_POS + 48;
-	s_preferences.crosshaircolor.numitems		= 8;
+	s_preferences.crosshaircolor.numitems		= NUM_CROSSHAIR_COLORS;
 
 	y += BIGCHAR_HEIGHT+24;
 	s_preferences.simpleitems.generic.type        = MTYPE_RADIOBUTTON;
@@ -485,9 +509,13 @@ void Preferences_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_FRAMER );
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
-	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
+	for( n = 0; n <= 9; n++ ) {
 		s_preferences.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
 	}
+	// Custom crosshairs: 10-81 (crosshair_10.tga ... crosshair_81.tga)
+    for (n = 10; n <= 81; n++) {
+        s_preferences.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair_%d", n) );
+    }
 
 	s_preferences.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
 	s_preferences.fxPic[0]  = trap_R_RegisterShaderNoMip( ART_FX_RED );
@@ -497,6 +525,7 @@ void Preferences_Cache( void ) {
 	s_preferences.fxPic[4]  = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
 	s_preferences.fxPic[5]  = trap_R_RegisterShaderNoMip( ART_FX_TEAL );
 	s_preferences.fxPic[6]  = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
+	s_preferences.fxPic[7]  = trap_R_RegisterShaderNoMip( ART_FX_GREY );
 }
 
 
