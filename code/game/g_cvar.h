@@ -190,5 +190,6 @@ G_CVAR( g_qlPlasmaVelocity, "g_qlPlasmaVelocity", "0", CVAR_ARCHIVE, 0, qfalse, 
 G_CVAR( g_shotgunRange, "g_shotgunRange", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_freezeKnockback, "g_freezeKnockback", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_frozenFriction, "g_frozenFriction", "1.0", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_lavaThawTime, "g_lavaThawTime", "3", CVAR_ARCHIVE, 0, qfalse, qfalse )
 
 #undef G_CVAR
