@@ -196,7 +196,7 @@ static void Body_Explode( gentity_t *self ) {
 			e->client->pers.stats.thaws++;
 			AddScore( e, self->s.pos.trBase, 2 );
 			// G_LogPrintf("CALL: CheckLastPlayerAlive from Body_Explode\n");
-			CheckLastPlayerAlive( e->client->ps.persistant[ PERS_TEAM ] );
+			CheckLastPlayerAlive( e->client->sess.sessionTeam );
 
 			G_Damage( self, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
 		}
@@ -659,6 +659,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->r.maxs[ 2 ] = -8;
 	self->freezeState = qtrue;
 	self->wasFrozen = qtrue;
+	self->lastState = qfalse;
 	check_time = ( level.time - (g_lavaThawTime.integer * 1000) ) + 200;
 
 	self->takedamage = qfalse;
@@ -687,7 +688,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	}
 
 	// G_LogPrintf("CALL: CheckLastPlayerAlive from player_freeze target\n");
-	CheckLastPlayerAlive(self->client->ps.persistant[PERS_TEAM]);
+	CheckLastPlayerAlive(self->client->sess.sessionTeam);
 
 	if ( attacker->client && self != attacker && NearbyBody( self ) ) {
 		attacker->client->ps.persistant[ PERS_DEFEND_COUNT ]++;
@@ -1219,9 +1220,9 @@ void HandleLastPlayerLogic(int lastPlayer) {
 			spectator->client->sess.spectatorClient == lastPlayer
 		);
 
-		if ( isFollowing && spectator->lastState ) {
-			spectator->lastState = qfalse; // Reset lastState for all players
-		}
+		// if ( isFollowing && spectator->lastState ) {
+		// 	spectator->lastState = qfalse; // Reset lastState for all players
+		// }
 
 		if (isFollowing) {
 			if (!spectator->lastState) {
