@@ -196,7 +196,7 @@ static void Body_Explode( gentity_t *self ) {
 			e->client->pers.stats.thaws++;
 			AddScore( e, self->s.pos.trBase, 2 );
 			G_LogPrintf("CALL: CheckLastPlayerAlive from Body_Explode\n");
-			CheckLastPlayerAlive( e->client->ps.persistant[ PERS_TEAM ] );
+			CheckLastPlayerAlive( e->client->sess.sessionTeam );
 
 			G_Damage( self, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
 		}
@@ -659,6 +659,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->r.maxs[ 2 ] = -8;
 	self->freezeState = qtrue;
 	self->wasFrozen = qtrue;
+	self->lastState = qfalse;
 	check_time = ( level.time - (g_lavaThawTime.integer * 1000) ) + 200;
 
 	self->takedamage = qfalse;
@@ -687,7 +688,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	}
 
 	G_LogPrintf("CALL: CheckLastPlayerAlive from player_freeze target\n");
-	CheckLastPlayerAlive(self->client->ps.persistant[PERS_TEAM]);
+	CheckLastPlayerAlive(self->client->sess.sessionTeam);
 
 	if ( attacker->client && self != attacker && NearbyBody( self ) ) {
 		attacker->client->ps.persistant[ PERS_DEFEND_COUNT ]++;
@@ -1213,15 +1214,15 @@ void HandleLastPlayerLogic(int lastPlayer) {
 
 		// Notify both spectators and frozen players who are following the last player
 		isFollowing = (
-			(spectator->client->sess.sessionTeam == TEAM_SPECTATOR ||
+			(spectator->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
 			spectator->freezeState) && // also include frozen players
 			spectator->client->sess.spectatorState == SPECTATOR_FOLLOW &&
 			spectator->client->sess.spectatorClient == lastPlayer
 		);
 
-		if ( isFollowing && spectator->lastState ) {
-			spectator->lastState = qfalse; // Reset lastState for all players
-		}
+		// if ( isFollowing && spectator->lastState ) {
+		// 	spectator->lastState = qfalse; // Reset lastState for all players
+		// }
 
 		if (isFollowing) {
 			if (!spectator->lastState) {
@@ -1232,7 +1233,7 @@ void HandleLastPlayerLogic(int lastPlayer) {
 				spectator->lastState = qtrue;
 			}
 		} else {
-			if (spectator->client->sess.sessionTeam == TEAM_SPECTATOR) {
+			if (spectator->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
 				trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
 				spectator->lastState = qfalse; // Reset lastState for all spectators
 				G_LogPrintf("DEBUG: Spectator %d (%s) reset lastplayer state.\n", i, spectator->client->pers.netname);
@@ -1267,7 +1268,7 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
 			ent->lastState = qfalse; // Always reset
 		}
 
-        if (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+        if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
 			ent->client->sess.spectatorState == SPECTATOR_FOLLOW &&
 			ent->client->sess.spectatorClient == lastPlayer) {
 			followedEnt = &g_entities[lastPlayer];
@@ -1280,7 +1281,7 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
 		}
 
         // Reset spectators following any player on the same team
-        if (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+        if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
             ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
             int followedPlayer = ent->client->sess.spectatorClient;
             if (followedPlayer >= 0 && followedPlayer < level.maxclients) {
