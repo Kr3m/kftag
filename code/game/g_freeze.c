@@ -964,7 +964,7 @@ void locationSpawn( gentity_t *ent, gitem_t *item ) {
 	SP_target_location( e );
 }
 
-void Weapon_GrapplingHook_Fire(	gentity_t *ent );
+//void Weapon_GrapplingHook_Fire(	gentity_t *ent );
 
 /* void Hook_Fire( gentity_t *ent ) {
 	gclient_t	*client;

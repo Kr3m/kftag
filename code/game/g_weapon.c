@@ -675,14 +675,21 @@ GRAPPLING HOOK
 
 void Weapon_GrapplingHook_Fire (gentity_t *ent)
 {
+	gentity_t	*tent;
 //qlone - grapple hook
 	AngleVectors( ent->client->ps.viewangles, forward, right, up );
 	//uzu//CalcMuzzlePoint( ent, forward, right, up, muzzle );
 	CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
 //qlone - grapple hook
 
-	if (!ent->client->fireHeld && !ent->client->hook)
+	if (!ent->client->fireHeld && !ent->client->hook) {
+		tent = G_TempEntity(ent->r.currentOrigin, EV_GRAPPLE_FIRE);
+    	tent->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
+    	tent->r.singleClient = ent->s.clientNum;
+    	tent->s.eventParm = ent->s.clientNum;
+
 		fire_grapple (ent, muzzle, forward);
+	}
 
 	ent->client->fireHeld = qtrue;
   

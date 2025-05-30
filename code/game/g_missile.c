@@ -395,8 +395,10 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->parent->client->ps.pm_flags |= PMF_GRAPPLE_PULL;
 
 		if (ent->parent->client->ps.pm_flags & PMF_GRAPPLE_PULL) {
-			G_AddEvent( ent->parent, EV_GRAPPLE_PULL, DirToByte(trace->plane.normal));
+			ent->s.loopSound = G_SoundIndex("sound/weapons/grapple/grpull.wav");
 			nent->freeAfterEvent = qtrue;
+		} else {
+			ent->s.loopSound = 0;
 		}
 
 		VectorCopy( ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);

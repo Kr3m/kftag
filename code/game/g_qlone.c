@@ -194,7 +194,7 @@ void G_SetInfiniteAmmo ( gclient_t *client ) {
 
 // grapple hook
 
-void Weapon_GrapplingHook_Fire( gentity_t *ent );
+// void Weapon_GrapplingHook_Fire( gentity_t *ent );
 
 void Hook_Fire( gentity_t *ent ) {
 	gclient_t	*client;
