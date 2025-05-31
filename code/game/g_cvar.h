@@ -175,6 +175,8 @@ G_CVAR( g_grappleHoldTime, "g_grappleHoldTime", "0", 0, 0, qtrue, qfalse )
 G_CVAR( g_grappleSpeed, "g_grappleSpeed", "800", 0, 0, qtrue, qfalse )
 G_CVAR( g_grapplePull, "g_grapplePull", "800", CVAR_SERVERINFO, 0, qtrue, qfalse )
 G_CVAR( g_grappleDamage, "g_grappleDamage", "0", 0, 0, qfalse, qfalse )
+G_CVAR( g_grapplePullDistance, "g_grapplePullDistance", "200.0", 0, 0, qtrue, qfalse )
+G_CVAR( g_grappleMuzzlePointOffset, "g_grappleMuzzlePointOffset", "100.0", 0, 0, qtrue, qfalse )
 
 G_CVAR( g_rotation, "g_rotation", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 

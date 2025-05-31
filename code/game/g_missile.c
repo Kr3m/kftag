@@ -4,7 +4,7 @@
 
 #define	MISSILE_PRESTEP_TIME	50
 
-static float VectorDistance(const vec3_t v1, const vec3_t v2) {
+float VectorDistance(const vec3_t v1, const vec3_t v2) {
     vec3_t diff;
     VectorSubtract(v1, v2, diff);
     return VectorLength(diff);
@@ -394,12 +394,12 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 		ent->parent->client->ps.pm_flags |= PMF_GRAPPLE_PULL;
 
-		if (ent->parent->client->ps.pm_flags & PMF_GRAPPLE_PULL) {
-			ent->s.loopSound = G_SoundIndex("sound/weapons/grapple/grpull.wav");
-			nent->freeAfterEvent = qtrue;
-		} else {
-			ent->s.loopSound = 0;
-		}
+//		if (ent->parent->client->ps.pm_flags & PMF_GRAPPLE_PULL) {
+//			ent->s.loopSound = G_SoundIndex("sound/weapons/grapple/grpull.wav");
+//			nent->freeAfterEvent = qtrue;
+//		} else {
+//			ent->s.loopSound = 0;
+//		}
 
 		VectorCopy( ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
 

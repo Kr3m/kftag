@@ -26,6 +26,14 @@ void CalcMuzzlePointOrigin( const gentity_t *ent, vec3_t origin, const vec3_t fo
 	//SnapVector( muzzlePoint );
 }
 
+void CalcGrappleMuzzlePoint( const gentity_t *ent, vec3_t origin, const vec3_t forward, const vec3_t right, const vec3_t up, vec3_t muzzlePoint ) {
+    VectorCopy( ent->client->ps.origin, origin );
+    origin[2] += ent->client->ps.viewheight;
+    VectorMA( origin, g_grappleMuzzlePointOffset.value, forward, muzzlePoint );  // Larger offset for grapple
+    // snap to integer coordinates for more efficient network bandwidth usage
+    //SnapVector( muzzlePoint );
+}
+
 
 /*
 ================
@@ -679,7 +687,7 @@ void Weapon_GrapplingHook_Fire (gentity_t *ent)
 //qlone - grapple hook
 	AngleVectors( ent->client->ps.viewangles, forward, right, up );
 	//uzu//CalcMuzzlePoint( ent, forward, right, up, muzzle );
-	CalcMuzzlePointOrigin( ent, muzzle_origin, forward, right, up, muzzle );
+    CalcGrappleMuzzlePoint( ent, muzzle_origin, forward, right, up, muzzle );
 //qlone - grapple hook
 
 	if (!ent->client->fireHeld && !ent->client->hook) {
@@ -705,6 +713,7 @@ void Weapon_HookFree (gentity_t *ent)
 {
 //qlone - grapple hook
 	//ent->parent->timestamp = level.time;
+    ent->s.loopSound = 0;
 
 	ent->parent->timestamp = level.time + g_grappleDelayTime.integer;
 //qlone - grapple hook
@@ -731,6 +740,18 @@ void Weapon_HookThink (gentity_t *ent)
 		SnapVectorTowards( v, oldorigin );	// save net bandwidth
 
 		G_SetOrigin( ent, v );
+	}
+
+	if (ent->parent->client->ps.pm_flags & PMF_GRAPPLE_PULL) {
+		float dist = VectorDistance(ent->parent->client->ps.origin, ent->parent->client->ps.grapplePoint);
+
+		if (dist > g_grapplePullDistance.value) {  // Adjust threshold as needed
+			ent->s.loopSound = G_SoundIndex("sound/weapons/grapple/grpull.wav");
+		} else {
+			ent->s.loopSound = 0;
+		}
+	} else {
+		ent->s.loopSound = 0;
 	}
 
 	VectorCopy( ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
