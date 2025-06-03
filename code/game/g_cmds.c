@@ -868,7 +868,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	}
 
 	G_LogPrintf("CALL: CheckLastPlayerAlive from Cmd_Follow_f\n");
-	CheckLastPlayerAlive( ent->client->ps.persistant[PERS_TEAM] );
+    CheckLastPlayerAlive( ent->client->sess.sessionTeam );
 	ent->client->ps.stats[STAT_SPECTATED_CLIENT] = i;
 
 	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;

@@ -1316,6 +1316,17 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
             }
         }
     }
+	
+	for (i = 0; i < level.maxclients; i++) {
+		gentity_t *ent = &g_entities[i];
+		if (!ent->inuse || !ent->client) continue;
+		if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+			if (ent->lastState) {
+				trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+				ent->lastState = qfalse;
+			}
+		}
+	}
 }
 
 void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int knockback, vec3_t dir) {
