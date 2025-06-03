@@ -1355,7 +1355,7 @@ void UpdateSpectatorLastPlayerState(gentity_t *spectator) {
     int followedPlayer;
     gentity_t *followed;
 
-    if (!spectator || !spectator->client) return;
+    if (!spectator || !spectator->client || !spectator->freezeState) return;
 
     // Only handle actual spectators, not frozen players
     if (spectator->client->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR) return;
