@@ -32,8 +32,8 @@ qboolean Set_spectator( gentity_t *ent ) {
 		ent->client->sess.spectatorState = SPECTATOR_FREE;
 		ent->client->sess.spectatorClient = 0;
 
-		G_LogPrintf("CALL: CheckLastPlayerAlive from Set_spectator\n");
-		CheckLastPlayerAlive( ent->client->sess.sessionTeam );
+		G_LogPrintf("CALL: UpdateSpectatorLastPlayerState from Set_spectator\n");
+		UpdateSpectatorLastPlayerState(ent);
 
 		trap_UnlinkEntity( ent );
 	}
@@ -610,6 +610,8 @@ static qboolean NearbyBody( gentity_t *targ ) {
 }
 
 void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
+    gentity_t	*event;
+
 	if ( level.warmupTime ) {
 		return;
 	}
@@ -667,25 +669,33 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->r.contents = 0;
 	self->health = GIB_HEALTH;
 
-	if (mod == MOD_LAVA || mod == MOD_SLIME || mod == MOD_TRIGGER_HURT) {
-		// Set up a 3-second thaw timer
-		if (self->target_ent) {
-			self->target_ent->count = level.time + (g_lavaThawTime.integer * 1000);
-			self->target_ent->think = Body_free;
-			self->target_ent->nextthink = self->target_ent->count;
-		}
-		return;
-	}
+    // Create a temporary event entity to carry the freezeTime value
+    ResetFreezeTimeEvent( self, self->s.clientNum );
 
-	if (mod == MOD_LAVA || mod == MOD_SLIME || mod == MOD_TRIGGER_HURT) {
-		// Set up a 3-second thaw timer
-		if (self->target_ent) {
-			self->target_ent->count = level.time + (g_lavaThawTime.integer * 1000);
-			self->target_ent->think = Body_free;
-			self->target_ent->nextthink = self->target_ent->count;
-		}
-		return;
-	}
+    if(self->target_ent) {
+        if (mod == MOD_LAVA || mod == MOD_SLIME || mod == MOD_TRIGGER_HURT) {
+            event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
+            self->freezeTime = level.time + (g_lavaThawTime.integer * 1000);
+            event->s.time = self->freezeTime; // Store the freezeTime value in the event
+            event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
+            event->r.singleClient = self->s.clientNum;
+            event->s.eventParm = self->s.clientNum;
+            self->target_ent->count = self->freezeTime;
+            self->target_ent->think = Body_free;
+            self->target_ent->nextthink = self->target_ent->count;
+
+            return;
+        } else {
+            event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
+            self->freezeTime = level.time + (g_autoThawTime.integer * 1000);
+            event->s.time = self->freezeTime; // Store the freezeTime value in the event
+            event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
+            event->r.singleClient = self->s.clientNum;
+            event->s.eventParm = self->s.clientNum;
+        }
+        // Track the temporary entity
+        self->client->freezeEvent = event;
+    }
 
 	G_LogPrintf("CALL: CheckLastPlayerAlive from player_freeze target\n");
 	CheckLastPlayerAlive(self->client->sess.sessionTeam);
@@ -1122,6 +1132,15 @@ void CheckLastPlayerAlive(int team) {
         ent = &g_entities[i];
         if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team)
             continue;
+
+        // Clear justLost if grace period has expired
+        if (ent->justLost && ent->gracePeriodEnd > 0 && level.time >= ent->gracePeriodEnd) {
+            ent->justLost = qfalse;
+            ent->gracePeriodEnd = 0;
+            G_LogPrintf("DEBUG: Player %d (%s) justLost cleared - grace period expired\n",
+                        i, ent->client->pers.netname);
+        }
+
         teamCount++;
     }
 
@@ -1154,14 +1173,14 @@ void CheckLastPlayerAlive(int team) {
         }
 
         // Update justLost state based on the grace period
-        ent->justLost = (!ent->freezeState && 
-                         ent->client->respawnTime > level.time && 
+        ent->justLost = (!ent->freezeState &&
+                         ent->client->respawnTime > level.time &&
                          ent->client->respawnTime <= ent->gracePeriodEnd);
 
         // Debugging: Log player details
 		G_LogPrintf("DEBUG: Player %d (%s) - freezeState: %d, respawnTime: %d, health: %d, justLost: %d, lastState: %d\n",
             i, ent->client->pers.netname, ent->freezeState, ent->client->respawnTime, ent->health, ent->justLost, ent->lastState);
-		
+
 		// Count alive players and temporarily set lastPlayer
         if (!ent->freezeState || ent->justLost) {
             aliveCount++;
@@ -1292,7 +1311,7 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
                                 i, ent->client->pers.netname, followedPlayer, followedEnt->client->pers.netname, team);
 						trap_SendServerCommand(ent - g_entities, "lastplayer 0");
 						followedEnt->lastState = qfalse; // Reset the state
-					}					
+					}
                 }
             }
         }
@@ -1321,14 +1340,39 @@ void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int knockback, vec3_t dir
 	VectorAdd(frozenRemnant->s.pos.trDelta, kvel, frozenRemnant->s.pos.trDelta);
 }
 
-// void ResetLastStateForAllLosers(int losers) {
-// 	int i;
-//     for (i = 0; i < level.maxclients; i++) {
-//         gentity_t *ent = &g_entities[i];
-//         if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != losers) {
-//             continue;
-//         }
-//         ent->lastState = qfalse; // Reset the lastState for all players and spectators
-// 		ent->justLost = qtrue; // Reset the justLost state
-//     }
-// }
+void UpdateSpectatorLastPlayerState(gentity_t *spectator) {
+    int followedPlayer;
+    gentity_t *followed;
+
+    if (!spectator || !spectator->client) return;
+
+    // Only handle actual spectators, not frozen players
+    if (spectator->client->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR) return;
+    if (spectator->client->sess.spectatorState != SPECTATOR_FOLLOW) return;
+
+    followedPlayer = spectator->client->sess.spectatorClient;
+    if (followedPlayer < 0 || followedPlayer >= level.maxclients) return;
+
+    followed = &g_entities[followedPlayer];
+    if (!followed->inuse || !followed->client) return;
+
+    // Check if the followed player is the last one standing on their team
+    if (followed->lastState) {
+        // The followed player is last standing, notify the spectator
+        if (!spectator->lastState) {
+            trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
+            spectator->lastState = qtrue;
+            G_LogPrintf("DEBUG: Spectator %d (%s) notified of last player %d (%s) via follow cycle.\n",
+                       spectator - g_entities, spectator->client->pers.netname,
+                       followedPlayer, followed->client->pers.netname);
+        }
+    } else {
+        // The followed player is not last standing, reset spectator state
+        if (spectator->lastState) {
+            trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
+            spectator->lastState = qfalse;
+            G_LogPrintf("DEBUG: Spectator %d (%s) reset lastplayer state via follow cycle.\n",
+                       spectator - g_entities, spectator->client->pers.netname);
+        }
+    }
+}
