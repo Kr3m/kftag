@@ -264,7 +264,7 @@ static void Body_WorldEffects( gentity_t *self ) {
 			self->s.pos.trTime = level.time;
 			break;
 		case ET_TELEPORT_TRIGGER:
-			if ( !( hit->spawnflags & 1 ) ) {
+			if ( !( hit->spawnflags & 1 ) && g_teleporterThaws.integer ) {
 				G_TempEntity( self->r.currentOrigin, EV_PLAYER_TELEPORT_OUT );
 				Body_free( self );
 				return;

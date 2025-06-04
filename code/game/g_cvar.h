@@ -168,6 +168,10 @@ G_CVAR( g_powerupReset, "g_powerupReset", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0
 G_CVAR( g_thawTime, "g_thawTime", "3", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_thawRadius, "g_thawRadius", "100", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_freezeSpawns, "g_freezeSpawns", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_freezeKnockback, "g_freezeKnockback", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_frozenFriction, "g_frozenFriction", "1.0", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_lavaThawTime, "g_lavaThawTime", "3", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_teleporterThaws, "g_teleporterThaws", "1", CVAR_ARCHIVE, 0, qfalse, qfalse )
 
 G_CVAR( g_grapple, "g_grapple", "0", 0, 0, qtrue, qfalse )
 G_CVAR( g_grappleDelayTime, "g_grappleDelayTime", "400", CVAR_SERVERINFO, 0, qtrue, qfalse )
@@ -190,8 +194,6 @@ G_CVAR( g_healthDown, "g_healthDown", "1", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_randomPU, "g_randomPU", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_qlPlasmaVelocity, "g_qlPlasmaVelocity", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_shotgunRange, "g_shotgunRange", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
-G_CVAR( g_freezeKnockback, "g_freezeKnockback", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
-G_CVAR( g_frozenFriction, "g_frozenFriction", "1.0", CVAR_ARCHIVE, 0, qfalse, qfalse )
-G_CVAR( g_lavaThawTime, "g_lavaThawTime", "3", CVAR_ARCHIVE, 0, qfalse, qfalse )
+
 
 #undef G_CVAR
