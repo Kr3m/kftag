@@ -479,6 +479,7 @@ typedef struct {
 	int			intermissiontime;		// time the intermission was started
 	qboolean	readyToExit;			// at least one client wants to exit
 	int			exitTime;
+    qboolean    scoresResetAfterWarmup; // reset scores after warmup ends
 	
 	vec3_t		intermission_origin;	// also used for spectator spawns
 	vec3_t		intermission_angle;
@@ -840,6 +841,7 @@ void Cmd_Drop_f( gentity_t *ent );
 void Cmd_Ready_f( gentity_t *ent );
 void FT_ResetFlags( void );
 void ResetFreezeTimeEvent( gentity_t *ent, int clientNum );
+void ResetAllPlayerScores( void );
 // void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int damage, vec3_t dir);
 //qlone - freezetag
 

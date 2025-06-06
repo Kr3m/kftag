@@ -1329,28 +1329,6 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
 	}
 }
 
-void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int knockback, vec3_t dir) {
-	float mass;
-	vec3_t kvel;
-
-	if (g_freezeKnockback.value <= 0) {
-		return;
-	}
-
-	mass = 5;
-
-	//VectorClear(frozenRemnant->s.pos.trDelta);
-	frozenRemnant->s.pos.trType = TR_GRAVITY;
-	frozenRemnant->s.pos.trTime = level.time;
-	VectorCopy(frozenRemnant->r.currentOrigin, frozenRemnant->s.pos.trBase);
-	frozenRemnant->s.groundEntityNum = -1;
-
-	VectorNormalize(dir);
-	kvel[2] += 24; // Add some vertical velocity to the frozen remnant
-	VectorScale(dir, g_freezeKnockback.value * (float)knockback / mass, kvel);
-	VectorAdd(frozenRemnant->s.pos.trDelta, kvel, frozenRemnant->s.pos.trDelta);
-}
-
 void UpdateSpectatorLastPlayerState(gentity_t *spectator) {
     int followedPlayer;
     gentity_t *followed;
@@ -1386,4 +1364,65 @@ void UpdateSpectatorLastPlayerState(gentity_t *spectator) {
                        spectator - g_entities, spectator->client->pers.netname);
         }
     }
+}
+
+void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int knockback, vec3_t dir) {
+    float mass;
+    vec3_t kvel;
+
+    if (g_freezeKnockback.value <= 0) {
+        return;
+    }
+
+    mass = 5;
+
+    //VectorClear(frozenRemnant->s.pos.trDelta);
+    frozenRemnant->s.pos.trType = TR_GRAVITY;
+    frozenRemnant->s.pos.trTime = level.time;
+    VectorCopy(frozenRemnant->r.currentOrigin, frozenRemnant->s.pos.trBase);
+    frozenRemnant->s.groundEntityNum = -1;
+
+    VectorNormalize(dir);
+    kvel[2] += 24; // Add some vertical velocity to the frozen remnant
+    VectorScale(dir, g_freezeKnockback.value * (float)knockback / mass, kvel);
+    VectorAdd(frozenRemnant->s.pos.trDelta, kvel, frozenRemnant->s.pos.trDelta);
+}
+
+void ResetAllPlayerScores( void ) {
+    int i;
+    gentity_t *ent;
+    gclient_t *client;
+
+    G_LogPrintf("DEBUG: Resetting all player scores after warmup.\n");
+
+    for (i = 0; i < level.maxclients; i++) {
+        ent = &g_entities[i];
+        if (!ent->inuse || !ent->client) {
+            continue;
+        }
+
+        client = ent->client;
+
+        // reset player awards
+        client->ps.persistant[PERS_IMPRESSIVE_COUNT] = 0;
+        client->ps.persistant[PERS_EXCELLENT_COUNT] = 0;
+        client->ps.persistant[PERS_DEFEND_COUNT] = 0;
+        client->ps.persistant[PERS_ASSIST_COUNT] = 0;
+        client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT] = 0;
+
+        client->ps.persistant[PERS_SCORE] = 0;
+        client->ps.persistant[PERS_CAPTURES] = 0;
+
+        client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_NONE;
+        client->ps.persistant[PERS_ATTACKEE_ARMOR] = 0;
+        client->damage.enemy = client->damage.team = 0;
+
+        client->ps.stats[STAT_CLIENTS_READY] = 0;
+        client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+
+        G_LogPrintf("DEBUG: Reset scores for player %d (%s).\n", i, client->pers.netname);
+    }
+
+    // Recalculate ranks after resetting scores
+    CalculateRanks();
 }

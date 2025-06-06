@@ -438,6 +438,9 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_Printf("CS_OSP_FREEZE_GAME_TYPE is set to: %s\n", freezeGameType);
 	}
 
+    if (g_freezeTag.integer)
+        level.scoresResetAfterWarmup = qfalse;
+
 	//Com_Printf("FreezeTag game type: %d\n", g_freezeTag.integer);
 
 	// set some level globals
@@ -2081,6 +2084,13 @@ static void G_RunFrame( int levelTime ) {
 
 	// get any cvar changes
 	G_UpdateCvars();
+
+    // Check if warmup just ended and we haven't reset scores yet
+    if ( level.warmupTime && level.warmupTime <= levelTime && !level.scoresResetAfterWarmup ) {
+        // Warmup is ending - reset scores once
+        ResetAllPlayerScores();
+        level.scoresResetAfterWarmup = qtrue;  // Mark that we've reset scores
+    }
 
 	numMissiles = 0;
 
