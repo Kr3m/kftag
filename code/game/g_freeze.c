@@ -672,7 +672,7 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
     // Create a temporary event entity to carry the freezeTime value
     ResetFreezeTimeEvent( self, self->s.clientNum );
 
-    if(self->target_ent) {
+    if(self->target_ent && self->client->sess.sessionTeam != TEAM_SPECTATOR) {
         if (mod == MOD_LAVA || mod == MOD_SLIME || mod == MOD_TRIGGER_HURT) {
             event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
             self->freezeTime = level.time + (g_lavaThawTime.integer * 1000);
@@ -1386,43 +1386,4 @@ void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int knockback, vec3_t dir
     kvel[2] += 24; // Add some vertical velocity to the frozen remnant
     VectorScale(dir, g_freezeKnockback.value * (float)knockback / mass, kvel);
     VectorAdd(frozenRemnant->s.pos.trDelta, kvel, frozenRemnant->s.pos.trDelta);
-}
-
-void ResetAllPlayerScores( void ) {
-    int i;
-    gentity_t *ent;
-    gclient_t *client;
-
-    G_LogPrintf("DEBUG: Resetting all player scores after warmup.\n");
-
-    for (i = 0; i < level.maxclients; i++) {
-        ent = &g_entities[i];
-        if (!ent->inuse || !ent->client) {
-            continue;
-        }
-
-        client = ent->client;
-
-        // reset player awards
-        client->ps.persistant[PERS_IMPRESSIVE_COUNT] = 0;
-        client->ps.persistant[PERS_EXCELLENT_COUNT] = 0;
-        client->ps.persistant[PERS_DEFEND_COUNT] = 0;
-        client->ps.persistant[PERS_ASSIST_COUNT] = 0;
-        client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT] = 0;
-
-        client->ps.persistant[PERS_SCORE] = 0;
-        client->ps.persistant[PERS_CAPTURES] = 0;
-
-        client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_NONE;
-        client->ps.persistant[PERS_ATTACKEE_ARMOR] = 0;
-        client->damage.enemy = client->damage.team = 0;
-
-        client->ps.stats[STAT_CLIENTS_READY] = 0;
-        client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
-
-        G_LogPrintf("DEBUG: Reset scores for player %d (%s).\n", i, client->pers.netname);
-    }
-
-    // Recalculate ranks after resetting scores
-    CalculateRanks();
 }

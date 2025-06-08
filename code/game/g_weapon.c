@@ -745,7 +745,7 @@ void Weapon_HookThink (gentity_t *ent)
 	if (ent->parent->client->ps.pm_flags & PMF_GRAPPLE_PULL) {
 		float dist = VectorDistance(ent->parent->client->ps.origin, ent->parent->client->ps.grapplePoint);
 
-		if (dist > g_grapplePullDistance.value) {  // Adjust threshold as needed
+		if (dist > g_grapplePullDistance.value && !level.intermissiontime && !level.intermissionQueued) {  // Adjust threshold as needed
 			ent->s.loopSound = G_SoundIndex("sound/weapons/grapple/grpull.wav");
 		} else {
 			ent->s.loopSound = 0;

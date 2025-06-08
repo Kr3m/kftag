@@ -841,7 +841,6 @@ void Cmd_Drop_f( gentity_t *ent );
 void Cmd_Ready_f( gentity_t *ent );
 void FT_ResetFlags( void );
 void ResetFreezeTimeEvent( gentity_t *ent, int clientNum );
-void ResetAllPlayerScores( void );
 // void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int damage, vec3_t dir);
 //qlone - freezetag
 

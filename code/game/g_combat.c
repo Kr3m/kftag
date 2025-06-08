@@ -479,28 +479,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 	}
 
-	// Create a temporary event entity to carry the freezeTime value
-	ResetFreezeTimeEvent( self, self->s.clientNum );
-
-	if (meansOfDeath == MOD_LAVA || meansOfDeath == MOD_SLIME || meansOfDeath == MOD_TRIGGER_HURT) {
-		event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
-		self->freezeTime = level.time + (g_lavaThawTime.integer * 1000);
-		event->s.time = self->freezeTime; // Store the freezeTime value in the event
-		event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
-		event->r.singleClient = self->s.clientNum;
-		event->s.eventParm = self->s.clientNum;
-	} else {
-		event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
-		self->freezeTime = level.time + (g_autoThawTime.integer * 1000);
-		event->s.time = self->freezeTime; // Store the freezeTime value in the event
-		event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
-		event->r.singleClient = self->s.clientNum;
-		event->s.eventParm = self->s.clientNum;
-	}
-
-	// Track the temporary entity
-	self->client->freezeEvent = event;
-
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;
 	}
