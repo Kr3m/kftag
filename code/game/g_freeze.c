@@ -342,27 +342,95 @@ static void Body_think( gentity_t *self ) {
 		return;
 	}
 
-	if ( self->freezeState ) {
-		// float friction = 0.99f; // Try 0.99–0.995 for more/less slickness
-		float friction = g_frozenFriction.value; // Try 0.99–0.995 for more/less slickness
-        self->s.pos.trDelta[0] *= friction;
-        self->s.pos.trDelta[1] *= friction;
-        // Optionally, less friction vertically:
-        // self->s.pos.trDelta[2] *= 0.99f;
+    if (self->freezeState) {
+        float friction = g_frozenFriction.value;
+        float speed;
 
-		if ( !self->target_ent->freezeState ) {
-			TossBody( self );
-			return;
-		}
-		Body_Explode( self );
-		if ( self->last_move_time < level.time - 1000 ) {
-			Body_WorldEffects( self );
-			self->last_move_time = level.time;
-		}
-		return;
-	}
+        // Handle different trajectory types
+        if (self->s.pos.trType == TR_LINEAR) {
+            // Check if we're still on solid ground
+            vec3_t groundCheck;
+            trace_t trace;
 
-	if ( level.time - self->timestamp > 6500 ) {
+            VectorCopy(self->r.currentOrigin, groundCheck);
+            groundCheck[2] -= 32; // Check 32 units below
+
+            trap_Trace(&trace, self->r.currentOrigin, self->r.mins, self->r.maxs,
+                       groundCheck, self->s.number, MASK_PLAYERSOLID);
+
+            // If we're not on solid ground, switch to gravity
+            if (trace.fraction >= 1.0f || trace.startsolid) {
+                G_LogPrintf("DEBUG: Body falling into void, switching to gravity\n");
+                self->s.pos.trType = TR_GRAVITY;
+                self->s.pos.trTime = level.time;
+                VectorCopy(self->r.currentOrigin, self->s.pos.trBase);
+
+                // Give it some initial downward velocity to help gravity take effect
+                if (self->s.pos.trDelta[2] > -50) {
+                    self->s.pos.trDelta[2] = -50; // Initial falling velocity
+                }
+
+                // Clear ground entity so it falls properly
+                self->s.groundEntityNum = ENTITYNUM_NONE;
+
+            } else {
+                // Still on ground, apply friction to sliding movement
+                speed = VectorLength(self->s.pos.trDelta);
+
+                if (speed > 0.1f) {
+                    // Apply friction
+                    self->s.pos.trDelta[0] *= friction;
+                    self->s.pos.trDelta[1] *= friction;
+
+                    // Update trajectory
+                    VectorCopy(self->r.currentOrigin, self->s.pos.trBase);
+                    self->s.pos.trTime = level.time;
+
+                    // Check if we should stop
+                    speed = VectorLength(self->s.pos.trDelta);
+                    if (speed < 5.0f) {
+                        VectorClear(self->s.pos.trDelta);
+                        self->s.pos.trType = TR_STATIONARY;
+                        G_LogPrintf("DEBUG: Body stopped sliding, speed was %.2f\n", speed);
+                    }
+                } else {
+                    // Already stopped
+                    VectorClear(self->s.pos.trDelta);
+                    self->s.pos.trType = TR_STATIONARY;
+                }
+            }
+        } else if (self->s.pos.trType == TR_GRAVITY) {
+            // Apply horizontal friction only to gravity-based movement
+            self->s.pos.trDelta[0] *= friction;
+            self->s.pos.trDelta[1] *= friction;
+
+            // Check if we've landed and should switch back to sliding
+            if (self->s.groundEntityNum != ENTITYNUM_NONE &&
+                VectorLength(self->s.pos.trDelta) > 10.0f &&
+                self->s.pos.trDelta[2] > -100) { // Not falling too fast
+
+                // We've landed and still have horizontal momentum - switch back to sliding
+                self->s.pos.trDelta[2] = 0; // Remove vertical velocity
+                self->s.pos.trType = TR_LINEAR;
+                self->s.pos.trTime = level.time;
+                VectorCopy(self->r.currentOrigin, self->s.pos.trBase);
+                G_LogPrintf("DEBUG: Body landed, switching back to sliding\n");
+            }
+        }
+
+        if (!self->target_ent->freezeState) {
+            TossBody(self);
+            return;
+        }
+        Body_Explode(self);
+        if (self->last_move_time < level.time - 1000) {
+            Body_WorldEffects(self);
+            self->last_move_time = level.time;
+        }
+        return;
+    }
+
+    if ( level.time - self->timestamp > 6500 ) {
 		Body_free( self );
 	} else {
 		self->s.pos.trBase[ 2 ] -= 1;
@@ -1369,21 +1437,52 @@ void UpdateSpectatorLastPlayerState(gentity_t *spectator) {
 void G_FrozenPlayerKnockback(gentity_t *frozenRemnant, int knockback, vec3_t dir) {
     float mass;
     vec3_t kvel;
+    float currentSpeed;
+    float maxSlideSpeed;
+    float newSpeed;
+    float dirLength = VectorLength(dir);
 
     if (g_freezeKnockback.value <= 0) {
         return;
     }
 
-    mass = 5;
+    mass = 3.0f; // Lighter for easier sliding
 
-    //VectorClear(frozenRemnant->s.pos.trDelta);
-    frozenRemnant->s.pos.trType = TR_GRAVITY;
+    // Set up physics for sliding - TR_LINEAR for constant velocity movement
+    frozenRemnant->s.pos.trType = TR_LINEAR;
     frozenRemnant->s.pos.trTime = level.time;
     VectorCopy(frozenRemnant->r.currentOrigin, frozenRemnant->s.pos.trBase);
-    frozenRemnant->s.groundEntityNum = -1;
 
-    VectorNormalize(dir);
-    kvel[2] += 24; // Add some vertical velocity to the frozen remnant
+    if (dirLength < 0.001f) {
+        // Fallback: use a default forward direction
+        VectorSet(dir, 1, 0, 0);
+    } else {
+        VectorNormalize(dir);
+    }
+
+    // Calculate new velocity to add (mostly horizontal for sliding)
     VectorScale(dir, g_freezeKnockback.value * (float)knockback / mass, kvel);
-    VectorAdd(frozenRemnant->s.pos.trDelta, kvel, frozenRemnant->s.pos.trDelta);
+
+    // Minimal vertical component - we want sliding, not bouncing
+    kvel[2] = 0; // Keep it purely horizontal for ice sliding
+
+    // Blend with existing velocity for realistic momentum transfer
+    currentSpeed = VectorLength(frozenRemnant->s.pos.trDelta);
+
+    if (currentSpeed > 0) {
+        // Blend velocities for realistic physics
+        vec3_t blendedVel;
+        VectorScale(frozenRemnant->s.pos.trDelta, 0.7f, blendedVel);
+        VectorMA(blendedVel, 0.3f, kvel, frozenRemnant->s.pos.trDelta);
+    } else {
+        // Apply scaled impulse for initial sliding
+        VectorScale(kvel, 0.8f, frozenRemnant->s.pos.trDelta);
+    }
+
+    // Cap maximum sliding speed
+    maxSlideSpeed = 300.0f;
+    newSpeed = VectorLength(frozenRemnant->s.pos.trDelta);
+    if (newSpeed > maxSlideSpeed) {
+        VectorScale(frozenRemnant->s.pos.trDelta, maxSlideSpeed / newSpeed, frozenRemnant->s.pos.trDelta);
+    }
 }
