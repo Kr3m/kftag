@@ -730,8 +730,6 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	self->freezeState = qtrue;
 	self->wasFrozen = qtrue;
 	self->lastState = qfalse;
-	check_time = ( level.time - (g_lavaThawTime.integer * 1000) ) + 200;
-
 	self->takedamage = qfalse;
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
