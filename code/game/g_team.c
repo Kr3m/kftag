@@ -137,7 +137,7 @@ void AddTeamScore( vec3_t origin, team_t team, int score ) {
 				level.teamScores[ team ] + score > level.teamScores[ otherTeam ] ) {
 		// this team took the lead sound
 		eventParm = ( team == TEAM_RED ) ? GTS_REDTEAM_TOOK_LEAD : GTS_BLUETEAM_TOOK_LEAD;
-	} else if ( score > 0 && g_gametype.integer >= GT_TEAM ) {
+	} else if ( score > 0 && g_gametype.integer != GT_TEAM ) {
 		// team scored sound
 		eventParm = ( team == TEAM_RED ) ? GTS_REDTEAM_SCORED : GTS_BLUETEAM_SCORED;
 	}

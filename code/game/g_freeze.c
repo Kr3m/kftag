@@ -915,10 +915,18 @@ void team_wins( int team ) {
 	te = G_TempEntity( vec3_origin, EV_GLOBAL_TEAM_SOUND );
 	if ( team == TEAM_RED ) {
 		teamstr = "Red";
-		te->s.eventParm = GTS_BLUE_CAPTURE;
+		if ( g_gametype.integer == GT_CTF ) {
+			te->s.eventParm = GTS_BLUE_CAPTURE;
+		} else {
+			te->s.eventParm = GTS_REDTEAM_SCORED;
+		}
 	} else {
 		teamstr = "Blue";
-		te->s.eventParm = GTS_RED_CAPTURE;
+		if (g_gametype.integer == GT_CTF) {
+			te->s.eventParm = GTS_RED_CAPTURE;
+		} else {
+			te->s.eventParm = GTS_BLUETEAM_SCORED;
+		}
 	}
 	te->r.svFlags |= SVF_BROADCAST;
 
@@ -977,7 +985,7 @@ void CheckDelay( void ) {
 		e->client->ps.stats[ STAT_CLIENTS_READY ] = readyMask;
 	}
 
-	if ( check_time > level.time - 3000 ) {
+	if ( check_time > level.time - 100 ) {
 		return;
 	}
 	check_time = level.time;
@@ -1264,6 +1272,7 @@ void CheckLastPlayerAlive(int team) {
     // Handle the last player logic
     if (lastPlayer != -1) {
         G_LogPrintf("DEBUG: Last player alive for team %d: Player %d (%s)\n", team, lastPlayer, g_entities[lastPlayer].client->pers.netname);
+		ResetLastPlayerStates(team, lastPlayer);
         HandleLastPlayerLogic(lastPlayer);
     } else {
         G_LogPrintf("DEBUG: No single last player alive for team %d. Resetting states.\n", team);
