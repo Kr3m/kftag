@@ -213,6 +213,7 @@ static void Body_WorldEffects( gentity_t *self ) {
 	gentity_t	*hit;
 	vec3_t	mins, maxs;
 	int	previous_waterlevel;
+	gentity_t	*event;
 
 	VectorCopy( self->r.currentOrigin, point );
 	point[ 2 ] -= 23;
@@ -225,9 +226,20 @@ static void Body_WorldEffects( gentity_t *self ) {
 		return;
 	}
 	if ( self->s.pos.trType == TR_STATIONARY && contents & CONTENTS_NODROP ) {
-		if ( level.time - self->timestamp > 5000 ) {
-			Body_free( self );
-		}
+		// if ( level.time - self->timestamp > 5000 ) {
+		// 	Body_free( self );
+		// }
+		event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
+		self->freezeTime = level.time + (g_lavaThawTime.integer * 1000);
+		event->s.time = self->freezeTime; // Store the freezeTime value in the event
+		event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
+		event->r.singleClient = self->s.clientNum;
+		event->s.eventParm = self->s.clientNum;
+		self->target_ent->count = self->freezeTime;
+		self->target_ent->think = Body_free;
+		self->target_ent->nextthink = self->target_ent->count;
+		self->client->freezeEvent = event;
+
 		return;
 	}
 
@@ -351,6 +363,7 @@ static void Body_think( gentity_t *self ) {
             // Check if we're still on solid ground
             vec3_t groundCheck;
             trace_t trace;
+			int contents = trap_PointContents(self->r.currentOrigin, -1);
 
             VectorCopy(self->r.currentOrigin, groundCheck);
             groundCheck[2] -= 32; // Check 32 units below
@@ -359,7 +372,7 @@ static void Body_think( gentity_t *self ) {
                        groundCheck, self->s.number, MASK_PLAYERSOLID);
 
             // If we're not on solid ground, switch to gravity
-            if (trace.fraction >= 1.0f || trace.startsolid) {
+            if (trace.fraction >= 1.0f || trace.startsolid || (contents & (CONTENTS_LAVA | CONTENTS_SLIME))) {
                 G_LogPrintf("DEBUG: Body falling into void, switching to gravity\n");
                 self->s.pos.trType = TR_GRAVITY;
                 self->s.pos.trTime = level.time;
