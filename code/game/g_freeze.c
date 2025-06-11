@@ -831,21 +831,7 @@ void team_wins( int team ) {
 	int	flight;
 	gclient_t	*cl;
 	gentity_t	*te;
-	int			losers;
 	vec3_t spawnOrigin, spawnAngles;
-
-	// Determine the losing team
-    if (team == TEAM_RED) {
-        losers = TEAM_BLUE;
-    } else if (team == TEAM_BLUE) {
-        losers = TEAM_RED;
-    } else {
-        // Handle unexpected cases (e.g., invalid team)
-        losers = -1; // Invalid team
-    }
-
-	//ResetLastPlayerStates( losers, -1 );
-	//ResetLastPlayerStates( team, -1 );
 
 	for ( i = 0; i < g_maxclients.integer; i++ ) {
 		e = g_entities + i;
@@ -941,10 +927,10 @@ void team_wins( int team ) {
 
 	AddTeamScore( vec3_origin, team, 1 );
 	Team_ForceGesture( team );
-	G_LogPrintf("CALL: CheckLastPlayerAlive from team_wins\n");
-	CheckLastPlayerAlive( team );
 
 	CalculateRanks();
+	G_LogPrintf("CALL: CheckLastPlayerAlive from team_wins\n");
+	CheckLastPlayerAlive( team );
 }
 
 static qboolean CalculateScores( int team ) {

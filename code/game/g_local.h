@@ -479,7 +479,6 @@ typedef struct {
 	int			intermissiontime;		// time the intermission was started
 	qboolean	readyToExit;			// at least one client wants to exit
 	int			exitTime;
-    qboolean    scoresResetAfterWarmup; // reset scores after warmup ends
 	
 	vec3_t		intermission_origin;	// also used for spectator spawns
 	vec3_t		intermission_angle;

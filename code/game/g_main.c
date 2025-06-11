@@ -438,9 +438,6 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_Printf("CS_OSP_FREEZE_GAME_TYPE is set to: %s\n", freezeGameType);
 	}
 
-    if (g_freezeTag.integer)
-        level.scoresResetAfterWarmup = qfalse;
-
 	//Com_Printf("FreezeTag game type: %d\n", g_freezeTag.integer);
 
 	// set some level globals
