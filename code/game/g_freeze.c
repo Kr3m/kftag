@@ -1295,7 +1295,7 @@ void CheckLastPlayerAlive(int team) {
     // Handle the last player logic
     if (lastPlayer != -1) {
         G_LogPrintf("DEBUG: Last player alive for team %d: Player %d (%s)\n", team, lastPlayer, g_entities[lastPlayer].client->pers.netname);
-		ResetLastPlayerStates(team, lastPlayer);
+		//ResetLastPlayerStates(team, lastPlayer);
         HandleLastPlayerLogic(lastPlayer);
     } else {
         G_LogPrintf("DEBUG: No single last player alive for team %d. Resetting states.\n", team);
