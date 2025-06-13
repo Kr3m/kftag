@@ -745,8 +745,8 @@ void StopFollowing( gentity_t *ent, qboolean release ) {
 		memset( client->ps.powerups, 0, sizeof ( client->ps.powerups ) );
 	}
 
-	// Reset the lastState flag
-    ent->lastState = qfalse;
+	// Reset the notifiedLastPlayer flag
+    ent->client->notifiedLastPlayer = qfalse;
 
 	SetClientViewAngle( ent, client->ps.viewangles );
 
@@ -876,13 +876,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 
 	// Check if the new spectated player is marked as the last player
 	cent = &g_entities[i];
-	if (cent->lastState) {
-		trap_SendServerCommand(ent - g_entities, "lastplayer 1");
-		ent->lastState = qtrue; // Update the spectator's state
-	} else {
-		trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-		ent->lastState = qfalse; // Reset the spectator's state
-	}
+	UpdateLastPlayerNotification(ent, cent);
 }
 
 
@@ -978,13 +972,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 
 		// Check if the new spectated player is marked as the last player
         cent = &g_entities[clientnum];
-        if (cent->lastState) {
-            trap_SendServerCommand(ent - g_entities, "lastplayer 1");
-            ent->lastState = qtrue; // Update the spectator's state
-        } else {
-            trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-            ent->lastState = qfalse; // Reset the spectator's state
-        }
+        UpdateLastPlayerNotification(ent, cent);
 
 		return;
 	} while ( clientnum != original );
@@ -992,6 +980,15 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	// leave it where it was
 }
 
+static void UpdateLastPlayerNotification(gentity_t *ent, gentity_t *cent) {
+    if (cent->lastState) {
+        trap_SendServerCommand(ent - g_entities, "lastplayer 1");
+        ent->client->notifiedLastPlayer = qtrue;
+    } else {
+        trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+        ent->client->notifiedLastPlayer = qfalse;
+    }
+}
 
 /*
 ==================

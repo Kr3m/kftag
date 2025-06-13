@@ -1329,19 +1329,33 @@ void HandleLastPlayerLogic(int lastPlayer) {
 		// 	spectator->lastState = qfalse; // Reset lastState for all players
 		// }
 
+		// if (isFollowing) {
+		// 	if (!spectator->lastState) {
+		// 		UpdateSpectatorClient(&spectator->client->ps, lastPlayer);
+		// 		trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
+		// 		G_LogPrintf("DEBUG: Spectator/Frozen %d (%s) notified of last player %d (%s).\n",
+		// 					i, spectator->client->pers.netname, lastPlayer, lastEnt->client->pers.netname);
+		// 		spectator->lastState = qtrue;
+		// 	}
+		// } else {
+		// 	if (spectator->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		// 		trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
+		// 		spectator->lastState = qfalse; // Reset lastState for all spectators
+		// 		G_LogPrintf("DEBUG: Spectator %d (%s) reset lastplayer state.\n", i, spectator->client->pers.netname);
+		// 	}
+		// }
 		if (isFollowing) {
-			if (!spectator->lastState) {
-				UpdateSpectatorClient(&spectator->client->ps, lastPlayer);
+			if (!spectator->client->notifiedLastPlayer) {
 				trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
+				spectator->client->notifiedLastPlayer = qtrue;
 				G_LogPrintf("DEBUG: Spectator/Frozen %d (%s) notified of last player %d (%s).\n",
-							i, spectator->client->pers.netname, lastPlayer, lastEnt->client->pers.netname);
-				spectator->lastState = qtrue;
+					i, spectator->client->pers.netname, lastPlayer, lastEnt->client->pers.netname);
 			}
 		} else {
-			if (spectator->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+			if (spectator->client->notifiedLastPlayer) {
 				trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
-				spectator->lastState = qfalse; // Reset lastState for all spectators
-				G_LogPrintf("DEBUG: Spectator %d (%s) reset lastplayer state.\n", i, spectator->client->pers.netname);
+				spectator->client->notifiedLastPlayer = qfalse;
+				G_LogPrintf("DEBUG: Spectator %d (%s) reset notifiedLastPlayer state.\n", i, spectator->client->pers.netname);
 			}
 		}
 	}
@@ -1373,43 +1387,31 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
 			ent->lastState = qfalse; // Always reset
 		}
 
-        if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
-			ent->client->sess.spectatorState == SPECTATOR_FOLLOW &&
-			ent->client->sess.spectatorClient == lastPlayer) {
-			followedEnt = &g_entities[lastPlayer];
-			if (followedEnt->lastState) {
-				G_LogPrintf("DEBUG: Resetting lastplayer state for spectator %d (%s) following player %d.\n",
-							i, ent->client->pers.netname, lastPlayer);
-				trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-				ent->lastState = qfalse; // Always reset
-			}
-		}
-
         // Reset spectators following any player on the same team
         if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
-            ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
-            int followedPlayer = ent->client->sess.spectatorClient;
-            if (followedPlayer >= 0 && followedPlayer < level.maxclients) {
-                gentity_t *followedEnt = &g_entities[followedPlayer];
-                if (followedEnt->client && followedEnt->client->sess.sessionTeam == team) {
-                    if(followedEnt->lastState) {
-						G_LogPrintf("DEBUG: Resetting lastplayer state for spectator %d (%s) following player %d (%s) on team %d.\n",
-                                i, ent->client->pers.netname, followedPlayer, followedEnt->client->pers.netname, team);
+			ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
+			int followedPlayer = ent->client->sess.spectatorClient;
+			if (followedPlayer >= 0 && followedPlayer < level.maxclients) {
+				gentity_t *followedEnt = &g_entities[followedPlayer];
+				if (followedEnt->client && followedEnt->client->sess.sessionTeam == team) {
+					if(ent->client->notifiedLastPlayer) {
+						G_LogPrintf("DEBUG: Resetting notifiedLastPlayer for spectator %d (%s) following player %d (%s) on team %d.\n",
+								i, ent->client->pers.netname, followedPlayer, followedEnt->client->pers.netname, team);
 						trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-						followedEnt->lastState = qfalse; // Reset the state
+						ent->client->notifiedLastPlayer = qfalse;
 					}
-                }
-            }
-        }
+				}
+			}
+		}
     }
 	
 	for (i = 0; i < level.maxclients; i++) {
 		gentity_t *ent = &g_entities[i];
 		if (!ent->inuse || !ent->client) continue;
 		if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
-			if (ent->lastState) {
+			 if (ent->client->notifiedLastPlayer) {
 				trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-				ent->lastState = qfalse;
+				ent->client->notifiedLastPlayer = qfalse;
 			}
 		}
 	}
@@ -1434,18 +1436,18 @@ void UpdateSpectatorLastPlayerState(gentity_t *spectator) {
     // Check if the followed player is the last one standing on their team
     if (followed->lastState) {
         // The followed player is last standing, notify the spectator
-        if (!spectator->lastState) {
+        if (!spectator->client->notifiedLastPlayer) {
             trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
-            spectator->lastState = qtrue;
+            spectator->client->notifiedLastPlayer = qtrue;
             G_LogPrintf("DEBUG: Spectator %d (%s) notified of last player %d (%s) via follow cycle.\n",
                        spectator - g_entities, spectator->client->pers.netname,
                        followedPlayer, followed->client->pers.netname);
         }
     } else {
         // The followed player is not last standing, reset spectator state
-        if (spectator->lastState) {
+        if (spectator->client->notifiedLastPlayer) {
             trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
-            spectator->lastState = qfalse;
+            spectator->client->notifiedLastPlayer = qfalse;
             G_LogPrintf("DEBUG: Spectator %d (%s) reset lastplayer state via follow cycle.\n",
                        spectator - g_entities, spectator->client->pers.netname);
         }

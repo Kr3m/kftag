@@ -161,6 +161,7 @@ struct gentity_s {
 	qboolean	readyBegin;
 	int			freezeTime; //freeze timer
 	qboolean	lastState; //last state of the player
+	qboolean	notifiedLastPlayer;
 	qboolean	justLost;
 	int			lastTime;
 	int			thawTime;
@@ -367,6 +368,7 @@ struct gclient_s {
 	
 	//freeze
 	gentity_t	*freezeEvent;	// Reference to the EV_FREEZE_TIME temporary entity
+	qboolean	notifiedLastPlayer; // Tracks spectator notification for last player alive
 
 	//stats
 	qboolean	gauntletHitRegistered; // Tracks if a hit has been registered for the current attack
