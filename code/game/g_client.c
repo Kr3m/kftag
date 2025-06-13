@@ -1115,15 +1115,13 @@ void ClientSpawn(gentity_t *ent) {
 	// find a spawn point
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
-	if ( isSpectator ) {
+	if ( g_freezeTag.integer && g_freezeSpawns.integer ) {
 		spawnPoint = SelectFreezeSpawnPoint( ent, client->sess.sessionTeam, client->pers.teamState.state, spawn_origin, spawn_angles);
 		// spawnPoint = SelectSpectatorSpawnPoint( spawn_origin, spawn_angles );
 	} else if (g_gametype.integer >= GT_CTF ) {
 		// all base oriented team games use the CTF spawn points
 		spawnPoint = SelectCTFSpawnPoint( ent, client->sess.sessionTeam, client->pers.teamState.state, spawn_origin, spawn_angles );
-	} else if (g_freezeSpawns.integer == 1) {
-        spawnPoint = SelectFreezeSpawnPoint( ent, client->sess.sessionTeam, client->pers.teamState.state, spawn_origin, spawn_angles);
-    } else {
+	} else {
 		do {
 			// the first spawn should be at a good looking spot
 			if ( !client->pers.initialSpawn && client->pers.localClient ) {
