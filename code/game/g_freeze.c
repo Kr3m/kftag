@@ -220,9 +220,6 @@ static void Body_WorldEffects( gentity_t *self ) {
 
 	contents = trap_PointContents( point, -1 );
 	if ( contents & ( CONTENTS_LAVA | CONTENTS_SLIME ) ) {
-		// if ( level.time - self->timestamp > 5000 ) {
-		// 	G_Damage( self, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
-		// }
 		event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
 		self->freezeTime = level.time + (g_lavaThawTime.integer * 1000);
 		event->s.time = self->freezeTime; // Store the freezeTime value in the event
@@ -233,6 +230,11 @@ static void Body_WorldEffects( gentity_t *self ) {
 		self->target_ent->think = Body_free;
 		self->target_ent->nextthink = self->target_ent->count;
 		self->client->freezeEvent = event;
+
+		if ( level.time - self->timestamp > 5000 ) {
+			G_Damage( self, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
+		}
+		
 		return;
 	}
 	if ( self->s.pos.trType == TR_STATIONARY && contents & CONTENTS_NODROP ) {
