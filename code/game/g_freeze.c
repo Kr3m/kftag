@@ -1327,10 +1327,9 @@ void HandleLastPlayerLogic(int lastPlayer) {
                     spectator->client->sess.spectatorState,
                     spectator->client->sess.spectatorClient);
 
-        // Notify both spectators and frozen players who are following the last player
+        // Notify frozen players who are following the last player
         isFollowing = (
-                (spectator->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
-                 spectator->freezeState) && // also include frozen players
+                spectator->freezeState &&
                 spectator->client->sess.spectatorState == SPECTATOR_FOLLOW &&
                 spectator->client->sess.spectatorClient == lastPlayer
         );
