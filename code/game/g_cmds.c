@@ -898,7 +898,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 
 	//qlone - freezetag
 	if (g_freezeTag.integer) {
-		if ( ent->freezeState && !is_spectator( ent->client ) ) return;
+//		if ( ent->freezeState && !is_spectator( ent->client ) ) return;
 		if ( Set_Client( ent ) ) return;
 	}
 	//qlone - freezetag
