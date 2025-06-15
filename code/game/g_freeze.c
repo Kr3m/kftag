@@ -1384,8 +1384,8 @@ void ResetLastPlayerStates(int team, int lastPlayer) {
 			ent->lastState = qfalse; // Always reset
 		}
 
-        // Reset spectators following any player on the same team
-        if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
+        // Reset frozen players
+        if (ent->freezeState &&
 			ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
 			int followedPlayer = ent->client->sess.spectatorClient;
 			if (followedPlayer >= 0 && followedPlayer < level.maxclients) {

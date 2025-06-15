@@ -1062,6 +1062,7 @@ void ClientBegin( int clientNum ) {
 	}
 	
 	client->pers.inGame = qtrue;
+    client->notifiedLastPlayer = qfalse;
 
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
