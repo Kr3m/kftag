@@ -1341,6 +1341,8 @@ void ClientSpawn(gentity_t *ent) {
 		client->ps.stats[STAT_MAX_HEALTH] = 100; // Full health for bots
 		ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
 	}
+
+    ResetFreezeTimeEvent(ent, ent->s.clientNum);
 	
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
