@@ -1042,8 +1042,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		VectorNormalize(dir);
 	}
 
-	knockback = damage;
-	if ( knockback > 200 ) {
+    if ( attacker && attacker->client && attacker->client->ps.weapon == WP_ROCKET_LAUNCHER ) {
+        knockback = 100;
+    } else {
+        knockback = damage;
+    }
+    if ( knockback > 200 ) {
 		knockback = 200;
 	}
 	if ( targ->flags & FL_NO_KNOCKBACK ) {
