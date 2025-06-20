@@ -1203,16 +1203,20 @@ void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
 
 void CheckLastPlayerAlive(int team) {
     int i, aliveCount = 0, lastPlayer = -1;
-	int teamCount = 0;
+    int teamCount = 0;
     gentity_t *ent;
+    static int lastPlayerCache[4] = {-1, -1, -1, -1}; // Cache for each team
+    int teamIndex = (team == TEAM_RED) ? 0 : (team == TEAM_BLUE) ? 1 : -1;
 
-    #define SPAWN_GRACE_PERIOD 2000
+#define SPAWN_GRACE_PERIOD 2000
 
-	if (team != TEAM_RED && team != TEAM_BLUE) {
-		return; // Invalid team
-	}
+    if (team != TEAM_RED && team != TEAM_BLUE) {
+        return; // Invalid team
+    }
 
-	// Count the number of players on the team
+    if (teamIndex == -1) return;
+
+    // Count the number of players on the team
     for (i = 0; i < level.maxclients; i++) {
         ent = &g_entities[i];
         if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team)
@@ -1232,21 +1236,20 @@ void CheckLastPlayerAlive(int team) {
     // Return early if less than 2 players on the team
     if (teamCount < 2) {
         G_LogPrintf("DEBUG: Not enough players on team %d (%d found), skipping CheckLastPlayerAlive.\n", team, teamCount);
+        lastPlayerCache[teamIndex] = -1;
         return;
     }
-
-    // Debugging: Start logging
-    G_LogPrintf("DEBUG: CheckLastPlayerAlive called for team %d at level.time %d\n", team, level.time);
 
     // Skip processing if warmup or intermission is active
     if (level.time < g_warmup.integer * 1000 || level.intermissiontime || level.intermissionQueued) {
-		G_LogPrintf("DEBUG: Skipping CheckLastPlayerAlive due to warmup or intermission. level.time: %d\n", level.time);
+        G_LogPrintf("DEBUG: Skipping CheckLastPlayerAlive due to warmup or intermission. level.time: %d\n", level.time);
         return;
     }
 
+    G_LogPrintf("DEBUG: CheckLastPlayerAlive called for team %d at level.time %d\n", team, level.time);
+
     // Calculate the grace period expiration time
     ent->gracePeriodEnd = level.time + SPAWN_GRACE_PERIOD;
-    G_LogPrintf("DEBUG: Grace period ends at %d (SPAWN_GRACE_PERIOD: %d ms)\n", ent->gracePeriodEnd, SPAWN_GRACE_PERIOD);
 
     // Iterate through all clients to determine alive players and update states
     for (i = 0; i < level.maxclients; i++) {
@@ -1262,46 +1265,51 @@ void CheckLastPlayerAlive(int team) {
                          ent->client->respawnTime > level.time &&
                          ent->client->respawnTime <= ent->gracePeriodEnd);
 
-        // Debugging: Log player details
-		G_LogPrintf("DEBUG: Player %d (%s) - freezeState: %d, respawnTime: %d, health: %d, justLost: %d, lastState: %d\n",
-            i, ent->client->pers.netname, ent->freezeState, ent->client->respawnTime, ent->health, ent->justLost, ent->lastState);
+        G_LogPrintf("DEBUG: Player %d (%s) - freezeState: %d, respawnTime: %d, health: %d, justLost: %d, lastState: %d\n",
+                    i, ent->client->pers.netname, ent->freezeState, ent->client->respawnTime, ent->health, ent->justLost, ent->lastState);
 
-		// Count alive players and temporarily set lastPlayer
+        // Count alive players and temporarily set lastPlayer
         if (!ent->freezeState || ent->justLost) {
             aliveCount++;
             lastPlayer = i;
         } else {
-			ent->justLost = qfalse; // Reset justLost if the player is frozen
-		}
-
-        // Reset lastState for players who just lost
-        if (ent->justLost && ent->lastState) {
-            trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-			ent->lastState = qfalse; // Reset lastState for all players
-            G_LogPrintf("DEBUG: Player %d (%s) just lost. Resetting lastplayer state.\n", i, ent->client->pers.netname);
+            ent->justLost = qfalse; // Reset justLost if the player is frozen
         }
     }
 
-	if (aliveCount > teamCount) {
-		aliveCount = teamCount; // Ensure aliveCount does not exceed total players
-	}
-
-    // Debugging: Log alive player count
-    G_LogPrintf("DEBUG: Alive player count for team %d: %d\n", team, aliveCount);
+    if (aliveCount > teamCount) {
+        aliveCount = teamCount; // Ensure aliveCount does not exceed total players
+    }
 
     // Determine if there is a single last player
     if (aliveCount != 1) {
         lastPlayer = -1; // Reset lastPlayer if there are multiple or no alive players
     }
 
-    // Handle the last player logic
-    if (lastPlayer != -1) {
-        G_LogPrintf("DEBUG: Last player alive for team %d: Player %d (%s)\n", team, lastPlayer, g_entities[lastPlayer].client->pers.netname);
-		//ResetLastPlayerStates(team, lastPlayer);
+    G_LogPrintf("DEBUG: Alive player count for team %d: %d, cached last player: %d, current last player: %d\n",
+                team, aliveCount, lastPlayerCache[teamIndex], lastPlayer);
+
+    // Only change states if the last player situation has actually changed
+    if (lastPlayerCache[teamIndex] != lastPlayer) {
+        if (lastPlayerCache[teamIndex] != -1) {
+            // Previous last player is no longer alone - reset their state
+            ResetLastPlayerStates(team, -1);
+        }
+
+        lastPlayerCache[teamIndex] = lastPlayer;
+
+        if (lastPlayer != -1) {
+            G_LogPrintf("DEBUG: NEW last player alive for team %d: Player %d (%s)\n",
+                        team, lastPlayer, g_entities[lastPlayer].client->pers.netname);
+            HandleLastPlayerLogic(lastPlayer);
+        } else {
+            G_LogPrintf("DEBUG: No single last player alive for team %d.\n", team);
+        }
+    } else if (lastPlayer != -1) {
+        // Same last player as before - just ensure notifications are still valid
+        G_LogPrintf("DEBUG: Same last player %d (%s) for team %d - checking notifications\n",
+                    lastPlayer, g_entities[lastPlayer].client->pers.netname, team);
         HandleLastPlayerLogic(lastPlayer);
-    } else {
-        G_LogPrintf("DEBUG: No single last player alive for team %d. Resetting states.\n", team);
-        ResetLastPlayerStates(team, lastPlayer);
     }
 }
 
