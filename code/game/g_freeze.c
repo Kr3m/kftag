@@ -1334,9 +1334,8 @@ void HandleLastPlayerLogic(int lastPlayer) {
                 spectator->client->sess.spectatorClient == lastPlayer
         );
 
-        G_LogPrintf("DEBUG: Player %d (%s) - isFollowing: %d (conditions: persistant=%d||frozen=%d, spectatorState=%d, spectatorClient=%d==lastPlayer=%d)\n",
-                    i, spectator->client->pers.netname, isFollowing,
-                    spectator->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR,
+        G_LogPrintf("DEBUG: Player %d (%s) - isFollowing: %d, notifiedLastPlayer: %d (conditions: frozen=%d, spectatorState=%d, spectatorClient=%d==lastPlayer=%d)\n",
+                    i, spectator->client->pers.netname, isFollowing, spectator->client->notifiedLastPlayer,
                     spectator->freezeState,
                     spectator->client->sess.spectatorState,
                     spectator->client->sess.spectatorClient, lastPlayer);
@@ -1345,8 +1344,11 @@ void HandleLastPlayerLogic(int lastPlayer) {
             if (!spectator->client->notifiedLastPlayer) {
                 trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
                 spectator->client->notifiedLastPlayer = qtrue;
-                G_LogPrintf("DEBUG: Spectator/Frozen %d (%s) notified of last player %d (%s).\n",
+                G_LogPrintf("DEBUG: SENDING NOTIFICATION - Spectator/Frozen %d (%s) notified of last player %d (%s).\n",
                             i, spectator->client->pers.netname, lastPlayer, lastEnt->client->pers.netname);
+            } else {
+                G_LogPrintf("DEBUG: SKIPPING NOTIFICATION - Player %d (%s) already notified (notifiedLastPlayer=%d).\n",
+                            i, spectator->client->pers.netname, spectator->client->notifiedLastPlayer);
             }
         } else {
             if (spectator->client->notifiedLastPlayer) {
