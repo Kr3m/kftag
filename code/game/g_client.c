@@ -1109,9 +1109,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	isSpectator = client->sess.sessionTeam == TEAM_SPECTATOR;
 
-	if(isSpectator) {
-		client->ps.stats[STAT_SPECTATED_CLIENT] = -1; // Default to no client being spectated
-	}
+	client->ps.stats[STAT_SPECTATED_CLIENT] = -1; // Default to no client being spectated
 
 	// find a spawn point
 	// do it before setting health back up, so farthest
