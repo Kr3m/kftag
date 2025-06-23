@@ -963,6 +963,10 @@ void team_wins( int team ) {
 
 	CalculateRanks();
 	G_LogPrintf("CALL: CheckLastPlayerAlive from team_wins\n");
+	// Reset last player states for BOTH teams when a round ends
+	// We need to reset both to handle cases where players are respawning on both teams
+	ResetLastPlayerStates(TEAM_RED, -1);
+	ResetLastPlayerStates(TEAM_BLUE, -1);
 	CheckLastPlayerAlive( team );
 }
 
@@ -1201,6 +1205,11 @@ void ResetFreezeTimeEvent(gentity_t *ent, int clientNum) {
 	//ent->lastTime = level.time;
 }
 
+#define SPAWN_GRACE_PERIOD 2000 // 2 seconds
+
+/**
+ * Checks if there's a single last player alive on a team and handles notifications
+ */
 void CheckLastPlayerAlive(int team) {
     int i, aliveCount = 0, lastPlayer = -1;
     int teamCount = 0;
@@ -1208,255 +1217,301 @@ void CheckLastPlayerAlive(int team) {
     static int lastPlayerCache[4] = {-1, -1, -1, -1}; // Cache for each team
     int teamIndex = (team == TEAM_RED) ? 0 : (team == TEAM_BLUE) ? 1 : -1;
 
-#define SPAWN_GRACE_PERIOD 2000
+    G_LogPrintf("CALL: CheckLastPlayerAlive for team %d\n", team);
 
+    // Validate team
     if (team != TEAM_RED && team != TEAM_BLUE) {
-        return; // Invalid team
+        return;
     }
 
-    if (teamIndex == -1) return;
+    if (teamIndex == -1) {
+        return;
+    }
 
-    // Count the number of players on the team
+    // Skip during warmup or intermission
+    if (level.time < g_warmup.integer * 1000 || level.intermissiontime || level.intermissionQueued) {
+        G_LogPrintf("DEBUG: Skipping CheckLastPlayerAlive - warmup or intermission active\n");
+        return;
+    }
+
+    // Count total team members
     for (i = 0; i < level.maxclients; i++) {
         ent = &g_entities[i];
-        if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team)
+        if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team) {
             continue;
+        }
 
-        // Clear justLost if grace period has expired
+        // Clear expired grace periods
         if (ent->justLost && ent->gracePeriodEnd > 0 && level.time >= ent->gracePeriodEnd) {
             ent->justLost = qfalse;
             ent->gracePeriodEnd = 0;
-            G_LogPrintf("DEBUG: Player %d (%s) justLost cleared - grace period expired\n",
-                        i, ent->client->pers.netname);
+            G_LogPrintf("DEBUG: Player %d (%s) grace period expired\n", 
+                i, ent->client->pers.netname);
         }
 
         teamCount++;
     }
 
-    // Return early if less than 2 players on the team
+    // Need at least 2 players on a team for last player status
     if (teamCount < 2) {
-        G_LogPrintf("DEBUG: Not enough players on team %d (%d found), skipping CheckLastPlayerAlive.\n", team, teamCount);
-        lastPlayerCache[teamIndex] = -1;
+        G_LogPrintf("DEBUG: Not enough players on team %d (%d found)\n", team, teamCount);
+        if (lastPlayerCache[teamIndex] != -1) {
+            ResetLastPlayerStates(team, -1);
+            lastPlayerCache[teamIndex] = -1;
+        }
         return;
     }
 
-    // Skip processing if warmup or intermission is active
-    if (level.time < g_warmup.integer * 1000 || level.intermissiontime || level.intermissionQueued) {
-        G_LogPrintf("DEBUG: Skipping CheckLastPlayerAlive due to warmup or intermission. level.time: %d\n", level.time);
-        return;
-    }
-
-    G_LogPrintf("DEBUG: CheckLastPlayerAlive called for team %d at level.time %d\n", team, level.time);
-
-    // Calculate the grace period expiration time
-    ent->gracePeriodEnd = level.time + SPAWN_GRACE_PERIOD;
-
-    // Iterate through all clients to determine alive players and update states
+    // Find alive players and identify the last one
     for (i = 0; i < level.maxclients; i++) {
         ent = &g_entities[i];
-
-        // Skip invalid entities or those not on the correct team
         if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team) {
             continue;
         }
 
-        // Update justLost state based on the grace period
-        ent->justLost = (!ent->freezeState &&
-                         ent->client->respawnTime > level.time &&
-                         ent->client->respawnTime <= ent->gracePeriodEnd);
-
-        G_LogPrintf("DEBUG: Player %d (%s) - freezeState: %d, respawnTime: %d, health: %d, justLost: %d, lastState: %d\n",
-                    i, ent->client->pers.netname, ent->freezeState, ent->client->respawnTime, ent->health, ent->justLost, ent->lastState);
-
-        // Count alive players and temporarily set lastPlayer
-        if (!ent->freezeState || ent->justLost) {
+        // Players in spawn grace period count as alive
+        if (!ent->freezeState && ent->client->respawnTime > level.time) {
+            if (!ent->justLost) {
+                ent->gracePeriodEnd = level.time + SPAWN_GRACE_PERIOD;
+                ent->justLost = qtrue;
+                G_LogPrintf("DEBUG: Player %d (%s) entered grace period\n", 
+                    i, ent->client->pers.netname);
+            }
+            
+            if (ent->gracePeriodEnd >= level.time) {
+                aliveCount++;
+                lastPlayer = i;
+                G_LogPrintf("DEBUG: Player %d (%s) in grace period counted as alive\n", 
+                    i, ent->client->pers.netname);
+            }
+        }
+        // Non-frozen players are alive
+        else if (!ent->freezeState) {
             aliveCount++;
             lastPlayer = i;
-        } else {
-            ent->justLost = qfalse; // Reset justLost if the player is frozen
+            G_LogPrintf("DEBUG: Player %d (%s) is alive\n", i, ent->client->pers.netname);
+        }
+        // Reset justLost for frozen players
+        else if (ent->freezeState && ent->justLost) {
+            ent->justLost = qfalse;
+            ent->gracePeriodEnd = 0;
         }
     }
 
-    if (aliveCount > teamCount) {
-        aliveCount = teamCount; // Ensure aliveCount does not exceed total players
-    }
-
-    // Determine if there is a single last player
+    // Single last player check
     if (aliveCount != 1) {
-        lastPlayer = -1; // Reset lastPlayer if there are multiple or no alive players
+        lastPlayer = -1;
+        G_LogPrintf("DEBUG: Team %d has %d alive players (not last player scenario)\n", 
+            team, aliveCount);
+    } else {
+        G_LogPrintf("DEBUG: Team %d has exactly 1 alive player: %d (%s)\n", 
+            team, lastPlayer, g_entities[lastPlayer].client->pers.netname);
     }
 
-    G_LogPrintf("DEBUG: Alive player count for team %d: %d, cached last player: %d, current last player: %d\n",
-                team, aliveCount, lastPlayerCache[teamIndex], lastPlayer);
-
-    // Only change states if the last player situation has actually changed
+    // Handle last player state changes
     if (lastPlayerCache[teamIndex] != lastPlayer) {
+        G_LogPrintf("DEBUG: Last player changed for team %d: %d -> %d\n", 
+            team, lastPlayerCache[teamIndex], lastPlayer);
+            
+        // Reset previous last player
         if (lastPlayerCache[teamIndex] != -1) {
-            // Previous last player is no longer alone - reset their state
             ResetLastPlayerStates(team, -1);
         }
-
+        
+        // Update cache
         lastPlayerCache[teamIndex] = lastPlayer;
-
+        
+        // Process new last player
         if (lastPlayer != -1) {
-            G_LogPrintf("DEBUG: NEW last player alive for team %d: Player %d (%s)\n",
-                        team, lastPlayer, g_entities[lastPlayer].client->pers.netname);
             HandleLastPlayerLogic(lastPlayer);
-        } else {
-            G_LogPrintf("DEBUG: No single last player alive for team %d.\n", team);
         }
-    } else if (lastPlayer != -1) {
-        // Same last player as before - just ensure notifications are still valid
-        G_LogPrintf("DEBUG: Same last player %d (%s) for team %d - checking notifications\n",
-                    lastPlayer, g_entities[lastPlayer].client->pers.netname, team);
+    } 
+    // Re-check notifications for existing last player
+    else if (lastPlayer != -1) {
+        G_LogPrintf("DEBUG: Same last player for team %d: %d (%s)\n", 
+            team, lastPlayer, g_entities[lastPlayer].client->pers.netname);
         HandleLastPlayerLogic(lastPlayer);
     }
 }
 
+/**
+ * Handles notifications for the last player and frozen teammates following them
+ */
 void HandleLastPlayerLogic(int lastPlayer) {
     gentity_t *lastEnt = &g_entities[lastPlayer];
     int i;
-    qboolean isFollowing = qfalse;
-
-    G_LogPrintf("DEBUG: HandleLastPlayerLogic called for lastPlayer %d (%s)\n", lastPlayer, lastEnt->client->pers.netname);
-
-    // Notify spectators watching the last player
-    for (i = 0; i < level.maxclients; i++) {
-        gentity_t *spectator = &g_entities[i];
-        if (!spectator->inuse || !spectator->client) {
-            continue;
-        }
-
-        // Debug logging for ALL players to see their spectator status
-        G_LogPrintf("DEBUG: Player %d (%s) - persistantTeam: %d, freezeState: %d, spectatorState: %d, spectatorClient: %d\n",
-                    i, spectator->client->pers.netname,
-                    spectator->client->ps.persistant[PERS_TEAM],
-                    spectator->freezeState,
-                    spectator->client->sess.spectatorState,
-                    spectator->client->sess.spectatorClient);
-
-        // Notify frozen players who are following the last player
-        isFollowing = (
-                spectator->freezeState &&
-                spectator->client->sess.spectatorState == SPECTATOR_FOLLOW &&
-                spectator->client->sess.spectatorClient == lastPlayer
-        );
-
-        G_LogPrintf("DEBUG: Player %d (%s) - isFollowing: %d, notifiedLastPlayer: %d (conditions: frozen=%d, spectatorState=%d, spectatorClient=%d==lastPlayer=%d)\n",
-                    i, spectator->client->pers.netname, isFollowing, spectator->client->notifiedLastPlayer,
-                    spectator->freezeState,
-                    spectator->client->sess.spectatorState,
-                    spectator->client->sess.spectatorClient, lastPlayer);
-
-        if (isFollowing) {
-            if (!spectator->client->notifiedLastPlayer) {
-                trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
-                spectator->client->notifiedLastPlayer = qtrue;
-                G_LogPrintf("DEBUG: SENDING NOTIFICATION - Spectator/Frozen %d (%s) notified of last player %d (%s).\n",
-                            i, spectator->client->pers.netname, lastPlayer, lastEnt->client->pers.netname);
-            } else {
-                G_LogPrintf("DEBUG: SKIPPING NOTIFICATION - Player %d (%s) already notified (notifiedLastPlayer=%d).\n",
-                            i, spectator->client->pers.netname, spectator->client->notifiedLastPlayer);
-            }
-        } else {
-            if (spectator->client->notifiedLastPlayer) {
-                trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
-                spectator->client->notifiedLastPlayer = qfalse;
-                G_LogPrintf("DEBUG: Spectator %d (%s) reset notifiedLastPlayer state.\n", i, spectator->client->pers.netname);
-            }
-        }
+    
+    G_LogPrintf("CALL: HandleLastPlayerLogic for player %d (%s)\n", 
+        lastPlayer, lastEnt->client->pers.netname);
+    
+    if (!lastEnt->inuse || !lastEnt->client) {
+        return;
     }
-
-    // Set the last player's state after notifying spectators
+    
+    // First, notify the last player
     if (!lastEnt->lastState) {
         trap_SendServerCommand(lastEnt - g_entities, "lastplayer 1");
         lastEnt->lastState = qtrue;
-        G_LogPrintf("DEBUG: Last player %d (%s) state set to lastplayer 1.\n", lastPlayer, lastEnt->client->pers.netname);
+        G_LogPrintf("DEBUG: Notified player %d (%s) they are last standing\n", 
+            lastPlayer, lastEnt->client->pers.netname);
     }
-}
-
-void ResetLastPlayerStates(int team, int lastPlayer) {
-    int i;
-	gentity_t *followedEnt;
-
+    
+    // Next, handle frozen teammates who are following the last player
     for (i = 0; i < level.maxclients; i++) {
-        gentity_t *ent = &g_entities[i];
-        if (!ent->inuse || !ent->client || ent->client->sess.sessionTeam != team) {
+        gentity_t *frozenPlayer = &g_entities[i];
+        
+        if (!frozenPlayer->inuse || !frozenPlayer->client) {
             continue;
         }
-
-        // Reset lastState for players on the same team
-		if (ent->client->sess.sessionTeam == team) {
-			trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-			if (ent->lastState) {
-				G_LogPrintf("DEBUG: Resetting lastplayer state for player %d (%s) on team %d.\n", i, ent->client->pers.netname, team);
-			}
-			ent->lastState = qfalse; // Always reset
-		}
-
-        // Reset frozen players
-        if (ent->freezeState &&
-			ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
-			int followedPlayer = ent->client->sess.spectatorClient;
-			if (followedPlayer >= 0 && followedPlayer < level.maxclients) {
-				gentity_t *followedEnt = &g_entities[followedPlayer];
-				if (followedEnt->client && followedEnt->client->sess.sessionTeam == team) {
-					if(ent->client->notifiedLastPlayer) {
-						G_LogPrintf("DEBUG: Resetting notifiedLastPlayer for spectator %d (%s) following player %d (%s) on team %d.\n",
-								i, ent->client->pers.netname, followedPlayer, followedEnt->client->pers.netname, team);
-						trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-						ent->client->notifiedLastPlayer = qfalse;
-					}
-				}
-			}
-		}
+        
+        // Only handle frozen teammates - THIS IS IMPORTANT
+        if (!frozenPlayer->freezeState || 
+            frozenPlayer->client->sess.sessionTeam != lastEnt->client->sess.sessionTeam || 
+            frozenPlayer == lastEnt) {
+            continue;
+        }
+        
+        // Log all frozen player states for debugging
+        G_LogPrintf("DEBUG: Frozen %d (%s) - spectatorState: %d, spectatorClient: %d\n", 
+            i, frozenPlayer->client->pers.netname,
+            frozenPlayer->client->sess.spectatorState,
+            frozenPlayer->client->sess.spectatorClient);
+        
+        // If this frozen player is following the last player, notify them
+        if (frozenPlayer->client->sess.spectatorState == SPECTATOR_FOLLOW && 
+            frozenPlayer->client->sess.spectatorClient == lastPlayer) {
+            
+            if (!frozenPlayer->client->notifiedLastPlayer) {
+                trap_SendServerCommand(frozenPlayer - g_entities, "lastplayer 1");
+                frozenPlayer->client->notifiedLastPlayer = qtrue;
+                G_LogPrintf("DEBUG: Notified frozen %d (%s) that %d (%s) is last standing\n", 
+                    i, frozenPlayer->client->pers.netname, 
+                    lastPlayer, lastEnt->client->pers.netname);
+            }
+        } 
+        // Only reset notifications for teammates who should be following this last player
+        else if (frozenPlayer->client->notifiedLastPlayer && 
+                 (frozenPlayer->client->sess.spectatorState != SPECTATOR_FOLLOW || 
+                  frozenPlayer->client->sess.spectatorClient != lastPlayer)) {
+            trap_SendServerCommand(frozenPlayer - g_entities, "lastplayer 0");
+            frozenPlayer->client->notifiedLastPlayer = qfalse;
+            G_LogPrintf("DEBUG: Cleared last player notification for frozen %d (%s)\n", 
+                i, frozenPlayer->client->pers.netname);
+        }
     }
-	
-	for (i = 0; i < level.maxclients; i++) {
-		gentity_t *ent = &g_entities[i];
-		if (!ent->inuse || !ent->client) continue;
-		if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
-			 if (ent->client->notifiedLastPlayer) {
-				trap_SendServerCommand(ent - g_entities, "lastplayer 0");
-				ent->client->notifiedLastPlayer = qfalse;
-			}
-		}
-	}
 }
 
+/**
+ * Resets last player states for a team
+ */
+void ResetLastPlayerStates(int team, int newLastPlayer) {
+    int i;
+    gentity_t *ent;
+    
+    G_LogPrintf("CALL: ResetLastPlayerStates for team %d (new last: %d)\n", 
+        team, newLastPlayer);
+    
+    // Reset all players on the team
+    for (i = 0; i < level.maxclients; i++) {
+        ent = &g_entities[i];
+        
+        if (!ent->inuse || !ent->client) {
+            continue;
+        }
+        
+        // Only handle players on this team
+        if (ent->client->sess.sessionTeam != team) {
+            continue;
+        }
+        
+        // Clear last player status
+        if (ent->lastState && (i != newLastPlayer)) {
+            trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+            ent->lastState = qfalse;
+            G_LogPrintf("DEBUG: Reset last player status for %d (%s)\n", 
+                i, ent->client->pers.netname);
+        }
+        
+        // Clear notifications for frozen players not following the new last player
+        if (ent->freezeState && ent->client->notifiedLastPlayer) {
+            if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW || 
+                ent->client->sess.spectatorClient != newLastPlayer) {
+                
+                trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+                ent->client->notifiedLastPlayer = qfalse;
+                G_LogPrintf("DEBUG: Reset notification for frozen %d (%s)\n", 
+                    i, ent->client->pers.netname);
+            }
+        }
+    }
+}
+
+/**
+ * Updates the last player notification when a frozen player changes who they're following
+ */
 void UpdateSpectatorLastPlayerState(gentity_t *spectator) {
     int followedPlayer;
     gentity_t *followed;
-
-    if (!spectator || !spectator->client || !spectator->freezeState) return;
-
-    // Only handle actual spectators, not frozen players
-    if (spectator->client->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR) return;
-    if (spectator->client->sess.spectatorState != SPECTATOR_FOLLOW) return;
-
-    followedPlayer = spectator->client->sess.spectatorClient;
-    if (followedPlayer < 0 || followedPlayer >= level.maxclients) return;
-
-    followed = &g_entities[followedPlayer];
-    if (!followed->inuse || !followed->client) return;
-
-    // Check if the followed player is the last one standing on their team
-    if (followed->lastState) {
-        // The followed player is last standing, notify the spectator
-        if (!spectator->client->notifiedLastPlayer) {
-            trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
-            spectator->client->notifiedLastPlayer = qtrue;
-            G_LogPrintf("DEBUG: Spectator %d (%s) notified of last player %d (%s) via follow cycle.\n",
-                       spectator - g_entities, spectator->client->pers.netname,
-                       followedPlayer, followed->client->pers.netname);
-        }
-    } else {
-        // The followed player is not last standing, reset spectator state
+    
+    G_LogPrintf("CALL: UpdateSpectatorLastPlayerState for %d (%s)\n", 
+        spectator - g_entities, spectator->client->pers.netname);
+    
+    if (!spectator || !spectator->client) {
+        return;
+    }
+    
+    // Only handle frozen players
+    if (!spectator->freezeState) {
+        return;
+    }
+    
+    // Only handle players in follow mode
+    if (spectator->client->sess.spectatorState != SPECTATOR_FOLLOW) {
         if (spectator->client->notifiedLastPlayer) {
             trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
             spectator->client->notifiedLastPlayer = qfalse;
-            G_LogPrintf("DEBUG: Spectator %d (%s) reset lastplayer state via follow cycle.\n",
-                       spectator - g_entities, spectator->client->pers.netname);
+            G_LogPrintf("DEBUG: Cleared notification for %d (%s) - not following anyone\n", 
+                spectator - g_entities, spectator->client->pers.netname);
+        }
+        return;
+    }
+    
+    // Get the player being followed
+    followedPlayer = spectator->client->sess.spectatorClient;
+    if (followedPlayer < 0 || followedPlayer >= level.maxclients) {
+        return;
+    }
+    
+    followed = &g_entities[followedPlayer];
+    if (!followed->inuse || !followed->client) {
+        return;
+    }
+    
+    // Only care about following teammates
+    if (followed->client->sess.sessionTeam != spectator->client->sess.sessionTeam) {
+        return;
+    }
+    
+    G_LogPrintf("DEBUG: %d (%s) following %d (%s) - lastState: %d\n", 
+        spectator - g_entities, spectator->client->pers.netname,
+        followedPlayer, followed->client->pers.netname, 
+        followed->lastState);
+    
+    // Update notification based on followed player's last state
+    if (followed->lastState) {
+        if (!spectator->client->notifiedLastPlayer) {
+            trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
+            spectator->client->notifiedLastPlayer = qtrue;
+            G_LogPrintf("DEBUG: Notified %d (%s) that followed player %d (%s) is last\n", 
+                spectator - g_entities, spectator->client->pers.netname,
+                followedPlayer, followed->client->pers.netname);
+        }
+    } else {
+        if (spectator->client->notifiedLastPlayer) {
+            trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
+            spectator->client->notifiedLastPlayer = qfalse;
+            G_LogPrintf("DEBUG: Cleared notification for %d (%s) - followed player not last\n", 
+                spectator - g_entities, spectator->client->pers.netname);
         }
     }
 }

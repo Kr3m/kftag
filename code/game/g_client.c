@@ -1350,6 +1350,14 @@ void ClientSpawn(gentity_t *ent) {
 	client->pers.cmd.serverTime = level.time;
 	ent->s.time2 = level.time;
 	G_LogPrintf("CALL: CheckLastPlayerAlive from ClientSpawn\n");
+	
+	// Always reset UI state when spawning, regardless of server flags
+	trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+	ent->client->notifiedLastPlayer = qfalse;
+	ent->lastState = qfalse;
+	G_LogPrintf("DEBUG: Reset last player state for %s on spawn\n", 
+				client->pers.netname);
+
 	CheckLastPlayerAlive( client->sess.sessionTeam );
 	ClientThink( ent-g_entities );
 
