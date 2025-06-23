@@ -1350,7 +1350,7 @@ void HandleLastPlayerLogic(int lastPlayer) {
     
     // First, notify the last player
     if (!lastEnt->lastState) {
-        trap_SendServerCommand(lastEnt - g_entities, "lastplayer 1");
+        trap_SendServerCommand(lastEnt->s.clientNum, "lastplayer 1");
         lastEnt->lastState = qtrue;
         G_LogPrintf("DEBUG: Notified player %d (%s) they are last standing\n", 
             lastPlayer, lastEnt->client->pers.netname);
@@ -1382,7 +1382,7 @@ void HandleLastPlayerLogic(int lastPlayer) {
             frozenPlayer->client->sess.spectatorClient == lastPlayer) {
             
             if (!frozenPlayer->client->notifiedLastPlayer) {
-                trap_SendServerCommand(frozenPlayer - g_entities, "lastplayer 1");
+                trap_SendServerCommand(frozenPlayer->s.clientNum, "lastplayer 1");
                 frozenPlayer->client->notifiedLastPlayer = qtrue;
                 G_LogPrintf("DEBUG: Notified frozen %d (%s) that %d (%s) is last standing\n", 
                     i, frozenPlayer->client->pers.netname, 
@@ -1393,7 +1393,7 @@ void HandleLastPlayerLogic(int lastPlayer) {
         else if (frozenPlayer->client->notifiedLastPlayer && 
                  (frozenPlayer->client->sess.spectatorState != SPECTATOR_FOLLOW || 
                   frozenPlayer->client->sess.spectatorClient != lastPlayer)) {
-            trap_SendServerCommand(frozenPlayer - g_entities, "lastplayer 0");
+            trap_SendServerCommand(frozenPlayer->s.clientNum, "lastplayer 0");
             frozenPlayer->client->notifiedLastPlayer = qfalse;
             G_LogPrintf("DEBUG: Cleared last player notification for frozen %d (%s)\n", 
                 i, frozenPlayer->client->pers.netname);
@@ -1426,7 +1426,7 @@ void ResetLastPlayerStates(int team, int newLastPlayer) {
         
         // Clear last player status
         if (ent->lastState && (i != newLastPlayer)) {
-            trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+            trap_SendServerCommand(ent->s.clientNum, "lastplayer 0");
             ent->lastState = qfalse;
             G_LogPrintf("DEBUG: Reset last player status for %d (%s)\n", 
                 i, ent->client->pers.netname);
@@ -1437,7 +1437,7 @@ void ResetLastPlayerStates(int team, int newLastPlayer) {
             if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW || 
                 ent->client->sess.spectatorClient != newLastPlayer) {
                 
-                trap_SendServerCommand(ent - g_entities, "lastplayer 0");
+                trap_SendServerCommand(ent->s.clientNum, "lastplayer 0");
                 ent->client->notifiedLastPlayer = qfalse;
                 G_LogPrintf("DEBUG: Reset notification for frozen %d (%s)\n", 
                     i, ent->client->pers.netname);
@@ -1454,24 +1454,22 @@ void UpdateSpectatorLastPlayerState(gentity_t *spectator) {
     gentity_t *followed;
     
     G_LogPrintf("CALL: UpdateSpectatorLastPlayerState for %d (%s)\n", 
-        spectator - g_entities, spectator->client->pers.netname);
+        spectator->s.clientNum, spectator->client->pers.netname);
     
-    if (!spectator || !spectator->client) {
+    if (!spectator || !spectator->client || !spectator->freezeState) {
         return;
     }
-    
-    // Only handle frozen players
-    if (!spectator->freezeState) {
-        return;
-    }
+
+    G_LogPrintf("DEBUG: UpdateSpectatorLastPlayerState processing player %d (%s)\n",
+                spectator->s.clientNum, spectator->client->pers.netname);
     
     // Only handle players in follow mode
     if (spectator->client->sess.spectatorState != SPECTATOR_FOLLOW) {
         if (spectator->client->notifiedLastPlayer) {
-            trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
+            trap_SendServerCommand(spectator->s.clientNum, "lastplayer 0");
             spectator->client->notifiedLastPlayer = qfalse;
             G_LogPrintf("DEBUG: Cleared notification for %d (%s) - not following anyone\n", 
-                spectator - g_entities, spectator->client->pers.netname);
+                spectator->s.clientNum, spectator->client->pers.netname);
         }
         return;
     }
@@ -1486,6 +1484,10 @@ void UpdateSpectatorLastPlayerState(gentity_t *spectator) {
     if (!followed->inuse || !followed->client) {
         return;
     }
+
+    G_LogPrintf("DEBUG: Player %d following %d (%s) - followed->lastState: %d, notifiedLastPlayer: %d\n",
+                spectator->s.clientNum, followedPlayer, followed->client->pers.netname,
+                followed->lastState, spectator->client->notifiedLastPlayer);
     
     // Only care about following teammates
     if (followed->client->sess.sessionTeam != spectator->client->sess.sessionTeam) {
@@ -1493,25 +1495,25 @@ void UpdateSpectatorLastPlayerState(gentity_t *spectator) {
     }
     
     G_LogPrintf("DEBUG: %d (%s) following %d (%s) - lastState: %d\n", 
-        spectator - g_entities, spectator->client->pers.netname,
+        spectator->s.clientNum, spectator->client->pers.netname,
         followedPlayer, followed->client->pers.netname, 
         followed->lastState);
     
     // Update notification based on followed player's last state
     if (followed->lastState) {
         if (!spectator->client->notifiedLastPlayer) {
-            trap_SendServerCommand(spectator - g_entities, "lastplayer 1");
+            trap_SendServerCommand(spectator->s.clientNum, "lastplayer 1");
             spectator->client->notifiedLastPlayer = qtrue;
             G_LogPrintf("DEBUG: Notified %d (%s) that followed player %d (%s) is last\n", 
-                spectator - g_entities, spectator->client->pers.netname,
+                spectator->s.clientNum, spectator->client->pers.netname,
                 followedPlayer, followed->client->pers.netname);
         }
     } else {
         if (spectator->client->notifiedLastPlayer) {
-            trap_SendServerCommand(spectator - g_entities, "lastplayer 0");
+            trap_SendServerCommand(spectator->s.clientNum, "lastplayer 0");
             spectator->client->notifiedLastPlayer = qfalse;
             G_LogPrintf("DEBUG: Cleared notification for %d (%s) - followed player not last\n", 
-                spectator - g_entities, spectator->client->pers.netname);
+                spectator->s.clientNum, spectator->client->pers.netname);
         }
     }
 }
