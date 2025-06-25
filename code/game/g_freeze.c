@@ -1350,7 +1350,7 @@ void HandleLastPlayerLogic(int lastPlayer) {
     
     // First, notify the last player
     if (!lastEnt->lastState) {
-        trap_SendServerCommand(lastEnt->s.clientNum, "lastplayer 1");
+        trap_SendServerCommand(lastPlayer, "lastplayer 1");
         lastEnt->lastState = qtrue;
         G_LogPrintf("DEBUG: Notified player %d (%s) they are last standing\n", 
             lastPlayer, lastEnt->client->pers.netname);
@@ -1382,7 +1382,7 @@ void HandleLastPlayerLogic(int lastPlayer) {
             frozenPlayer->client->sess.spectatorClient == lastPlayer) {
             
             if (!frozenPlayer->client->notifiedLastPlayer) {
-                trap_SendServerCommand(frozenPlayer->s.clientNum, "lastplayer 1");
+                trap_SendServerCommand(i, "lastplayer 1");
                 frozenPlayer->client->notifiedLastPlayer = qtrue;
                 G_LogPrintf("DEBUG: Notified frozen %d (%s) that %d (%s) is last standing\n", 
                     i, frozenPlayer->client->pers.netname, 
@@ -1393,7 +1393,7 @@ void HandleLastPlayerLogic(int lastPlayer) {
         else if (frozenPlayer->client->notifiedLastPlayer && 
                  (frozenPlayer->client->sess.spectatorState != SPECTATOR_FOLLOW || 
                   frozenPlayer->client->sess.spectatorClient != lastPlayer)) {
-            trap_SendServerCommand(frozenPlayer->s.clientNum, "lastplayer 0");
+            trap_SendServerCommand(i, "lastplayer 0");
             frozenPlayer->client->notifiedLastPlayer = qfalse;
             G_LogPrintf("DEBUG: Cleared last player notification for frozen %d (%s)\n", 
                 i, frozenPlayer->client->pers.netname);
@@ -1426,7 +1426,7 @@ void ResetLastPlayerStates(int team, int newLastPlayer) {
         
         // Clear last player status
         if (ent->lastState && (i != newLastPlayer)) {
-            trap_SendServerCommand(ent->s.clientNum, "lastplayer 0");
+            trap_SendServerCommand(i, "lastplayer 0");
             ent->lastState = qfalse;
             G_LogPrintf("DEBUG: Reset last player status for %d (%s)\n", 
                 i, ent->client->pers.netname);
@@ -1437,7 +1437,7 @@ void ResetLastPlayerStates(int team, int newLastPlayer) {
             if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW || 
                 ent->client->sess.spectatorClient != newLastPlayer) {
                 
-                trap_SendServerCommand(ent->s.clientNum, "lastplayer 0");
+                trap_SendServerCommand(i, "lastplayer 0");
                 ent->client->notifiedLastPlayer = qfalse;
                 G_LogPrintf("DEBUG: Reset notification for frozen %d (%s)\n", 
                     i, ent->client->pers.netname);
