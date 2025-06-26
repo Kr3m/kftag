@@ -1434,11 +1434,11 @@ void ResetLastPlayerStates(int team, int newLastPlayer) {
         
         // Clear notifications for frozen players not following the new last player
         if (ent->freezeState && ent->client->notifiedLastPlayer) {
+            ent->client->notifiedLastPlayer = qfalse;
             if (ent->client->sess.spectatorState != SPECTATOR_FOLLOW || 
                 ent->client->sess.spectatorClient != newLastPlayer) {
                 
                 trap_SendServerCommand(i, "lastplayer 0");
-                ent->client->notifiedLastPlayer = qfalse;
                 G_LogPrintf("DEBUG: Reset notification for frozen %d (%s)\n", 
                     i, ent->client->pers.netname);
             }

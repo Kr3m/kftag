@@ -891,13 +891,14 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	gclient_t	*client;
 	gentity_t	*cent;
 
-	ent->client->ps.stats[STAT_SPECTATED_CLIENT] = ent->client->sess.spectatorClient;
-	cent = &g_entities[ent->client->sess.spectatorClient];
-	G_LogPrintf("CALL: UpdateSpectatorLastPlayerState from Cmd_FollowCycle_f\n");
-    UpdateSpectatorLastPlayerState(ent);
+	//UpdateSpectatorLastPlayerState(ent);
 
 	//qlone - freezetag
 	if (g_freezeTag.integer) {
+        ent->client->ps.stats[STAT_SPECTATED_CLIENT] = ent->client->sess.spectatorClient;
+        cent = &g_entities[ent->client->sess.spectatorClient];
+        UpdateLastPlayerNotification(ent, cent);
+        G_LogPrintf("CALL: UpdateLastPlayerNotification from Cmd_FollowCycle_f\n");
 //		if ( ent->freezeState && !is_spectator( ent->client ) ) return;
 		if ( Set_Client( ent ) ) return;
 	}
