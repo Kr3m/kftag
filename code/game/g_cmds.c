@@ -982,6 +982,9 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 }
 
 static void UpdateLastPlayerNotification(gentity_t *ent, gentity_t *cent) {
+    if (ent->client->sess.sessionTeam != TEAM_RED && ent->client->sess.sessionTeam != TEAM_BLUE) {
+        return;
+    }
     if (cent->lastState) {
         trap_SendServerCommand(ent - g_entities, "lastplayer 1");
         ent->client->notifiedLastPlayer = qtrue;
