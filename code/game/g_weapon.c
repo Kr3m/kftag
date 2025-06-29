@@ -29,7 +29,7 @@ void CalcMuzzlePointOrigin( const gentity_t *ent, vec3_t origin, const vec3_t fo
 void CalcGrappleMuzzlePoint( const gentity_t *ent, vec3_t origin, const vec3_t forward, const vec3_t right, const vec3_t up, vec3_t muzzlePoint ) {
     VectorCopy( ent->client->ps.origin, origin );
     origin[2] += ent->client->ps.viewheight;
-    VectorMA( origin, g_grappleMuzzlePointOffset.value, forward, muzzlePoint );  // Larger offset for grapple
+    VectorMA( origin, g_grappleOffset.value, forward, muzzlePoint );  // Larger offset for grapple
     // snap to integer coordinates for more efficient network bandwidth usage
     //SnapVector( muzzlePoint );
 }
