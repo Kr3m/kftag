@@ -1319,7 +1319,7 @@ void CheckLastPlayerAlive(int team) {
             
         // Reset previous last player
         if (lastPlayerCache[teamIndex] != -1) {
-            ResetLastPlayerStates(team, -1);
+            ResetLastPlayerStates(team, lastPlayer);
         }
         
         // Update cache
