@@ -219,7 +219,7 @@ static void Body_WorldEffects( gentity_t *self ) {
 	point[ 2 ] -= 23;
 
 	contents = trap_PointContents( point, -1 );
-	if ( contents & ( CONTENTS_LAVA | CONTENTS_SLIME ) ) {
+	if ( contents & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_NODROP ) ) {
 		event = G_TempEntity(self->r.currentOrigin, EV_FREEZE_TIME);
 		self->freezeTime = level.time + (g_lavaThawTime.integer * 1000);
 		event->s.time = self->freezeTime; // Store the freezeTime value in the event
@@ -238,6 +238,7 @@ static void Body_WorldEffects( gentity_t *self ) {
 		return;
 	}
 	if ( self->s.pos.trType == TR_STATIONARY && contents & CONTENTS_NODROP ) {
+        self->s.pos.trType == TR_GRAVITY;
 		// if ( level.time - self->timestamp > 5000 ) {
 		// 	Body_free( self );
 		// }
@@ -384,7 +385,7 @@ static void Body_think( gentity_t *self ) {
                        groundCheck, self->s.number, MASK_PLAYERSOLID);
 
             // If we're not on solid ground, switch to gravity
-            if (trace.fraction >= 1.0f || trace.startsolid || (contents & (CONTENTS_LAVA | CONTENTS_SLIME))) {
+            if (trace.fraction >= 1.0f || trace.startsolid || (contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_NODROP))) {
                 G_LogPrintf("DEBUG: Body falling into void, switching to gravity\n");
                 self->s.pos.trType = TR_GRAVITY;
                 self->s.pos.trTime = level.time;
@@ -397,6 +398,9 @@ static void Body_think( gentity_t *self ) {
 
                 // Clear ground entity so it falls properly
                 self->s.groundEntityNum = ENTITYNUM_NONE;
+                if (contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_NODROP)) {
+                    Body_WorldEffects(self);
+                }
 
             } else {
                 // Still on ground, apply friction to sliding movement
