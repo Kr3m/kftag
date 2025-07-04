@@ -83,8 +83,14 @@ int SpawnTime( gentity_t *ent, qboolean firstSpawn )
 
 	case IT_POWERUP:
 		if ( firstSpawn && g_randomPU.integer ) {
-			// Randomize the spawn time for the powerup
-			return GenerateRandomSpawnTime();
+            static int randomPowerupTime = 0;
+
+            // Randomize the spawn time for the powerup
+			if (randomPowerupTime == 0) {
+                randomPowerupTime = GenerateRandomSpawnTime();
+            }
+
+            return randomPowerupTime;
 		} else {
 			return firstSpawn ? SPAWN_POWERUP : RESPAWN_POWERUP;
 		}
