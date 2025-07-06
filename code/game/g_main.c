@@ -427,9 +427,6 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	// enable / disable hitboxes
 	UpdateHitBoxConfigString();
 
-	// fpsCapString = va("g_fpsCap %d", g_fpsCap.integer);
-	trap_SetConfigstring(CS_SERVERINFO, va("g_fpsCap %d", g_fpsCap.integer));
-
 	//set the freeze game type string
 	if (g_freezeTag.integer) {
         char freezeGameType[MAX_CVAR_VALUE_STRING];
