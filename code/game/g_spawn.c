@@ -268,6 +268,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	}
 
 	G_ItemReplaced( ent ); //qlone - custom item replacement
+    G_ReplaceHMG( ent );
 
 	// check item spawn functions
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
@@ -658,4 +659,16 @@ void G_SpawnEntitiesFromString( void ) {
 	}	
 
 	level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
+}
+
+static void G_ReplaceHMG( gentity_t *ent) {
+    if (!g_disableHMG.integer) {
+        return;
+    }
+
+    if ( !Q_stricmp(ent->classname, "weapon_hmg")) {
+        ent->classname = "weapon_shotgun";
+    } else if ( !Q_stricmp(ent->classname, "ammo_hmg")) {
+        ent->classname = "ammo_shells";
+    }
 }

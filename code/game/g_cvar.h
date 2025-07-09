@@ -188,6 +188,7 @@ G_CVAR( g_redteam, "g_redteam", "Stroggs", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR
 G_CVAR( g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO, 0, qtrue, qtrue )
 
 G_CVAR( g_hitBoxEnabled, "g_hitBoxEnabled", "0", CVAR_SERVERINFO, 0, qfalse, qfalse )
+G_CVAR( g_disableHMG, "g_disableHMG", "0", CVAR_SERVERINFO, 0, qfalse, qfalse )
 
 G_CVAR( g_healthDown, "g_healthDown", "1", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_randomPU, "g_randomPU", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
