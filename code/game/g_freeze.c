@@ -719,6 +719,14 @@ void player_freeze( gentity_t *self, gentity_t *attacker, int mod ) {
 	if ( self != attacker && OnSameTeam( self, attacker ) ) {
 		return;
 	}
+
+	G_LogPrintf("FREEZE_DEBUG: player_freeze called - Player: %d (%s), Attacker: %d (%s), MOD: %d\n",
+				self->s.clientNum,
+				self->client ? self->client->pers.netname : "NULL_CLIENT",
+				attacker ? attacker->s.clientNum : -1,
+				(attacker && attacker->client) ? attacker->client->pers.netname : "NULL_ATTACKER",
+				mod);
+
 	if ( self != attacker && g_gametype.integer == GT_CTF && redflag && blueflag ) {
 		vec3_t	dist1, dist2;
 
