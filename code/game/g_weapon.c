@@ -684,10 +684,13 @@ GRAPPLING HOOK
 void Weapon_GrapplingHook_Fire (gentity_t *ent)
 {
 	gentity_t	*tent;
+	vec3_t		grapple_forward, grapple_right, grapple_up;
+	vec3_t		grapple_muzzle, grapple_muzzle_origin;
+	
 //qlone - grapple hook
-	AngleVectors( ent->client->ps.viewangles, forward, right, up );
-	//uzu//CalcMuzzlePoint( ent, forward, right, up, muzzle );
-    CalcGrappleMuzzlePoint( ent, muzzle_origin, forward, right, up, muzzle );
+	// Calculate fresh direction vectors for grapple to avoid contamination from other weapons
+	AngleVectors( ent->client->ps.viewangles, grapple_forward, grapple_right, grapple_up );
+	CalcMuzzlePointOrigin( ent, grapple_muzzle_origin, grapple_forward, grapple_right, grapple_up, grapple_muzzle );
 //qlone - grapple hook
 
 	if (!ent->client->fireHeld && !ent->client->hook) {
@@ -696,7 +699,7 @@ void Weapon_GrapplingHook_Fire (gentity_t *ent)
     	tent->r.singleClient = ent->s.clientNum;
     	tent->s.eventParm = ent->s.clientNum;
 
-		fire_grapple (ent, muzzle, forward);
+		fire_grapple (ent, grapple_muzzle, grapple_forward);
 	}
 
 	ent->client->fireHeld = qtrue;
