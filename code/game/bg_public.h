@@ -240,7 +240,7 @@ typedef enum
 	STAT_OSP_PHYS = 7,
 	STAT_RAIL_DELAY = 8,
 	STAT_ARMOR_TYPE = 9,                //aromor: red/green/yellow
-	STAT_OSP_10 = 10,
+	STAT_THAW_TIME = 10,                // thaw completion time for frozen players
 	STAT_WEAPON_DELAY = 11,
 	STAT_SPECTATED_CLIENT,				// spectator client number
 } statIndex_t;

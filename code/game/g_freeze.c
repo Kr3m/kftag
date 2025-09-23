@@ -172,6 +172,11 @@ static void Body_Explode( gentity_t *self ) {
 			G_Sound( self, CHAN_AUTO, self->noise_index );
 
 			self->activator = e;
+			
+			// Set the thaw time on the frozen player so the client can display it
+			if (self->target_ent && self->target_ent->client) {
+				self->target_ent->client->ps.stats[STAT_THAW_TIME] = self->count;
+			}
 
 		} else if ( self->count < level.time ) {
 			if ( self->activator == e ) {
@@ -198,9 +203,18 @@ static void Body_Explode( gentity_t *self ) {
 			G_LogPrintf("CALL: CheckLastPlayerAlive from Body_Explode\n");
 			CheckLastPlayerAlive( e->client->sess.sessionTeam );
 
+			// Clear the thaw time since thawing is complete
+			if (self->target_ent && self->target_ent->client) {
+				self->target_ent->client->ps.stats[STAT_THAW_TIME] = 0;
+			}
+
 			G_Damage( self, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
 		}
 		return;
+	}
+	// Clear thaw time if thawing was interrupted
+	if (self->target_ent && self->target_ent->client) {
+		self->target_ent->client->ps.stats[STAT_THAW_TIME] = 0;
 	}
 	self->count = 0;
 }
