@@ -947,12 +947,8 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 //qlone - freezetag
 		} else {
 			if ( &level.clients[ clientnum ] == ent->client ) {
-				if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
-					StopFollowing( ent, qtrue );
-					ent->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
-					ent->client->ps.pm_time = 100;
-					return;
-				}
+				// Can't follow self, skip to next client
+				continue;
 			}
 			if ( g_entities[ clientnum ].freezeState ) continue;
 			if ( is_spectator( &level.clients[ clientnum ] ) ) continue;

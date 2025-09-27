@@ -337,12 +337,31 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	client->oldbuttons = client->buttons;
 	client->buttons = ucmd->buttons;
 
-	// attack button cycles through spectators
-	if ( ( client->buttons & BUTTON_ATTACK ) && ! ( client->oldbuttons & BUTTON_ATTACK ) ) {
-		Cmd_FollowCycle_f( ent, 1 );
+	// attack button (left mouse) toggles between following and free spectating
+	if ( ( client->buttons & BUTTON_ATTACK ) && ! ( client->oldbuttons & BUTTON_ATTACK ) &&
+		 level.time > client->lastSpectatorSwitchTime + 100 ) { // 100ms minimum between switches
+		if ( client->sess.spectatorState == SPECTATOR_FOLLOW ) {
+			// Currently following someone, switch to free spectating
+			StopFollowing( ent, qtrue );
+		} else {
+			// Currently free spectating, start following someone
+			Cmd_FollowCycle_f( ent, 1 );
+		}
+		client->lastSpectatorSwitchTime = level.time;
 	}
+	
+	// space bar (upmove > 0) cycles through spectators - detect rising edge with rate limiting
+	if ( ucmd->upmove > 0 && client->oldUpmove <= 0 && 
+		 level.time > client->lastSpectatorSwitchTime + 100 ) { // 100ms minimum between switches
+		Cmd_FollowCycle_f( ent, 1 );
+		client->lastSpectatorSwitchTime = level.time;
+	}
+	
+	// Update old upmove for next frame
+	client->oldUpmove = ucmd->upmove;
+
 //qlone - freezetag
-	else if ( g_freezeTag.integer ) {
+	if ( g_freezeTag.integer ) {
 		respawnSpectator( ent );
 	}
 //qlone - freezetag

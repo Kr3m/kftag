@@ -323,6 +323,8 @@ struct gclient_s {
 	int			buttons;
 	int			oldbuttons;
 	int			latched_buttons;
+	int			oldUpmove;		// previous frame's upmove for edge detection
+	int			lastSpectatorSwitchTime; // rate limiting for spectator switching
 
 	vec3_t		oldOrigin;
 

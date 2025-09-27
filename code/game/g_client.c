@@ -1039,6 +1039,10 @@ void ClientBegin( int clientNum ) {
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
 	client->ps.persistant[PERS_SPAWN_COUNT] = spawns;
+	
+	// Initialize input tracking for spectator controls
+	client->oldUpmove = 0;
+	client->lastSpectatorSwitchTime = 0;
 
 	// locate ent at a spawn point
 	ClientSpawn( ent );
@@ -1294,6 +1298,8 @@ void ClientSpawn(gentity_t *ent) {
 	client->respawnTime = level.time;
 	client->inactivityTime = level.time + g_inactivity.integer * 1000;
 	client->latched_buttons = 0;
+	client->oldUpmove = 0;
+	client->lastSpectatorSwitchTime = 0;
 
 	// set default animations
 	client->ps.torsoAnim = TORSO_STAND;
