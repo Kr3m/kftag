@@ -535,7 +535,7 @@ qboolean DamageBody( gentity_t *targ, gentity_t *attacker, vec3_t dir, int mod, 
 
 	if ( attacker->client && targ->freezeState ) {
 		if ( knockback ) {
-			if ( g_freezeKnockback.integer ) {
+			if ( g_freezeKnockback.integer && mod != MOD_GRAPPLE ) {
 				G_FrozenPlayerKnockback( targ, 1000, dir );
 			}
 			else {
