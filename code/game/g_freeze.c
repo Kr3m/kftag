@@ -238,12 +238,12 @@ static void Body_WorldEffects( gentity_t *self ) {
 		self->freezeTime = level.time + (g_lavaThawTime.integer * 1000);
 		event->s.time = self->freezeTime; // Store the freezeTime value in the event
 		event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
-		event->r.singleClient = self->s.clientNum;
-		event->s.eventParm = self->s.clientNum;
+		event->r.singleClient = self->target_ent->s.clientNum;
+		event->s.eventParm = self->target_ent->s.clientNum;
 		self->target_ent->count = self->freezeTime;
 		self->target_ent->think = Body_free;
 		self->target_ent->nextthink = self->target_ent->count;
-		self->client->freezeEvent = event;
+		self->target_ent->client->freezeEvent = event;
 
 		if ( level.time - self->timestamp > 5000 ) {
 			G_Damage( self, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
@@ -260,12 +260,12 @@ static void Body_WorldEffects( gentity_t *self ) {
 		self->freezeTime = level.time + (g_lavaThawTime.integer * 1000);
 		event->s.time = self->freezeTime; // Store the freezeTime value in the event
 		event->r.svFlags |= SVF_SINGLECLIENT; // Send the event only to the specific client
-		event->r.singleClient = self->s.clientNum;
-		event->s.eventParm = self->s.clientNum;
+		event->r.singleClient = self->target_ent->s.clientNum;
+		event->s.eventParm = self->target_ent->s.clientNum;
 		self->target_ent->count = self->freezeTime;
 		self->target_ent->think = Body_free;
 		self->target_ent->nextthink = self->target_ent->count;
-		self->client->freezeEvent = event;
+		self->target_ent->client->freezeEvent = event;
 
 		return;
 	}
