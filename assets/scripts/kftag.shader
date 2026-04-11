@@ -181,32 +181,42 @@ iceTrail
                 alphaGen        vertex
         }
 }
-//fullbright
-fullBright
-{
+
+//fullBright
+//{
 	// use our supplied color...
-	{
-		map $whiteimage
-		blendFunc GL_ONE GL_ZERO
-		rgbGen entity
-	}
+//	{
+//		map $whiteimage
+//		blendFunc GL_ONE GL_ZERO
+//		rgbGen entity
+//	}
 
 	// ...and divide it by the current brightness
-	{
-		map $whiteimage
-		blendFunc GL_DST_COLOR GL_ZERO
-		rgbGen identityLighting
-	}
+//	{
+//		map $whiteimage
+//		blendFunc GL_DST_COLOR GL_ZERO
+//		rgbGen identityLighting
+//	}
+//}
+
+//fullBrightVertexLight
+//{
+//	{
+//		map $whiteimage
+//		blendFunc GL_ONE GL_ZERO
+//		rgbGen entity
+//	}
+//}
+fullBright
+{
+    {
+        map gfx/colors/neutral.tga
+        rgbGen entity
+        blendFunc GL_ONE GL_ZERO
+    }
 }
 
-fullBrightVertexLight
-{
-	{
-		map $whiteimage
-		blendFunc GL_ONE GL_ZERO
-		rgbGen entity
-	}
-}
+
 //grapple
 models/weapons2/grapple2/ball
 {

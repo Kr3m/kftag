@@ -11,7 +11,7 @@
  * The full zone allocator uses a 4 MB static buffer that exceeds the
  * typical QVM data-segment budget, so we use a simple pool instead.
  */
-#define VM_ZONE_SIZE (512 * 1024)
+#define VM_ZONE_SIZE (2 * 1024 * 1024)
 static byte     vmZoneMem[VM_ZONE_SIZE];
 static int      vmZoneUsed;
 

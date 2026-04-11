@@ -1038,6 +1038,14 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 			CG_MissileHitWall(es->weapon, 0, position, dir, IMPACTSOUND_METAL);
 			break;
 
+		case EV_GRAPPLE_HIT:
+			DEBUGNAME("EV_GRAPPLE_HIT");
+			break;
+
+		case EV_GRAPPLE_FIRE:
+			DEBUGNAME("EV_GRAPPLE_FIRE");
+			break;
+
 		case EV_RAILTRAIL:
 			DEBUGNAME("EV_RAILTRAIL");
 			cent->currentState.weapon = WP_RAILGUN;
@@ -1279,6 +1287,23 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 		case EV_DEBUG_LINE:
 			DEBUGNAME("EV_DEBUG_LINE");
 			CG_Beam(cent);
+			break;
+
+		case EV_TAUNT_YES:
+		case EV_TAUNT_NO:
+		case EV_TAUNT_FOLLOWME:
+		case EV_TAUNT_GETFLAG:
+		case EV_TAUNT_GUARDBASE:
+		case EV_TAUNT_PATROL:
+			DEBUGNAME("EV_TAUNT_*");
+			break;
+
+		case EV_FREEZE_TIME:
+			DEBUGNAME("EV_FREEZE_TIME");
+			if (es->eventParm == cg.clientNum)
+			{
+				cg.thawTime = es->time;
+			}
 			break;
 
 		default:
