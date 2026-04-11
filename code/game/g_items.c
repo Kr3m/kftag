@@ -532,6 +532,9 @@ void RespawnItem( gentity_t *ent ) {
 	ent->r.contents = CONTENTS_TRIGGER;
 	ent->s.eFlags &= ~EF_NODRAW;
 	ent->r.svFlags &= ~SVF_NOCLIENT;
+	if ( ent->item && ent->item->giType == IT_TEAM ) {
+		ent->r.svFlags |= SVF_BROADCAST;
+	}
 	trap_LinkEntity( ent );
 
 	if ( ent->item->giType == IT_POWERUP ) {
@@ -722,7 +725,12 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	// to be placed on movers.
 	ent->r.svFlags |= SVF_NOCLIENT;
 	ent->s.eFlags |= EF_NODRAW;
-	ent->r.contents = 0;
+	// In RTF, keep base flag entities' trigger volume active so that a flag
+	// carrier can dock at the original flag position to return their flag.
+	if ( !( g_gametype.integer == GT_RTF && ent->item && ent->item->giType == IT_TEAM
+	     && !( ent->flags & FL_DROPPED_ITEM ) ) ) {
+		ent->r.contents = 0;
+	}
 
 	// ZOID
 	// A negative respawn times means to never respawn this item (but don't
@@ -781,9 +789,9 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 
 	dropped->s.eFlags |= EF_BOUNCE_HALF;
 #ifdef MISSIONPACK
-	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF)			&& item->giType == IT_TEAM) { // Special case for CTF flags
+	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_RTF || g_gametype.integer == GT_1FCTF)			&& item->giType == IT_TEAM) { // Special case for CTF flags
 #else
-	if (g_gametype.integer == GT_CTF && item->giType == IT_TEAM) { // Special case for CTF flags
+	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_RTF) && item->giType == IT_TEAM) { // Special case for CTF flags
 #endif
 		dropped->think = Team_DroppedFlagThink;
 		dropped->nextthink = level.time + 30000;
@@ -794,6 +802,9 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 	}
 
 	dropped->flags = FL_DROPPED_ITEM;
+	if ( item->giType == IT_TEAM ) {
+		dropped->r.svFlags |= SVF_BROADCAST;
+	}
 
 	trap_LinkEntity (dropped);
 
@@ -899,6 +910,9 @@ void FinishSpawningItem( gentity_t *ent ) {
 		return;
 	}
 
+	if ( ent->item && ent->item->giType == IT_TEAM ) {
+		ent->r.svFlags |= SVF_BROADCAST;
+	}
 	trap_LinkEntity( ent );
 }
 
@@ -921,7 +935,7 @@ void G_CheckTeamItems( void ) {
 	// Set up team stuff
 	Team_InitGame();
 
-	if( g_gametype.integer == GT_CTF ) {
+	if( g_gametype.integer == GT_CTF || g_gametype.integer == GT_RTF ) {
 		gitem_t	*item;
 
 		// check for the two flags

@@ -27,6 +27,7 @@ void Team_InitGame( void ) {
 
 	switch( g_gametype.integer ) {
 	case GT_CTF:
+	case GT_RTF:
 		teamgame.redStatus = -1; // Invalid to force update
 		Team_SetFlagStatus( TEAM_RED, FLAG_ATBASE );
 		teamgame.blueStatus = -1; // Invalid to force update
@@ -208,7 +209,7 @@ static void Team_SetFlagStatus( team_t team, flagStatus_t status ) {
 	if ( modified ) {
 		char st[4];
 
-		if ( g_gametype.integer == GT_CTF ) {
+		if ( g_gametype.integer == GT_CTF || g_gametype.integer == GT_RTF ) {
 			st[0] = ctfFlagStatusRemap[teamgame.redStatus];
 			st[1] = ctfFlagStatusRemap[teamgame.blueStatus];
 			st[2] = '\0';

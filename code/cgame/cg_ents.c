@@ -368,9 +368,9 @@ static void CG_UpdateTeammatePOI( int clientNum, const vec3_t origin, int poweru
 
 static void CG_DrawFlagPOIMarker( const vec3_t origin, qhandle_t shader, const vec4_t color4 ) {
 	vec3_t trans;
-	float  py, hf, z, sx, sy;
-	float  perspHalf, iconHalf;
-	float  above;
+	float py, hf, z, sx, sy;
+	float perspHalf, iconHalf;
+	float above;
 
 	VectorSubtract( origin, cg.refdef.vieworg, trans );
 	z = DotProduct( trans, cg.refdef.viewaxis[0] );
@@ -428,12 +428,12 @@ base while the flag is being carried (defFlagStatus == FLAG_TAKEN).
 */
 static void CG_DrawFlagPOIPair( int defTeam, int defFlagSlot, int atkBaseSlot,
                                 int defFlagStatus, int ourTeam ) {
-	int             i;
-	int             atkTeam;
-	vec4_t          defColor, atkColor;
-	qhandle_t       shader;
-	flagPOICache_t  *defFlags = &s_flagPOI[defFlagSlot];
-	flagPOICache_t  *atkBase  = &s_flagPOI[atkBaseSlot];
+	int				i;
+	int				atkTeam;
+	vec4_t			defColor, atkColor;
+	qhandle_t		shader;
+	flagPOICache_t	*defFlags = &s_flagPOI[defFlagSlot];
+	flagPOICache_t	*atkBase  = &s_flagPOI[atkBaseSlot];
 
 	atkTeam = ( defTeam == TEAM_RED ) ? TEAM_BLUE : TEAM_RED;
 
@@ -448,21 +448,22 @@ static void CG_DrawFlagPOIPair( int defTeam, int defFlagSlot, int atkBaseSlot,
 	atkColor[3] = 1.0f;
 
 	if ( ourTeam == defTeam ) {
-		/* Own flag: defend POI on every cached flag entity.
-		   When carried the entity leaves the snapshot so count
-		   falls to zero automatically — no explicit status check needed. */
+		/* Own flag: defend POI on every visible flag entity.
+		   When the flag is carried the entity leaves the snapshot so
+		   count falls to zero automatically — no explicit status check needed. */
 		shader = cgs.media.flagDefendPOI;
 		for ( i = 0; i < defFlags->count; i++ ) {
 			CG_DrawFlagPOIMarker( defFlags->origins[i], shader, defColor );
 		}
 	} else {
-		/* Enemy flag: attack POI on every cached flag entity. */
+		/* Enemy flag: attack POI on every visible flag entity. */
 		shader = cgs.media.flagAttackPOI;
 		for ( i = 0; i < defFlags->count; i++ ) {
 			CG_DrawFlagPOIMarker( defFlags->origins[i], shader, defColor );
 		}
 
-		/* While a teammate carries the enemy flag, show capture POI at our base. */
+		/* While a teammate is carrying the enemy flag, show capture POI at
+		   our own base.  defFlagStatus == 1 is "taken" in the wire protocol. */
 		if ( defFlagStatus == FLAG_TAKEN && atkBase->count > 0 ) {
 			shader = cgs.media.flagCapturePOI;
 			for ( i = 0; i < atkBase->count; i++ ) {
@@ -593,8 +594,8 @@ void CG_DrawTeammatePOIs( void ) {
 }
 
 void CG_DrawFlagPOIs( void ) {
-	int  slotIdx;
-	int  ourTeam, ourClientNum;
+	int			slotIdx;
+	int			ourTeam, ourClientNum;
 
 	if ( !cg_flagPOIs.integer ) {
 		return;
@@ -648,6 +649,8 @@ static void CG_DrawFlagPOI( centity_t *cent, const gitem_t *item ) {
 		return;
 	}
 
+	/* Cache the anchor near the top of the flag model so the projected
+	   position tracks the flag tip rather than the base.            */
 	VectorCopy( cent->currentState.pos.trBase, pos );
 	pos[2] += 62;
 	CG_UpdateFlagPOISlot( &s_flagPOI[idx], cent->currentState.number, pos );
