@@ -99,7 +99,10 @@
 #define CS_OSP_AUTH                               872
 #define CS_OSP_FREEZE_GAME_TYPE                   873
 #define CS_OSP_CUSTOM_CLIENT2                     874
+#define CS_OSP2BE_SUPPORTED                       887
+#define CS_OSP2BE_DISABLED_FEATURES               888
 #define X_HCK_PS_ENEMY_HITBOX                     1000
+#define XQ3E_ALLOW_FEATURES                       1000
 
 #define CS_MAX                  (CS_OSP_CUSTOM_CLIENT2)
 
@@ -121,6 +124,7 @@ typedef enum {
 
 	GT_TEAM,			// team deathmatch
 	GT_CTF,				// capture the flag
+	GT_CA,				// clan arena
 #ifdef MISSIONPACK
 	GT_1FCTF,
 	GT_OBELISK,
@@ -153,7 +157,7 @@ typedef enum {
 } pmtype_t;
 
 typedef enum {
-	WEAPON_READY, 
+	WEAPON_READY,
 	WEAPON_RAISING,
 	WEAPON_DROPPING,
 	WEAPON_FIRING
@@ -186,6 +190,7 @@ typedef struct {
 	usercmd_t	cmd;
 	int			tracemask;			// collide against these types of surfaces
 	int			debugLevel;			// if set, diagnostic output will be printed
+	qboolean	noFootsteps;		// if the game is setup for no footsteps by the server
 	qboolean	gauntletHit;		// true if a gauntlet attack would actually hit something
 
 	int			framecount;
@@ -283,9 +288,7 @@ typedef enum {
 #define	EF_AWARD_GAUNTLET	0x00000040		// draw a gauntlet sprite
 #define	EF_NODRAW			0x00000080		// may have an event, but no model (unspawned items)
 #define	EF_FIRING			0x00000100		// for lightning gun
-#ifdef MISSIONPACK
-#define	EF_KAMIKAZE			0x00000200
-#endif
+#define	EF_KAMIKAZE			0x00000200		// alias for EF_SPAWNPROTECTION (same bit)
 #define	EF_MOVER_STOP		0x00000400		// will push otherwise
 #define EF_AWARD_CAP		0x00000800		// draw the capture sprite
 #define	EF_TALK				0x00001000		// draw a talk balloon
@@ -593,7 +596,10 @@ typedef enum {
 	TEAM_RED,
 	TEAM_BLUE,
 	TEAM_SPECTATOR,
-
+        TEAM_4,
+        TEAM_5,
+        TEAM_6,
+        TEAM_7,
 	TEAM_NUM_TEAMS
 } team_t;
 
@@ -611,7 +617,7 @@ typedef enum {
 //team task
 typedef enum {
 	TEAMTASK_NONE,
-	TEAMTASK_OFFENSE, 
+	TEAMTASK_OFFENSE,
 	TEAMTASK_DEFENSE,
 	TEAMTASK_PATROL,
 	TEAMTASK_FOLLOW,
@@ -708,7 +714,7 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw );
 gitem_t	*BG_FindItemForHoldable( holdable_t pw );
 #define	ITEM_INDEX(x) ((x)-bg_itemlist)
 
-qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );
+qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps, qboolean disableArmorCheck );
 
 
 // g_dmflags->integer flags

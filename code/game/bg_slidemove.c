@@ -6,6 +6,33 @@
 #include "bg_public.h"
 #include "bg_local.h"
 
+int modePromodePhysKoeff;
+float modePromode_pm_airaccelerate_1;
+int modePredictionKoeff2;
+float modePromode_pm_airaccelerate_2;
+float modeWishspeedLimit;
+int modePredictionKoeff1;
+float modeSwimScale1;
+float modeSwimScale2;
+float modeShotgunKoeff;
+int modeShotgunNumberOfPellets;
+float modeUnused8;
+int modeMaxAmmoShotgun;
+int modeGrenadeTime;
+int modeMaxAmmoGrenade;
+int modeMaxAmmoRocket;
+int modeMaxAmmoRail;
+int modeBeginWeaponChangeTime;
+int modeFinishWeaponChangeTime;
+int modePMNoAmmoTime;
+int pm_armorPromode;
+int modeHitLevelSounds;
+int modePickupDistance;
+int modeUnknown2;
+int modeUnknown3;
+int modeUnknown4;
+int modeShotgunPromode;
+
 /*
 
 input: origin, velocity, bounds, groundPlane, trace function
@@ -37,7 +64,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 	float		into;
 	vec3_t		endVelocity;
 	vec3_t		endClipVelocity;
-	
+
 	numbumps = 4;
 
 	VectorCopy (pm->ps->velocity, primal_velocity);
@@ -49,7 +76,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 		primal_velocity[2] = endVelocity[2];
 		if ( pml.groundPlane ) {
 			// slide along the ground plane
-			PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+			PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 				pm->ps->velocity, OVERCLIP );
 		}
 	}
@@ -223,7 +250,7 @@ void PM_StepSlideMove( qboolean gravity ) {
 	VectorCopy (pm->ps->velocity, start_v);
 
 	if ( PM_SlideMove( gravity ) == 0 ) {
-		return;		// we got exactly where we wanted to go first try	
+		return;		// we got exactly where we wanted to go first try
 	}
 
 	VectorCopy(start_o, down);
@@ -279,7 +306,7 @@ void PM_StepSlideMove( qboolean gravity ) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:bend\n", c_pmove);
 		}
-	} else 
+	} else
 #endif
 	{
 		// use the step move

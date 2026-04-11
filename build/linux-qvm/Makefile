@@ -30,8 +30,10 @@ vm/ui.qvm: $(ui_asm)
 	$(Q3ASM) -o $@ $(ui_asm)
 
 vm/game/%.asm: $(QADIR)/%.c; $(qa_cc)
+vm/game/%.asm: $(QCOMMONDIR)/%.c; $(qa_cc)
 vm/cgame/%.asm: $(QADIR)/%.c; $(cg_cc)
 vm/cgame/%.asm: $(CGDIR)/%.c; $(cg_cc)
+vm/cgame/%.asm: $(QCOMMONDIR)/%.c; $(cg_cc)
 vm/ui/%.asm: $(QADIR)/%.c; $(ui_cc)
 vm/ui/%.asm: $(UIDIR)/%.c; $(ui_cc)
 
