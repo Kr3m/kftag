@@ -2327,14 +2327,20 @@ static void CG_PlayerPowerups(centity_t* cent)
 	// redflag
 	if (powerups & (1 << PW_REDFLAG))
 	{
-		CG_TrailItem(cent, cgs.media.redFlagModel);
+		if (cg_flagStyle.integer == 2)
+			CG_TrailItem(cent, cgs.media.redFlagModel2);
+		else
+			CG_TrailItem(cent, cgs.media.redFlagModel);
 		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 1.0, 0.2f, 0.2f);
 	}
 
 	// blueflag
 	if (powerups & (1 << PW_BLUEFLAG))
 	{
-		CG_TrailItem(cent, cgs.media.blueFlagModel);
+		if (cg_flagStyle.integer == 2)
+			CG_TrailItem(cent, cgs.media.blueFlagModel2);
+		else
+			CG_TrailItem(cent, cgs.media.blueFlagModel);
 		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 0.2f, 0.2f, 1.0);
 	}
 

@@ -287,6 +287,373 @@ static void CG_AddSimpleItem(centity_t* cent)
 }
 
 /*
+=================
+FlagPOI system
+
+Per-team persistent flag position cache updated from entity snapshot.
+Icons are drawn in CG_Draw2D via CG_DrawFlagPOIs(); cache is reset on
+map load via CG_ClearFlagPOIs().
+=================
+*/
+typedef struct {
+	vec3_t   origins[2];
+	int      entityNums[2];
+	int      seenFrame[2];
+	int      count;
+} flagPOICache_t;
+
+static flagPOICache_t s_flagPOI[5]; /* [0]=red, [1]=blue, [2]=neutral (unused), [3-4]=reserved */
+
+typedef struct {
+	vec3_t origin;
+	int    powerups;
+	int    seenFrame;
+	int    valid;
+} teammatePOICache_t;
+
+static teammatePOICache_t s_teammatePOI[MAX_CLIENTS];
+
+static void CG_UpdateFlagPOISlot( flagPOICache_t *slot, int entityNum, const vec3_t origin ) {
+	int i;
+
+	for ( i = 0; i < slot->count; i++ ) {
+		if ( slot->entityNums[i] == entityNum ) {
+			VectorCopy( origin, slot->origins[i] );
+			slot->seenFrame[i] = cg.clientFrame;
+			return;
+		}
+	}
+
+	if ( slot->count < 2 ) {
+		slot->entityNums[slot->count] = entityNum;
+		VectorCopy( origin, slot->origins[slot->count] );
+		slot->seenFrame[slot->count] = cg.clientFrame;
+		slot->count++;
+		return;
+	}
+
+	slot->entityNums[0] = entityNum;
+	VectorCopy( origin, slot->origins[0] );
+	slot->seenFrame[0] = cg.clientFrame;
+}
+
+static void CG_PruneFlagPOISlotCurrentFrame( flagPOICache_t *slot ) {
+	int readIdx, writeIdx;
+
+	writeIdx = 0;
+	for ( readIdx = 0; readIdx < slot->count; readIdx++ ) {
+		if ( slot->seenFrame[readIdx] != cg.clientFrame ) {
+			continue;
+		}
+		if ( writeIdx != readIdx ) {
+			slot->entityNums[writeIdx] = slot->entityNums[readIdx];
+			slot->seenFrame[writeIdx]  = slot->seenFrame[readIdx];
+			VectorCopy( slot->origins[readIdx], slot->origins[writeIdx] );
+		}
+		writeIdx++;
+	}
+	slot->count = writeIdx;
+}
+
+static void CG_UpdateTeammatePOI( int clientNum, const vec3_t origin, int powerups ) {
+	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
+		return;
+	}
+	VectorCopy( origin, s_teammatePOI[clientNum].origin );
+	s_teammatePOI[clientNum].origin[2] += 48.0f;
+	s_teammatePOI[clientNum].powerups = powerups;
+	s_teammatePOI[clientNum].seenFrame = cg.clientFrame;
+	s_teammatePOI[clientNum].valid = qtrue;
+}
+
+static void CG_DrawFlagPOIMarker( const vec3_t origin, qhandle_t shader, const vec4_t color4 ) {
+	vec3_t trans;
+	float  py, hf, z, sx, sy;
+	float  perspHalf, iconHalf;
+	float  above;
+
+	VectorSubtract( origin, cg.refdef.vieworg, trans );
+	z = DotProduct( trans, cg.refdef.viewaxis[0] );
+	if ( z <= 0.1f ) {
+		return;
+	}
+
+	py = tan( cg.refdef.fov_y * ( M_PI / 360.0f ) );
+	hf = 240.0f / ( z * py );
+
+	sx = 320.0f - DotProduct( trans, cg.refdef.viewaxis[1] ) * hf;
+	sy = 240.0f - DotProduct( trans, cg.refdef.viewaxis[2] ) * hf;
+
+	if ( z > 500.0f ) {
+		iconHalf = 6.25f;
+	} else {
+		perspHalf = 12.0f * hf;
+		iconHalf  = ( perspHalf > 6.25f ) ? perspHalf : 6.25f;
+	}
+
+	above = 1.0f;
+	sy = sy - above - iconHalf * 2.0f;
+
+	if ( sx < iconHalf || sx > 640.0f - iconHalf ||
+	     sy < 0 || sy + iconHalf * 2.0f > 480.0f ) {
+		return;
+	}
+
+	trap_R_SetColor( color4 );
+	CG_DrawPic( sx - iconHalf, sy, iconHalf * 2.0f, iconHalf * 2.0f, shader );
+}
+
+void CG_ClearFlagPOIs( void ) {
+	memset( s_flagPOI, 0, sizeof( s_flagPOI ) );
+	memset( s_teammatePOI, 0, sizeof( s_teammatePOI ) );
+}
+
+/*
+===============
+CG_DrawFlagPOIPair
+
+Shared helper: renders POIs for one defending flag and the attacker's
+capture base.
+
+  defTeam       - team that owns/defends this flag (TEAM_RED or TEAM_BLUE)
+  defFlagSlot   - s_flagPOI index for the defending flag (0=red, 1=blue)
+  atkBaseSlot   - s_flagPOI index for the attacker's capture base
+  defFlagStatus - FLAG_ATBASE / FLAG_TAKEN / FLAG_DROPPED from cgs.redflag/blueflag
+  ourTeam       - local player's team
+
+Defenders see DEFEND on visible flag entities.
+Attackers see ATTACK on visible flag entities, plus CAPTURE at their own
+base while the flag is being carried (defFlagStatus == FLAG_TAKEN).
+===============
+*/
+static void CG_DrawFlagPOIPair( int defTeam, int defFlagSlot, int atkBaseSlot,
+                                int defFlagStatus, int ourTeam ) {
+	int             i;
+	int             atkTeam;
+	vec4_t          defColor, atkColor;
+	qhandle_t       shader;
+	flagPOICache_t  *defFlags = &s_flagPOI[defFlagSlot];
+	flagPOICache_t  *atkBase  = &s_flagPOI[atkBaseSlot];
+
+	atkTeam = ( defTeam == TEAM_RED ) ? TEAM_BLUE : TEAM_RED;
+
+	defColor[0] = ( defTeam == TEAM_RED ) ? 1.0f : 0.0f;
+	defColor[1] = ( defTeam == TEAM_RED ) ? 0.0f : 0.5f;
+	defColor[2] = ( defTeam == TEAM_RED ) ? 0.0f : 1.0f;
+	defColor[3] = 1.0f;
+
+	atkColor[0] = ( atkTeam == TEAM_RED ) ? 1.0f : 0.0f;
+	atkColor[1] = ( atkTeam == TEAM_RED ) ? 0.0f : 0.5f;
+	atkColor[2] = ( atkTeam == TEAM_RED ) ? 0.0f : 1.0f;
+	atkColor[3] = 1.0f;
+
+	if ( ourTeam == defTeam ) {
+		/* Own flag: defend POI on every cached flag entity.
+		   When carried the entity leaves the snapshot so count
+		   falls to zero automatically — no explicit status check needed. */
+		shader = cgs.media.flagDefendPOI;
+		for ( i = 0; i < defFlags->count; i++ ) {
+			CG_DrawFlagPOIMarker( defFlags->origins[i], shader, defColor );
+		}
+	} else {
+		/* Enemy flag: attack POI on every cached flag entity. */
+		shader = cgs.media.flagAttackPOI;
+		for ( i = 0; i < defFlags->count; i++ ) {
+			CG_DrawFlagPOIMarker( defFlags->origins[i], shader, defColor );
+		}
+
+		/* While a teammate carries the enemy flag, show capture POI at our base. */
+		if ( defFlagStatus == FLAG_TAKEN && atkBase->count > 0 ) {
+			shader = cgs.media.flagCapturePOI;
+			for ( i = 0; i < atkBase->count; i++ ) {
+				CG_DrawFlagPOIMarker( atkBase->origins[i], shader, atkColor );
+			}
+		}
+	}
+}
+
+static qboolean CG_TeammatePOITraceVisible( int entityNum, const vec3_t target ) {
+	trace_t trace;
+
+	CG_Trace( &trace, cg.refdef.vieworg, vec3_origin, vec3_origin, target,
+		cg.snap->ps.clientNum, CONTENTS_SOLID );
+	return ( trace.fraction == 1.0f || trace.entityNum == entityNum );
+}
+
+static qboolean CG_TeammatePOIVisible( const centity_t *cent ) {
+	vec3_t target;
+
+	VectorCopy( cent->lerpOrigin, target );
+	target[2] += 48.0f;
+	if ( CG_TeammatePOITraceVisible( cent->currentState.number, target ) ) {
+		return qtrue;
+	}
+
+	VectorCopy( cent->lerpOrigin, target );
+	target[2] += 28.0f;
+	if ( CG_TeammatePOITraceVisible( cent->currentState.number, target ) ) {
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+void CG_DrawTeammatePOIs( void ) {
+	int i;
+	int ourClientNum;
+	int ourTeam;
+	vec4_t markerColor;
+
+	if ( !cg_drawFriend.integer || !cg.snap || cgs.gametype < GT_TEAM ) {
+		return;
+	}
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+		return;
+	}
+
+	ourClientNum = cg.snap->ps.clientNum;
+	ourTeam = cg.snap->ps.persistant[PERS_TEAM];
+
+	if ( ourTeam != TEAM_RED && ourTeam != TEAM_BLUE ) {
+		return;
+	}
+
+	for ( i = 0; i < cgs.maxclients; i++ ) {
+		centity_t          *cent;
+		clientInfo_t       *ci;
+		teammatePOICache_t *cache;
+		qhandle_t           shader;
+		qboolean            isFlagCarrierPOI;
+
+		if ( i == ourClientNum ) {
+			continue;
+		}
+
+		cent  = &cg_entities[i];
+		ci    = &cgs.clientinfo[i];
+		cache = &s_teammatePOI[i];
+
+		if ( !ci->infoValid || ci->team != ourTeam ) {
+			continue;
+		}
+
+		/* If teammate is not a live player entity, clear stale cache immediately. */
+		if ( !cent->currentValid ||
+		     cent->currentState.eType != ET_PLAYER ||
+		     ( cent->currentState.eFlags & EF_DEAD ) ) {
+			cache->valid = qfalse;
+			continue;
+		}
+
+		CG_UpdateTeammatePOI( i, cent->lerpOrigin, cent->currentState.powerups );
+
+		if ( CG_TeammatePOIVisible( cent ) ) {
+			continue;
+		}
+
+		if ( !cache->valid ) {
+			continue;
+		}
+
+		shader           = cgs.media.friendPOIShader;
+		isFlagCarrierPOI = qfalse;
+		markerColor[0]   = 1.0f;
+		markerColor[1]   = 1.0f;
+		markerColor[2]   = 1.0f;
+		markerColor[3]   = 1.0f;
+
+		if ( ourTeam == TEAM_BLUE && ( cache->powerups & ( 1 << PW_REDFLAG ) ) ) {
+			shader           = cgs.media.friendPOIRedFlagStolenShader;
+			isFlagCarrierPOI = qtrue;
+			markerColor[0]   = 1.0f;
+			markerColor[1]   = 0.0f;
+			markerColor[2]   = 0.0f;
+		} else if ( ourTeam == TEAM_RED && ( cache->powerups & ( 1 << PW_BLUEFLAG ) ) ) {
+			shader           = cgs.media.friendPOIBlueFlagStolenShader;
+			isFlagCarrierPOI = qtrue;
+			markerColor[0]   = 0.0f;
+			markerColor[1]   = 0.0f;
+			markerColor[2]   = 1.0f;
+		} else if ( cache->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
+			shader           = cgs.media.friendPOINeutralFlagCarrierShader;
+			isFlagCarrierPOI = qtrue;
+		}
+
+		if ( isFlagCarrierPOI && ( cg.time - cent->pe.painTime ) < 1500 ) {
+			shader         = cgs.media.friendPOIFlagCarrierHitShader;
+			markerColor[0] = 1.0f;
+			markerColor[1] = 0.0f;
+			markerColor[2] = 0.0f;
+		}
+
+		CG_DrawFlagPOIMarker( cache->origin, shader, markerColor );
+	}
+
+	trap_R_SetColor( NULL );
+}
+
+void CG_DrawFlagPOIs( void ) {
+	int  slotIdx;
+	int  ourTeam, ourClientNum;
+
+	if ( !cg_flagPOIs.integer ) {
+		return;
+	}
+	if ( cgs.gametype != GT_CTF && cgs.gametype != GT_RTF ) {
+		return;
+	}
+	if ( !cg.snap ) {
+		return;
+	}
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+		return;
+	}
+
+	/* Keep only anchors refreshed by entity processing this frame. */
+	for ( slotIdx = 0; slotIdx < 5; slotIdx++ ) {
+		CG_PruneFlagPOISlotCurrentFrame( &s_flagPOI[slotIdx] );
+	}
+
+	ourClientNum = cg.snap->ps.clientNum;
+	ourTeam      = cgs.clientinfo[ourClientNum].team;
+
+	/* Both teams attack and defend simultaneously.  Treat each flag
+	   independently: red team defends red flag and attacks blue flag,
+	   blue team defends blue flag and attacks red flag. */
+	CG_DrawFlagPOIPair( TEAM_RED,  0, 1, cgs.redflag,  ourTeam );
+	CG_DrawFlagPOIPair( TEAM_BLUE, 1, 0, cgs.blueflag, ourTeam );
+
+	trap_R_SetColor( NULL );
+}
+
+static void CG_DrawFlagPOI( centity_t *cent, const gitem_t *item ) {
+	int    idx;
+	vec3_t pos;
+
+	if ( !cg_flagPOIs.integer ) {
+		return;
+	}
+	if ( cgs.gametype != GT_CTF && cgs.gametype != GT_RTF ) {
+		return;
+	}
+	if ( !cg.snap || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+		return;
+	}
+
+	if ( item->giTag == PW_REDFLAG ) {
+		idx = 0;
+	} else if ( item->giTag == PW_BLUEFLAG ) {
+		idx = 1;
+	} else {
+		return;
+	}
+
+	VectorCopy( cent->currentState.pos.trBase, pos );
+	pos[2] += 62;
+	CG_UpdateFlagPOISlot( &s_flagPOI[idx], cent->currentState.number, pos );
+}
+
+/*
 ==================
 CG_Item
 ==================
@@ -307,13 +674,25 @@ static void CG_Item(centity_t* cent)
 		CG_Error("Bad item index %i on entity", es->modelindex);
 	}
 
-	// if set to invisible, skip
-	if (!es->modelindex || (es->eFlags & EF_NODRAW))
+	// if modelindex missing, skip entirely
+	if (!es->modelindex)
 	{
 		return;
 	}
 
 	item = &bg_itemlist[ es->modelindex ];
+
+	// Cache flag POI before the EF_NODRAW check so home positions are
+	// recorded even when the entity is invisible.
+	if (item->giType == IT_TEAM) {
+		CG_DrawFlagPOI( cent, item );
+	}
+
+	// if set to invisible, skip rendering
+	if (es->eFlags & EF_NODRAW)
+	{
+		return;
+	}
 	if (cg_simpleItems.integer && item->giType != IT_TEAM)
 	{
 		CG_AddSimpleItem(cent);
@@ -378,6 +757,14 @@ static void CG_Item(centity_t* cent)
 	}
 
 	ent.hModel = cg_items[es->modelindex].models[0];
+
+	/* flagStyle=2: substitute the alternate (flag3) model for team flag entities */
+	if ( item->giType == IT_TEAM && cg_flagStyle.integer == 2 ) {
+		if ( item->giTag == PW_REDFLAG && cgs.media.redFlagModel2 )
+			ent.hModel = cgs.media.redFlagModel2;
+		else if ( item->giTag == PW_BLUEFLAG && cgs.media.blueFlagModel2 )
+			ent.hModel = cgs.media.blueFlagModel2;
+	}
 
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);

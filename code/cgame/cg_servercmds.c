@@ -181,6 +181,7 @@ void CG_ParseServerinfo(void)
 	cgs.maxclients = atoi(Info_ValueForKey(info, "sv_maxclients"));
 	cgs.g_grappleDelayTime = atoi(Info_ValueForKey(info, "g_grappleDelayTime"));
 	cgs.g_grapplePull = atoi(Info_ValueForKey(info, "g_grapplePull"));
+	cgs.pmove_crouchSlide = atoi(Info_ValueForKey(info, "pmove_crouchSlide"));
 	cgs.g_sgPelletSpread = atoi(Info_ValueForKey(info, "g_sgPelletSpread"));
 	cgs.g_sgPellets = atoi(Info_ValueForKey(info, "g_sgPellets"));
 	cgs.shotgunRange = atoi(Info_ValueForKey(info, "g_shotgunRange"));

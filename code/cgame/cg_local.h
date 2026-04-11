@@ -739,6 +739,17 @@ typedef struct
 	qhandle_t   redFlagModel;
 	qhandle_t   blueFlagModel;
 	qhandle_t   neutralFlagModel;
+	qhandle_t   redFlagModel2;
+	qhandle_t   blueFlagModel2;
+	qhandle_t   neutralFlagModel2;
+	qhandle_t   flagAttackPOI;
+	qhandle_t   flagDefendPOI;
+	qhandle_t   flagCapturePOI;
+	qhandle_t   friendPOIShader;
+	qhandle_t   friendPOIRedFlagStolenShader;
+	qhandle_t   friendPOIBlueFlagStolenShader;
+	qhandle_t   friendPOINeutralFlagCarrierShader;
+	qhandle_t   friendPOIFlagCarrierHitShader;
 	qhandle_t   redFlagShader[3];
 	qhandle_t   blueFlagShader[3];
 	qhandle_t   flagShader[4];
@@ -834,6 +845,7 @@ typedef struct
 	qhandle_t   grenadeCPMAModel;
 	qhandle_t   waterBubbleShader;
 	qhandle_t   bloodTrailShader;
+	qhandle_t   grappleShader;  // leilei - grapple hook
 
 	qhandle_t   numberShaders[11];
 
@@ -1091,6 +1103,11 @@ typedef struct
 	sfxHandle_t lastStandingSound;
 
 } cgMedia_t;
+
+// Flag POI system
+void CG_DrawFlagPOIs( void );
+void CG_DrawTeammatePOIs( void );
+void CG_ClearFlagPOIs( void );
 
 typedef struct osp_decal_s
 {
@@ -1465,6 +1482,9 @@ typedef struct
 	unsigned int    g_sgPelletSpread;
 	unsigned int    g_sgPellets;
 	unsigned int    shotgunRange;
+
+	//pmove
+	unsigned int    pmove_crouchSlide;
 
 	//freeze
 	unsigned int    autoThawTime;

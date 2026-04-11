@@ -130,9 +130,9 @@ void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce ) {
 	float	backoff;
 	float	change;
 	int		i;
-	
+
 	backoff = DotProduct (in, normal);
-	
+
 	if ( backoff < 0 ) {
 		backoff *= overbounce;
 	} else {
@@ -153,14 +153,18 @@ PM_Friction
 Handles both ground friction and water friction
 ==================
 */
+#define SLIDE_ENTER_SPEED 200.0f
+#define SLIDE_FRICTION    0.5f
+#define SLIDE_TIME        2000
+
 static void PM_Friction( void ) {
 	vec3_t	vec;
 	float	*vel;
 	float	speed, newspeed, control;
 	float	drop;
-	
+
 	vel = pm->ps->velocity;
-	
+
 	VectorCopy( vel, vec );
 	if ( pml.walking ) {
 		vec[2] = 0;	// ignore slope movement
@@ -183,8 +187,13 @@ static void PM_Friction( void ) {
 		if ( pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) ) {
 			// if getting knocked back, no friction
 			if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
-				control = speed < pm_stopspeed ? pm_stopspeed : speed;
-				drop += control*pm_friction*pml.frametime;
+				if ( pml.sliding ) {
+					// crouchslide: greatly reduced friction
+					drop += speed * SLIDE_FRICTION * pml.frametime;
+				} else {
+					control = speed < pm_stopspeed ? pm_stopspeed : speed;
+					drop += control*pm_friction*pml.frametime;
+				}
 			}
 		}
 	}
@@ -238,9 +247,9 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	if (accelspeed > addspeed) {
 		accelspeed = addspeed;
 	}
-	
+
 	for (i=0 ; i<3 ; i++) {
-		pm->ps->velocity[i] += accelspeed*wishdir[i];	
+		pm->ps->velocity[i] += accelspeed*wishdir[i];
 	}
 #else
 	// proper way (avoids strafe jump maxspeed bug), but feels bad
@@ -332,7 +341,7 @@ static void PM_SetMovementDir( void ) {
 			pm->ps->movementDir = 1;
 		} else if ( pm->ps->movementDir == 6 ) {
 			pm->ps->movementDir = 7;
-		} 
+		}
 	}
 }
 
@@ -626,7 +635,7 @@ static void PM_AirMove( void ) {
 	// though we don't have a groundentity
 	// slide along the steep plane
 	if ( pml.groundPlane ) {
-		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 			pm->ps->velocity, OVERCLIP );
 	}
 
@@ -685,6 +694,40 @@ static void PM_WalkMove( void ) {
 	usercmd_t	cmd;
 	float		accelerate;
 	float		vel;
+	float		horizSpeed;
+	qboolean	wasDucked;
+
+	// ---- crouchslide state machine ----
+	if ( pm->crouchSlide ) {
+		horizSpeed = (float)sqrt( pm->ps->velocity[0] * pm->ps->velocity[0] +
+		                          pm->ps->velocity[1] * pm->ps->velocity[1] );
+		wasDucked  = ( pm->ps->pm_flags & PMF_DUCKED ) ? qtrue : qfalse;
+
+		if ( pm->ps->stats[STAT_SLIDE_TIME] > 0 ) {
+			// slide in progress — tick timer
+			pm->ps->stats[STAT_SLIDE_TIME] -= pml.msec;
+			if ( pm->ps->stats[STAT_SLIDE_TIME] < 0 ) {
+				pm->ps->stats[STAT_SLIDE_TIME] = 0;
+			}
+			// cancel if stood up, left ground, or slowed below half threshold
+			if ( !wasDucked || !pml.walking || horizSpeed < SLIDE_ENTER_SPEED * 0.5f ) {
+				pm->ps->stats[STAT_SLIDE_TIME] = 0;
+			}
+		} else if ( wasDucked && pml.walking && horizSpeed >= SLIDE_ENTER_SPEED ) {
+			// slide entry — set timer and give a small entry boost
+			pm->ps->stats[STAT_SLIDE_TIME] = SLIDE_TIME;
+			pm->ps->velocity[0] *= 1.1f;
+			pm->ps->velocity[1] *= 1.1f;
+		}
+		pml.sliding   = ( pm->ps->stats[STAT_SLIDE_TIME] > 0 ) ? qtrue : qfalse;
+		pml.slideTime = pm->ps->stats[STAT_SLIDE_TIME];
+	} else {
+		// crouchslide disabled — clear any stale state
+		pm->ps->stats[STAT_SLIDE_TIME] = 0;
+		pml.sliding   = qfalse;
+		pml.slideTime = 0;
+	}
+	// ---- end crouchslide state machine ----
 
 	if ( pm->waterlevel > 2 && DotProduct( pml.forward, pml.groundTrace.plane.normal ) > 0 ) {
 		// begin swimming
@@ -772,7 +815,7 @@ static void PM_WalkMove( void ) {
 		// don't reset the z velocity for slopes
 //		pm->ps->velocity[2] = 0;
 	}
- 
+
 	if ( pm_respawntimer ) { // no more overbounce at respawn
 		// slide along the ground plane
 		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
@@ -871,7 +914,7 @@ static void PM_NoclipMove( void ) {
 
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.rightmove;
-	
+
 	for (i=0 ; i<3 ; i++)
 		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
 	wishvel[2] += pm->cmd.upmove;
@@ -1140,7 +1183,7 @@ static void PM_GroundTrace( void ) {
 		pml.walking = qfalse;
 		return;
 	}
-	
+
 	// slopes that are too steep will not be considered onground
 	if ( trace.plane.normal[2] < MIN_WALK_NORMAL ) {
 		if ( pm->debugLevel ) {
@@ -1169,7 +1212,7 @@ static void PM_GroundTrace( void ) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:Land\n", c_pmove);
 		}
-		
+
 		PM_CrashLand();
 
 		// don't do landing time if we were just going down a slope
@@ -1208,7 +1251,7 @@ static void PM_SetWaterLevel( void ) {
 
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
-	point[2] = pm->ps->origin[2] + MINS_Z + 1;	
+	point[2] = pm->ps->origin[2] + MINS_Z + 1;
 	cont = pm->pointcontents( point, pm->ps->clientNum );
 
 	if ( cont & MASK_WATER ) {
@@ -1321,7 +1364,7 @@ static void PM_Footsteps( void ) {
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
 	//
-	//xyspeedQ = pm->ps->velocity[0] * pm->ps->velocity[0] 
+	//xyspeedQ = pm->ps->velocity[0] * pm->ps->velocity[0]
 	//	+ pm->ps->velocity[1] * pm->ps->velocity[1];
 
 	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE ) {
@@ -1338,7 +1381,7 @@ static void PM_Footsteps( void ) {
 
 	// if not trying to move
 	if ( !pm->cmd.forwardmove && !pm->cmd.rightmove ) {
-		xyspeedQ = pm->ps->velocity[0] * pm->ps->velocity[0] 
+		xyspeedQ = pm->ps->velocity[0] * pm->ps->velocity[0]
 			+ pm->ps->velocity[1] * pm->ps->velocity[1];
 		if ( xyspeedQ < 5.0*5.0 ) { // not using sqrt() there
 			pm->ps->bobCycle = 0;	// start at beginning of cycle again
@@ -1350,7 +1393,7 @@ static void PM_Footsteps( void ) {
 		}
 		return;
 	}
-	
+
 
 	footstep = qfalse;
 
@@ -1469,7 +1512,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
 		return;
 	}
-	
+
 	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
 		pm->ps->eFlags &= ~EF_FIRING;
 		return;
@@ -1690,7 +1733,7 @@ static void PM_Weapon( void ) {
 		else {
 			addTime = 1500;
 		}
-		
+
 		break;
 	case WP_BFG:
 		addTime = 200;
@@ -1894,7 +1937,7 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 
 	// clear the respawned flag if attack and use are cleared
-	if ( pm->ps->stats[STAT_HEALTH] > 0 && 
+	if ( pm->ps->stats[STAT_HEALTH] > 0 &&
 		!( pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE) ) ) {
 		pm->ps->pm_flags &= ~PMF_RESPAWNED;
 	}

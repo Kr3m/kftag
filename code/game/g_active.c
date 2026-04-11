@@ -111,7 +111,7 @@ void P_WorldEffects( gentity_t *ent ) {
 				// don't play a normal pain sound
 				ent->pain_debounce_time = level.time + 200;
 
-				G_Damage (ent, NULL, NULL, NULL, NULL, 
+				G_Damage (ent, NULL, NULL, NULL, NULL,
 					ent->damage, DAMAGE_NO_ARMOR, MOD_WATER);
 			}
 		}
@@ -123,7 +123,7 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	// check for sizzle damage (move to pmove?)
 	//
-	if (waterlevel && 
+	if (waterlevel &&
 		(ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
 		if (ent->health > 0
 			&& ent->pain_debounce_time <= level.time	) {
@@ -132,12 +132,12 @@ void P_WorldEffects( gentity_t *ent ) {
 				G_AddEvent( ent, EV_POWERUP_BATTLESUIT, 0 );
 			} else {
 				if (ent->watertype & CONTENTS_LAVA) {
-					G_Damage (ent, NULL, NULL, NULL, NULL, 
+					G_Damage (ent, NULL, NULL, NULL, NULL,
 						30*waterlevel, 0, MOD_LAVA);
 				}
 
 				if (ent->watertype & CONTENTS_SLIME) {
-					G_Damage (ent, NULL, NULL, NULL, NULL, 
+					G_Damage (ent, NULL, NULL, NULL, NULL,
 						10*waterlevel, 0, MOD_SLIME);
 				}
 			}
@@ -349,14 +349,14 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		}
 		client->lastSpectatorSwitchTime = level.time;
 	}
-	
+
 	// space bar (upmove > 0) cycles through spectators - detect rising edge with rate limiting
-	if ( ucmd->upmove > 0 && client->oldUpmove <= 0 && 
+	if ( ucmd->upmove > 0 && client->oldUpmove <= 0 &&
 		 level.time > client->lastSpectatorSwitchTime + 100 ) { // 100ms minimum between switches
 		Cmd_FollowCycle_f( ent, 1 );
 		client->lastSpectatorSwitchTime = level.time;
 	}
-	
+
 	// Update old upmove for next frame
 	client->oldUpmove = ucmd->upmove;
 
@@ -382,8 +382,8 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		// gameplay, everyone isn't kicked
 		client->inactivityTime = level.time + 60 * 1000;
 		client->inactivityWarning = qfalse;
-	} else if ( client->pers.cmd.forwardmove || 
-		client->pers.cmd.rightmove || 
+	} else if ( client->pers.cmd.forwardmove ||
+		client->pers.cmd.rightmove ||
 		client->pers.cmd.upmove ||
 		(client->pers.cmd.buttons & BUTTON_ATTACK) ) {
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
@@ -967,6 +967,7 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.pmove_fixed = pmove_fixed.integer;
 	pm.pmove_msec = pmove_msec.integer;
 	pm.grapplePull = g_grapplePull.integer;
+	pm.crouchSlide = pmove_crouchSlide.integer;
 	pm.fastWeaponSwitch = g_fastWeaponSwitch.integer;
 	pm.fastRail = g_fastRail.integer;
 
@@ -1045,12 +1046,12 @@ void ClientThink_real( gentity_t *ent ) {
 		// wait for the attack button to be pressed
 		if ( level.time > client->respawnTime ) {
 			// forcerespawn is to prevent users from waiting out powerups
-			if ( g_forcerespawn.integer > 0 && 
+			if ( g_forcerespawn.integer > 0 &&
 				( level.time - client->respawnTime ) > g_forcerespawn.integer * 1000 ) {
 				respawn( ent );
 				return;
 			}
-		
+
 			// pressing attack or use is the normal respawn method
 			if ( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) {
 				respawn( ent );
@@ -1319,7 +1320,7 @@ void ClientEndFrame( gentity_t *ent ) {
 		if (!ent->freezeState) {
 			// CheckLastPlayerAlive(client->sess.sessionTeam);
 			lastCheckTime = level.time;
-		}			
+		}
     }
 
 	// set the bit for the reachability area the client is currently in

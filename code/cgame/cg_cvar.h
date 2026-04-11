@@ -141,6 +141,8 @@ CG_CVAR( cg_drawTeamOverlay, "cg_drawTeamOverlay", "0",    CVAR_ARCHIVE )
 CG_CVAR( teamoverlay,        "teamoverlay",        "0",    CVAR_USERINFO | CVAR_ROM )
 CG_CVAR( cg_stats,           "cg_stats",           "0",    0 )
 CG_CVAR( cg_drawFriend,      "cg_drawFriend",      "1",    CVAR_ARCHIVE )
+CG_CVAR( cg_flagPOIs,        "cg_flagPOIs",        "1",    CVAR_ARCHIVE )
+CG_CVAR( cg_flagStyle,       "cg_flagStyle",       "1",    CVAR_ARCHIVE )
 
 // Engine / system cvars (external)
 CG_CVAR( cg_buildScript,        "com_buildScript",     "0",  0 )

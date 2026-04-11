@@ -125,6 +125,7 @@ typedef enum {
 	GT_TEAM,			// team deathmatch
 	GT_CTF,				// capture the flag
 	GT_CA,				// clan arena
+	GT_RTF,				// return the flag
 #ifdef MISSIONPACK
 	GT_1FCTF,
 	GT_OBELISK,
@@ -212,6 +213,8 @@ typedef struct {
 
 	int			grapplePull;
 
+	int			crouchSlide;
+
 	int			fastWeaponSwitch;
 	int			fastRail;
 
@@ -247,6 +250,7 @@ typedef enum
 	STAT_ARMOR_TYPE = 9,                //aromor: red/green/yellow
 	STAT_THAW_TIME = 10,                // thaw completion time for frozen players
 	STAT_WEAPON_DELAY = 11,
+	STAT_SLIDE_TIME = 12,				// ms remaining on crouchslide (0 = not sliding)
 	STAT_SPECTATED_CLIENT,				// spectator client number
 } statIndex_t;
 

@@ -91,7 +91,7 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 	char		msg[1024];
 	va_list		argptr;
 	char		*p;
-	
+
 	va_start (argptr,fmt);
 	if ( ED_vsprintf( msg, fmt, argptr ) >= sizeof( msg ) ) {
 		G_Error ( "PrintMsg overrun" );
@@ -300,7 +300,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 #ifdef MISSIONPACK
 	if (g_gametype.integer == GT_1FCTF) {
 		enemy_flag_pw = PW_NEUTRALFLAG;
-	} 
+	}
 #endif
 
 	// did the attacker frag the flag carrier?
@@ -387,7 +387,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 
 	// we have to find the flag and carrier entities
 
-#ifdef MISSIONPACK	
+#ifdef MISSIONPACK
 	if( g_gametype.integer == GT_OBELISK ) {
 		// find the team obelisk
 		switch (attacker->client->sess.sessionTeam) {
@@ -396,11 +396,11 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 			break;
 		case TEAM_BLUE:
 			c = "team_blueobelisk";
-			break;		
+			break;
 		default:
 			return;
 		}
-		
+
 	} else if (g_gametype.integer == GT_HARVESTER ) {
 		// find the center obelisk
 		c = "team_neutralobelisk";
@@ -413,7 +413,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		break;
 	case TEAM_BLUE:
 		c = "team_CTF_blueflag";
-		break;		
+		break;
 	default:
 		return;
 	}
@@ -552,7 +552,7 @@ static gentity_t *Team_ResetFlag( team_t team ) {
 
 
 void Team_ResetFlags( void ) {
-	if( g_gametype.integer == GT_CTF ) {
+	if( g_gametype.integer == GT_CTF || g_gametype.integer == GT_RTF ) {
 		Team_ResetFlag( TEAM_RED );
 		Team_ResetFlag( TEAM_BLUE );
 	}
@@ -705,6 +705,7 @@ static int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 	gentity_t	*player;
 	gclient_t	*cl = other->client;
 	int			enemy_flag;
+	int			own_flag;
 
 #ifdef MISSIONPACK
 	if( g_gametype.integer == GT_1FCTF ) {
@@ -714,13 +715,97 @@ static int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 #endif
 	if (cl->sess.sessionTeam == TEAM_RED) {
 		enemy_flag = PW_BLUEFLAG;
+		own_flag   = PW_REDFLAG;
 	} else {
 		enemy_flag = PW_REDFLAG;
+		own_flag   = PW_BLUEFLAG;
+	}
+
+	// GT_RTF: player picks up their own flag and carries it home.
+	if ( g_gametype.integer == GT_RTF ) {
+		if ( ent->flags & FL_DROPPED_ITEM ) {
+			// Own flag is dropped — player picks it up and carries it back.
+			PrintMsg( NULL, "%s" S_COLOR_WHITE " picked up the %s flag!\n",
+				cl->pers.netname, TeamName(team));
+			cl->ps.powerups[own_flag] = INT_MAX;
+			other->client->pers.teamState.flagsince = level.time;
+			Team_SetFlagStatus( team, FLAG_TAKEN );
+			Team_TakeFlagSound( ent, team );
+			return -1; // delete the dropped entity, do not respawn
+		}
+		// Flag is at base.
+		if ( cl->ps.powerups[own_flag] ) {
+			// Player carrying own flag touches base — return it.
+			PrintMsg( NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n",
+				cl->pers.netname, TeamName(team));
+			cl->ps.powerups[own_flag] = 0;
+			AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
+			other->client->pers.teamState.flagrecovery++;
+			other->client->pers.teamState.lastreturnedflag = level.time;
+			Team_ReturnFlagSound(Team_ResetFlag(team), team);
+			// If the player also has the enemy flag they capture right now.
+			if ( cl->ps.powerups[enemy_flag] ) {
+				goto rtf_capture;
+			}
+			return 0;
+		}
+		// Player has only the enemy flag and reaches their own base — capture.
+		if ( cl->ps.powerups[enemy_flag] ) {
+			rtf_capture:;
+			PrintMsg( NULL, "%s" S_COLOR_WHITE " captured the %s flag!\n",
+				cl->pers.netname, TeamName(OtherTeam(team)));
+//qlone - freezetag
+			if ( g_freezeTag.integer ) team_wins( team );
+//qlone - freezetag
+			cl->ps.powerups[enemy_flag] = 0;
+			teamgame.last_flag_capture = level.time;
+			teamgame.last_capture_team = team;
+			AddTeamScore(ent->s.pos.trBase, other->client->sess.sessionTeam, 1);
+			Team_ForceGesture(other->client->sess.sessionTeam);
+			other->client->pers.teamState.captures++;
+			other->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
+			other->client->ps.eFlags |= EF_AWARD_CAP;
+			other->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+			other->client->ps.persistant[PERS_CAPTURES]++;
+			AddScore(other, ent->r.currentOrigin, CTF_CAPTURE_BONUS);
+			Team_CaptureFlagSound( ent, team );
+			for (i = 0; i < level.maxclients; i++) {
+				player = &g_entities[i];
+				if (!player->inuse || player == other)
+					continue;
+				if (player->client->sess.sessionTeam != cl->sess.sessionTeam) {
+					player->client->pers.teamState.lasthurtcarrier = -5;
+				} else {
+					if (player->client->pers.teamState.lastreturnedflag +
+						CTF_RETURN_FLAG_ASSIST_TIMEOUT > level.time) {
+						AddScore(player, ent->r.currentOrigin, CTF_RETURN_FLAG_ASSIST_BONUS);
+						other->client->pers.teamState.assists++;
+						player->client->ps.persistant[PERS_ASSIST_COUNT]++;
+						player->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
+						player->client->ps.eFlags |= EF_AWARD_ASSIST;
+						player->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+					}
+					if (player->client->pers.teamState.lastfraggedcarrier +
+						CTF_FRAG_CARRIER_ASSIST_TIMEOUT > level.time) {
+						AddScore(player, ent->r.currentOrigin, CTF_FRAG_CARRIER_ASSIST_BONUS);
+						other->client->pers.teamState.assists++;
+						player->client->ps.persistant[PERS_ASSIST_COUNT]++;
+						player->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
+						player->client->ps.eFlags |= EF_AWARD_ASSIST;
+						player->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+					}
+				}
+			}
+			Team_ResetFlags();
+			CalculateRanks();
+			return 0;
+		}
+		return 0; // own flag at base, player doesn't have either flag
 	}
 
 	if ( ent->flags & FL_DROPPED_ITEM ) {
 		// hey, its not home.  return it by teleporting it back
-		PrintMsg( NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n", 
+		PrintMsg( NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n",
 			cl->pers.netname, TeamName(team));
 		AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
 		other->client->pers.teamState.flagrecovery++;
@@ -787,7 +872,7 @@ static int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 				AddScore(player, ent->r.currentOrigin, CTF_TEAM_BONUS);
 #endif
 			// award extra points for capture assists
-			if (player->client->pers.teamState.lastreturnedflag + 
+			if (player->client->pers.teamState.lastreturnedflag +
 				CTF_RETURN_FLAG_ASSIST_TIMEOUT > level.time) {
 				AddScore (player, ent->r.currentOrigin, CTF_RETURN_FLAG_ASSIST_BONUS);
 				other->client->pers.teamState.assists++;
@@ -798,8 +883,8 @@ static int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 				player->client->ps.eFlags |= EF_AWARD_ASSIST;
 				player->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 
-			} 
-			if (player->client->pers.teamState.lastfraggedcarrier + 
+			}
+			if (player->client->pers.teamState.lastfraggedcarrier +
 				CTF_FRAG_CARRIER_ASSIST_TIMEOUT > level.time) {
 				AddScore(player, ent->r.currentOrigin, CTF_FRAG_CARRIER_ASSIST_BONUS);
 				other->client->pers.teamState.assists++;
@@ -905,7 +990,7 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 		return 0;
 	}
 #endif
-	// GT_CTF
+	// GT_CTF and GT_RTF
 	if( team == cl->sess.sessionTeam) {
 		return Team_TouchOurFlag( ent, other, team );
 	}
@@ -969,7 +1054,7 @@ qboolean Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen)
 	gentity_t *best;
 
 	best = Team_GetLocation( ent );
-	
+
 	if (!best)
 		return qfalse;
 
@@ -1158,8 +1243,8 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 //qlone - freezetag
 
 			j = BG_sprintf( entry, " %i %i %i %i %i %i",
-//				level.sortedClients[i], player->client->pers.teamState.location, h, a, 
-				i, player->client->pers.teamState.location, h, a, 
+//				level.sortedClients[i], player->client->pers.teamState.location, h, a,
+				i, player->client->pers.teamState.location, h, a,
 				player->client->ps.weapon, player->s.powerups);
 			if ( stringlength + j >= sizeof( string ) )
 				break;
@@ -1345,7 +1430,7 @@ static void ObeliskTouch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	other->client->ps.eFlags |= EF_AWARD_CAP;
 	other->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 	other->client->ps.persistant[PERS_CAPTURES] += tokens;
-	
+
 	other->client->ps.generic1 = 0;
 	CalculateRanks();
 

@@ -1074,7 +1074,7 @@ static float CG_DrawScores(float y)
 		}
 		CG_DrawBigString(x + 4, y, s, 1.0f, DS_HLEFT | DS_SHADOW, 0);
 
-		if (cgs.gametype == GT_CTF)
+		if (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF)
 		{
 			// Display flag status
 			item = BG_FindItemForPowerup(PW_BLUEFLAG);
@@ -1102,7 +1102,7 @@ static float CG_DrawScores(float y)
 		}
 		CG_DrawBigString(x + 4, y, s, 1.0f, DS_HLEFT | DS_SHADOW, 0);
 
-		if (cgs.gametype == GT_CTF)
+		if (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF)
 		{
 			// Display flag status
 			item = BG_FindItemForPowerup(PW_REDFLAG);
@@ -3308,6 +3308,8 @@ static void CG_Draw2D(void)
 		{
 			CG_CHUDRoutine();
 		}
+		CG_DrawFlagPOIs();
+		CG_DrawTeammatePOIs();
 		return;
 	}
 
@@ -3318,6 +3320,8 @@ static void CG_Draw2D(void)
 		{
 			CG_CHUDRoutine();
 		}
+		CG_DrawFlagPOIs();
+		CG_DrawTeammatePOIs();
 		return;
 	}
 
@@ -3362,6 +3366,8 @@ static void CG_Draw2D(void)
 	CG_DrawUpperRight();
 	CG_DrawLowerRight();
 	CG_DrawLowerLeft();
+	CG_DrawFlagPOIs();
+	CG_DrawTeammatePOIs();
 	if (CG_DrawFollow() == qfalse)
 	{
 		CG_DrawWarmup();

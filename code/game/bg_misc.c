@@ -1166,6 +1166,19 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 			}
 		}
 
+		if( gametype == GT_RTF ) {
+			// In RTF, players carry their own flag home to return it.
+			// Own flag is always pickupable (dropped OR at base).
+			// Enemy flag is always pickupable regardless of what you're carrying.
+			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
+				if (item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG)
+					return qtrue;
+			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+				if (item->giTag == PW_BLUEFLAG || item->giTag == PW_REDFLAG)
+					return qtrue;
+			}
+		}
+
 #ifdef MISSIONPACK
 		if( gametype == GT_HARVESTER ) {
 			return qtrue;
