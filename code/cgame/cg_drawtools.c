@@ -879,10 +879,11 @@ static void CG_LoadFont(font_t* fnt, const char* fontName)
 		return;
 	}
 
-	if (len >= sizeof(buf))
+	if (len >= (int)sizeof(buf))
 	{
 		CG_Printf(S_COLOR_YELLOW "CG_LoadFont: font file is too long: %i\n", len);
-		len = sizeof(buf) - 1;
+		trap_FS_FCloseFile(f);
+		return;
 	}
 
 	trap_FS_Read(buf, len, f);
@@ -1732,7 +1733,7 @@ void CG_OSPDrawPoly(float x, float y, float w, float h, vec4_t color)
 // bk001205 - code below duplicated in q3_ui/ui-atoms.c
 // bk001205 - FIXME: does this belong in ui_shared.c?
 // bk001205 - FIXME: HARD_LINKED flags not visible here
-#ifndef Q3_STATIC // bk001205 - q_shared defines not visible here 
+#ifndef Q3_STATIC // bk001205 - q_shared defines not visible here
 /*
 =================
 UI_DrawProportionalString2
@@ -3127,7 +3128,7 @@ void CG_OSPDrawStringNew(float x, float y, const char* string, const vec4_t setC
 	proportional = (flags & DS_PROPORTIONAL) ? 1 : 0;
 	hasBorder = (border != NULL) ? 1 : 0;
 	expectedLenght = 0.0f;
-	
+
 
 	if (flags & DS_MAX_WIDTH_IS_CHARS)
 	{

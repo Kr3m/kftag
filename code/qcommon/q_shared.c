@@ -123,13 +123,21 @@ char* COM_SkipPath(char* pathname)
 COM_StripExtension
 ============
 */
-void COM_StripExtension(const char* in, char* out)
+void COM_StripExtension(const char* in, char* out, int destsize)
 {
-	while (*in && *in != '.')
+	int length;
+
+	Q_strncpyz(out, in, destsize);
+
+	length = strlen(out) - 1;
+	while (length > 0 && out[length] != '.')
 	{
-		*out++ = *in++;
+		length--;
+		if (out[length] == '/')
+			return;		// no extension
 	}
-	*out = 0;
+	if (length)
+		out[length] = '\0';
 }
 
 
@@ -1086,7 +1094,7 @@ char*     QDECL va(char* format, ...)
 
 // Q_strok
 char *Q_strtok(char *s, const char *delim) {
-    static char *nextToken; 
+    static char *nextToken;
     char *token;
 
     if (s)
