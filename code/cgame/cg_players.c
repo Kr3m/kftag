@@ -2366,7 +2366,7 @@ CG_PlayerFloatSprite
 Float a sprite over the player's head
 ===============
 */
-static void CG_PlayerFloatSprite(centity_t* cent, qhandle_t shader, vec4_t color)
+static void CG_PlayerFloatSprite(centity_t* cent, qhandle_t shader, vec4_t color, qboolean depthHack)
 {
 	int             rf;
 	refEntity_t     ent;
@@ -2378,6 +2378,11 @@ static void CG_PlayerFloatSprite(centity_t* cent, qhandle_t shader, vec4_t color
 	else
 	{
 		rf = 0;
+	}
+
+	if (depthHack)
+	{
+		rf |= RF_DEPTHHACK;
 	}
 
 	memset(&ent, 0, sizeof(ent));
@@ -2596,89 +2601,113 @@ static void CG_PlayerSprites(centity_t* cent)
 
 	if (cent->currentState.eFlags & EF_CONNECTION)
 	{
-		CG_PlayerFloatSprite(cent, cgs.media.connectionShader, NULL);
+		CG_PlayerFloatSprite(cent, cgs.media.connectionShader, NULL, qfalse);
 		return;
 	}
 
 	if (cent->currentState.eFlags & EF_TALK)
 	{
-		CG_PlayerFloatSprite(cent, cgs.media.balloonShader, NULL);
+		CG_PlayerFloatSprite(cent, cgs.media.balloonShader, NULL, qfalse);
 		return;
 	}
 
+	cl = &cgs.clientinfo[ cent->currentState.clientNum ];
+
+	// Live teammate in a team gametype: never show medals — only the
+	// appropriate team sprite based on state.
+	if (!(cent->currentState.eFlags & EF_DEAD) && cg.snap->ps.persistant[PERS_TEAM] == cl->team && cgs.gametype >= GT_TEAM)
+	{
+		// Frozen teammate: show only the frozen foe sprite.
+		if (cg_teamFrozenFoe.integer && cgs.osp.gameTypeFreeze && cent->currentState.powerups & (1 << PW_BATTLESUIT) && cent->currentState.weapon == WP_NONE)
+		{
+			qhandle_t shader;
+			if (CG_BE_FEATURE_ENABLED(CG_BE_TEAM_FOE_WH) && cg_friendsWallhack.integer & 1)
+				shader = cgs.media.frozenFoeTagShaderWallhack;
+			else
+				shader = cgs.media.frozenFoeTagShader;
+			CG_PlayerFloatSprite(cent, shader, NULL, qtrue);
+			return;
+		}
+
+		// Flag carrier: show only the flag POI sprite.
+		// Only show for the ENEMY flag being carried — a teammate carrying
+		// their own flag (RTF own-flag return) must not trigger this.
+		// Blue viewer checks PW_REDFLAG; red viewer checks PW_BLUEFLAG.
+		{
+			int ourTeam = cg.snap->ps.persistant[PERS_TEAM];
+			if (ourTeam == TEAM_BLUE && (cent->currentState.powerups & (1 << PW_REDFLAG)))
+			{
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOIRedFlagStolenShader, NULL, qtrue);
+				return;
+			}
+			if (ourTeam == TEAM_RED && (cent->currentState.powerups & (1 << PW_BLUEFLAG)))
+			{
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOIBlueFlagStolenShader, NULL, qtrue);
+				return;
+			}
+#ifdef MISSIONPACK
+			if (cent->currentState.powerups & (1 << PW_NEUTRALFLAG))
+			{
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOINeutralFlagCarrierShader, NULL, qtrue);
+				return;
+			}
+#endif
+		}
+
+		// Friend sprite: depth hack on when cg_drawFriend is enabled (makes
+		// the sprite visible through geometry); off when disabled (line-of-sight only).
+		{
+			vec4_t color;
+			qhandle_t shader;
+			if (!(cg_healthColorLevels.integer & 2) && cl->health > 0)
+				CG_GetColorForHealth(cl->health, cl->armor, color, NULL);
+			else
+				VectorCopy(colorWhite, color);
+			if (CG_BE_FEATURE_ENABLED(CG_BE_TEAM_FOE_WH) && cg_friendsWallhack.integer & 1)
+				shader = cgs.media.friendShaderWallhack;
+			else
+				shader = cgs.media.friendShader;
+			CG_PlayerFloatSprite(cent, shader, color, cg_drawFriend.integer ? qtrue : qfalse);
+		}
+		return;
+	}
+
+	// Non-teammate: show medal reward sprites.
 	if (!(cg_drawRewards.integer & DRAW_REWARDS_NOSPRITE))
 	{
 		if (cent->currentState.eFlags & EF_AWARD_IMPRESSIVE)
 		{
-			CG_PlayerFloatSprite(cent, cgs.media.medalImpressive, NULL);
+			CG_PlayerFloatSprite(cent, cgs.media.medalImpressive, NULL, qfalse);
 			return;
 		}
 
 		if (cent->currentState.eFlags & EF_AWARD_EXCELLENT)
 		{
-			CG_PlayerFloatSprite(cent, cgs.media.medalExcellent, NULL);
+			CG_PlayerFloatSprite(cent, cgs.media.medalExcellent, NULL, qfalse);
 			return;
 		}
 
 		if (cent->currentState.eFlags & EF_AWARD_GAUNTLET)
 		{
-			CG_PlayerFloatSprite(cent, cgs.media.medalGauntlet, NULL);
+			CG_PlayerFloatSprite(cent, cgs.media.medalGauntlet, NULL, qfalse);
 			return;
 		}
 
 		if (cent->currentState.eFlags & EF_AWARD_DEFEND)
 		{
-			CG_PlayerFloatSprite(cent, cgs.media.medalDefend, NULL);
+			CG_PlayerFloatSprite(cent, cgs.media.medalDefend, NULL, qfalse);
 			return;
 		}
 
 		if (cent->currentState.eFlags & EF_AWARD_ASSIST)
 		{
-			CG_PlayerFloatSprite(cent, cgs.media.medalAssist, NULL);
+			CG_PlayerFloatSprite(cent, cgs.media.medalAssist, NULL, qfalse);
 			return;
 		}
 
 		if (cent->currentState.eFlags & EF_AWARD_CAP)
 		{
-			CG_PlayerFloatSprite(cent, cgs.media.medalCapture, NULL);
-			return;
-		}
-	}
-
-	cl = &cgs.clientinfo[ cent->currentState.clientNum ];
-
-	if (cg_drawFriend.integer)
-	{
-		if (!(cent->currentState.eFlags & EF_DEAD) && cg.snap->ps.persistant[PERS_TEAM] == cl->team && cgs.gametype >= GT_TEAM)
-		{
-			if (cg_teamFrozenFoe.integer && cgs.osp.gameTypeFreeze && cent->currentState.powerups & (1 << PW_BATTLESUIT) && cent->currentState.weapon == WP_NONE)
-			{
-				qhandle_t shader;
-				if (CG_BE_FEATURE_ENABLED(CG_BE_TEAM_FOE_WH) && cg_friendsWallhack.integer & 1)
-					shader = cgs.media.frozenFoeTagShaderWallhack;
-				else
-					shader = cgs.media.frozenFoeTagShader;
-				CG_PlayerFloatSprite(cent, shader, NULL);
-			}
-			else if (cg_drawFriend.integer != 2)
-			{
-				vec4_t color;
-				qhandle_t shader;
-				// Black color for low hp is transparent, skip it
-				if (!(cg_healthColorLevels.integer & 2) && cl->health > 0)
-				{
-					CG_GetColorForHealth(cl->health, cl->armor, color, NULL);
-				}
-				else
-				{
-					VectorCopy(colorWhite, color);
-				}
-				if (CG_BE_FEATURE_ENABLED(CG_BE_TEAM_FOE_WH) && cg_friendsWallhack.integer & 1)
-					shader = cgs.media.friendShaderWallhack;
-				else
-					shader = cgs.media.friendShader;
-				CG_PlayerFloatSprite(cent, shader, color);
-			}
+			CG_PlayerFloatSprite(cent, cgs.media.medalCapture, NULL, qfalse);
 			return;
 		}
 	}

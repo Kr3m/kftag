@@ -2134,7 +2134,7 @@ static float CG_OSPDrawTeamOverlay(float y, qboolean right, qboolean upper)
 					}
 					else
 					{
-						if (ch_ColorLocations.integer != 0 && cgs.gametype == GT_CTF)
+						if (ch_ColorLocations.integer != 0 && (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF))
 						{
 							location = CG_GetCTFLocation(ci->location);
 						}
@@ -2418,7 +2418,7 @@ static float CG_OSPHUDDrawScores(float y)
 	{
 		if ((cg_lagometer.integer != 1) && (cg_drawTeamOverlay.integer != 2))
 		{
-			if (cgs.gametype == GT_CTF && !ch_drawFlagNames.integer)
+			if ((cgs.gametype == GT_CTF || cgs.gametype == GT_RTF) && !ch_drawFlagNames.integer)
 			{
 				x = SCREEN_WIDTH;
 				y = (float)(480 - (fontScoresH + 8));
@@ -2433,7 +2433,7 @@ static float CG_OSPHUDDrawScores(float y)
 		}
 		else
 		{
-			if ((cgs.gametype != GT_TEAM) && (cgs.osp.gameTypeFreeze == 0) && (CG_OSPIsGameTypeCA(cgs.gametype) == 0) && (cgs.gametype != GT_CTF) && ch_drawFlagNames.integer)
+			if ((cgs.gametype != GT_TEAM) && (cgs.osp.gameTypeFreeze == 0) && (CG_OSPIsGameTypeCA(cgs.gametype) == 0) && (cgs.gametype != GT_CTF) && (cgs.gametype != GT_RTF) && ch_drawFlagNames.integer)
 			{
 				x = SCREEN_WIDTH;
 				y -= 8.0f;
@@ -2488,7 +2488,7 @@ static float CG_OSPHUDDrawScores(float y)
 			}
 		}
 		CG_OSPDrawStringWithShadow(x + 4, y, s, fontScoresW, fontScoresH, NULL, 0);
-		if (cgs.gametype == GT_CTF)
+		if (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF)
 		{
 			gitem_t* item;
 
@@ -2576,18 +2576,18 @@ static float CG_OSPHUDDrawScores(float y)
 		len = CG_DrawStrlen(s);
 		w = len * fontScoresW + 8;
 
-		if ((cgs.gametype == GT_CTF) && (ch_drawFlagNames.integer == 0))
+		if ((cgs.gametype == GT_CTF || cgs.gametype == GT_RTF) && (ch_drawFlagNames.integer == 0))
 		{
 			x -= w;
 		}
-		else if (cgs.gametype == GT_CTF && (ch_drawFlagNames.integer == 2 || ch_drawFlagNames.integer == 4))
+		else if ((cgs.gametype == GT_CTF || cgs.gametype == GT_RTF) && (ch_drawFlagNames.integer == 2 || ch_drawFlagNames.integer == 4))
 		{
 			x += w;
 			y -= fontScoresH + 8;
 		}
 		else
 		{
-			if (ch_StatusbarFormat.integer <= 9 && cgs.gametype != GT_CTF)
+			if (ch_StatusbarFormat.integer <= 9 && cgs.gametype != GT_CTF && cgs.gametype != GT_RTF)
 			{
 				x -= w;
 			}
@@ -2616,7 +2616,7 @@ static float CG_OSPHUDDrawScores(float y)
 
 		CG_OSPDrawStringWithShadow(x + 4, y, s, fontScoresW, fontScoresH, NULL, 0);
 
-		if (cgs.gametype == GT_CTF)
+		if (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF)
 		{
 			gitem_t* item;//60
 			item = BG_FindItemForPowerup(PW_REDFLAG);
@@ -2691,12 +2691,12 @@ static float CG_OSPHUDDrawScores(float y)
 				}
 			}
 		}
-		if (((cgs.gametype == GT_CTF) && (!ch_drawFlagNames.integer)) ||
-		        ((cgs.gametype != GT_CTF) && (ch_StatusbarFormat.integer < 9)))
+		if ((((cgs.gametype == GT_CTF || cgs.gametype == GT_RTF)) && (!ch_drawFlagNames.integer)) ||
+		        ((cgs.gametype != GT_CTF && cgs.gametype != GT_RTF) && (ch_StatusbarFormat.integer < 9)))
 		{
 			int limit;
 
-			if (cgs.gametype == GT_CTF)
+			if (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF)
 			{
 				limit = cgs.capturelimit;
 			}
@@ -3170,7 +3170,7 @@ static float CG_OSPDrawWeaponSwitchAttacker(float y)
 
 static float CG_OSPDrawFlags67(float x, float y)
 {
-	if (cgs.gametype == GT_CTF)
+	if (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF)
 	{
 		if (cgs.blueflag >= 0 && cgs.blueflag <= 2)
 		{

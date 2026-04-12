@@ -155,13 +155,13 @@ static void CG_EntityEffects(centity_t* cent)
 	if (cent->currentState.constantLight)
 	{
 		int     cl;
-		int     i, r, g, b;
+		float   i, r, g, b;
 
 		cl = cent->currentState.constantLight;
-		r = cl & 255;
-		g = (cl >> 8) & 255;
-		b = (cl >> 16) & 255;
-		i = ((cl >> 24) & 255) * 4;
+		r = (float)((cl >> 0) & 255) / 255.0f;
+		g = (float)((cl >> 8) & 255) / 255.0f;
+		b = (float)((cl >> 16) & 255) / 255.0f;
+		i = (float)((cl >> 24) & 255) * 4.0f;
 		trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
 	}
 
@@ -237,6 +237,9 @@ static void CG_Speaker(centity_t* cent)
 	//  ent->s.clientNum = ent->random * 10;
 	cent->miscTime = cg.time + cent->currentState.frame * 100 + cent->currentState.clientNum * 100 * crandom();
 }
+
+static void CG_DrawFlagPOI( centity_t *cent, const gitem_t *item );
+
 /*
 ==================
 CG_Item
@@ -259,50 +262,197 @@ static void CG_AddSimpleItem(centity_t* cent)
 	ent.shaderRGBA[2] = 255;
 	ent.shaderRGBA[3] = 255;
 
-	if (cg_simpleItems.integer == 2)
-	{
-		switch (item->giType)
-		{
-			case IT_ARMOR:
-			case IT_WEAPON:
-				ent.radius = 20;
-				ent.origin[2] += 15;
-				break;
-			case IT_AMMO:
-				break;
-			case IT_HEALTH:
-				ent.origin[2] += 10;
-				break;
-			case IT_HOLDABLE:
-			case IT_POWERUP:
-				ent.radius = 20;
-				ent.origin[2] += 10;
-				break;
-			default:
-				break;
-		}
-	}
-
 	trap_R_AddRefEntityToScene(&ent);
 }
 
 /*
-=================
-FlagPOI system
-
-Per-team persistent flag position cache updated from entity snapshot.
-Icons are drawn in CG_Draw2D via CG_DrawFlagPOIs(); cache is reset on
-map load via CG_ClearFlagPOIs().
-=================
+==================
+CG_Item
+==================
 */
+static void CG_Item(centity_t* cent)
+{
+	refEntity_t     ent;
+	entityState_t*   es;
+	gitem_t*         item;
+	int             msec;
+	float           frac;
+	float           scale;
+	weaponInfo_t*    wi;
+	int             modulus;
+
+	es = &cent->currentState;
+	if (es->modelindex >= bg_numItems)
+	{
+		CG_Error("Bad item index %i on entity", es->modelindex);
+	}
+
+	// if modelindex missing, skip entirely
+	if (!es->modelindex)
+	{
+		return;
+	}
+
+	item = &bg_itemlist[ es->modelindex ];
+
+	// Cache flag POI before the EF_NODRAW check so home positions are
+	// recorded even when the entity is invisible.
+	if (item->giType == IT_TEAM) {
+		CG_DrawFlagPOI( cent, item );
+	}
+
+	// if set to invisible, skip rendering
+	if (es->eFlags & EF_NODRAW)
+	{
+		return;
+	}
+	if (cg_simpleItems.integer && item->giType != IT_TEAM)
+	{
+		CG_AddSimpleItem(cent);
+		return;
+	}
+
+	// items bob up and down continuously
+	scale = 0.005 + cent->currentState.number * 0.00001;
+	modulus = 2 * M_PI * 20228 / scale;
+	cent->lerpOrigin[2] += 4 + cos(((cg.time + 1000) % modulus) * scale) * 4;
+
+	memset(&ent, 0, sizeof(ent));
+
+	// autorotate at one of two speeds
+	if (item->giType == IT_HEALTH)
+	{
+		VectorCopy(cg.autoAnglesFast, cent->lerpAngles);
+		AxisCopy(cg.autoAxisFast, ent.axis);
+	}
+	else
+	{
+		VectorCopy(cg.autoAngles, cent->lerpAngles);
+		AxisCopy(cg.autoAxis, ent.axis);
+	}
+
+	wi = NULL;
+	// the weapons have their origin where they attatch to player
+	// models, so we need to offset them or they will rotate
+	// eccentricly
+	if (item->giType == IT_WEAPON)
+	{
+		wi = &cg_weapons[item->giTag];
+		cent->lerpOrigin[0] -=
+		    wi->weaponMidpoint[0] * ent.axis[0][0] +
+		    wi->weaponMidpoint[1] * ent.axis[1][0] +
+		    wi->weaponMidpoint[2] * ent.axis[2][0];
+		cent->lerpOrigin[1] -=
+		    wi->weaponMidpoint[0] * ent.axis[0][1] +
+		    wi->weaponMidpoint[1] * ent.axis[1][1] +
+		    wi->weaponMidpoint[2] * ent.axis[2][1];
+		cent->lerpOrigin[2] -=
+		    wi->weaponMidpoint[0] * ent.axis[0][2] +
+		    wi->weaponMidpoint[1] * ent.axis[1][2] +
+		    wi->weaponMidpoint[2] * ent.axis[2][2];
+
+		cent->lerpOrigin[2] += 8;   // an extra height boost
+	}
+
+	ent.hModel = cg_items[es->modelindex].models[0];
+
+	// flagStyle=2: substitute the alternate (flag3) model for team flag entities
+	if ( item->giType == IT_TEAM && cg_flagStyle.integer == 2 ) {
+		if ( item->giTag == PW_REDFLAG && cgs.media.redFlagModel2 )
+			ent.hModel = cgs.media.redFlagModel2;
+		else if ( item->giTag == PW_BLUEFLAG && cgs.media.blueFlagModel2 )
+			ent.hModel = cgs.media.blueFlagModel2;
+	}
+
+	VectorCopy(cent->lerpOrigin, ent.origin);
+	VectorCopy(cent->lerpOrigin, ent.oldorigin);
+
+	ent.nonNormalizedAxes = qfalse;
+
+	// if just respawned, slowly scale up
+	msec = cg.time - cent->miscTime;
+	if (msec >= 0 && msec < ITEM_SCALEUP_TIME)
+	{
+		frac = (float)msec / ITEM_SCALEUP_TIME;
+		VectorScale(ent.axis[0], frac, ent.axis[0]);
+		VectorScale(ent.axis[1], frac, ent.axis[1]);
+		VectorScale(ent.axis[2], frac, ent.axis[2]);
+		ent.nonNormalizedAxes = qtrue;
+	}
+	else
+	{
+		frac = 1.0;
+	}
+
+	// items without glow textures need to keep a minimum light value
+	// so they are always visible
+	if ((item->giType == IT_WEAPON) ||
+	        (item->giType == IT_ARMOR))
+	{
+		ent.renderfx |= RF_MINLIGHT;
+	}
+
+	// increase the size of the weapons when they are presented as items
+	if (item->giType == IT_WEAPON)
+	{
+		VectorScale(ent.axis[0], 1.5, ent.axis[0]);
+		VectorScale(ent.axis[1], 1.5, ent.axis[1]);
+		VectorScale(ent.axis[2], 1.5, ent.axis[2]);
+		ent.nonNormalizedAxes = qtrue;
+	}
+
+	// add to refresh list
+	trap_R_AddRefEntityToScene(&ent);
+
+	// accompanying rings / spheres for powerups
+	if (!cg_simpleItems.integer)
+	{
+		vec3_t spinAngles;
+
+		VectorClear(spinAngles);
+
+		if (item->giType == IT_HEALTH || item->giType == IT_POWERUP)
+		{
+			if ((ent.hModel = cg_items[es->modelindex].models[1]) != 0)
+			{
+				if (item->giType == IT_POWERUP)
+				{
+					ent.origin[2] += 12;
+					spinAngles[1] = (cg.time & 1023) * 360 / -1024.0f;
+				}
+				AnglesToAxis(spinAngles, ent.axis);
+
+				// scale up if respawning
+				if (frac != 1.0)
+				{
+					VectorScale(ent.axis[0], frac, ent.axis[0]);
+					VectorScale(ent.axis[1], frac, ent.axis[1]);
+					VectorScale(ent.axis[2], frac, ent.axis[2]);
+					ent.nonNormalizedAxes = qtrue;
+				}
+				trap_R_AddRefEntityToScene(&ent);
+			}
+		}
+	}
+}
+
+/*
+===============
+CG_DrawFlagPOI
+
+Draws POI (Point of Interest) icons above flags based on user settings
+and CTF game rules
+===============
+*/
+// Per-team persistent flag anchors — updated whenever the flag entity is in
+// the snapshot, kept across frames so the icon remains visible through walls
+// and PVS gaps.  Reset only at map initialisation, not per-frame.
 typedef struct {
 	vec3_t   origins[2];
 	int      entityNums[2];
 	int      seenFrame[2];
 	int      count;
 } flagPOICache_t;
-
-static flagPOICache_t s_flagPOI[5]; /* [0]=red, [1]=blue, [2]=neutral (unused), [3-4]=reserved */
 
 typedef struct {
 	vec3_t origin;
@@ -311,6 +461,8 @@ typedef struct {
 	int    valid;
 } teammatePOICache_t;
 
+static flagPOICache_t s_flagPOI[5]; /* [0]=red flag, [1]=blue flag, [2]=neutral flag,
+                                       [3]=red obelisk (1FCTF), [4]=blue obelisk (1FCTF) */
 static teammatePOICache_t s_teammatePOI[MAX_CLIENTS];
 
 static void CG_UpdateFlagPOISlot( flagPOICache_t *slot, int entityNum, const vec3_t origin ) {
@@ -332,26 +484,30 @@ static void CG_UpdateFlagPOISlot( flagPOICache_t *slot, int entityNum, const vec
 		return;
 	}
 
+	/* Keep behavior predictable when more than 2 entities are present. */
 	slot->entityNums[0] = entityNum;
 	VectorCopy( origin, slot->origins[0] );
 	slot->seenFrame[0] = cg.clientFrame;
 }
 
 static void CG_PruneFlagPOISlotCurrentFrame( flagPOICache_t *slot ) {
-	int readIdx, writeIdx;
+	int readIdx;
+	int writeIdx;
 
 	writeIdx = 0;
 	for ( readIdx = 0; readIdx < slot->count; readIdx++ ) {
 		if ( slot->seenFrame[readIdx] != cg.clientFrame ) {
 			continue;
 		}
+
 		if ( writeIdx != readIdx ) {
 			slot->entityNums[writeIdx] = slot->entityNums[readIdx];
-			slot->seenFrame[writeIdx]  = slot->seenFrame[readIdx];
+			slot->seenFrame[writeIdx] = slot->seenFrame[readIdx];
 			VectorCopy( slot->origins[readIdx], slot->origins[writeIdx] );
 		}
 		writeIdx++;
 	}
+
 	slot->count = writeIdx;
 }
 
@@ -359,6 +515,7 @@ static void CG_UpdateTeammatePOI( int clientNum, const vec3_t origin, int poweru
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
 		return;
 	}
+
 	VectorCopy( origin, s_teammatePOI[clientNum].origin );
 	s_teammatePOI[clientNum].origin[2] += 48.0f;
 	s_teammatePOI[clientNum].powerups = powerups;
@@ -403,6 +560,135 @@ static void CG_DrawFlagPOIMarker( const vec3_t origin, qhandle_t shader, const v
 	CG_DrawPic( sx - iconHalf, sy, iconHalf * 2.0f, iconHalf * 2.0f, shader );
 }
 
+static qboolean CG_TeammatePOITraceVisible( int entityNum, const vec3_t target ) {
+	trace_t trace;
+
+	CG_Trace( &trace, cg.refdef.vieworg, vec3_origin, vec3_origin, target,
+		cg.snap->ps.clientNum, CONTENTS_SOLID );
+
+	return ( trace.fraction == 1.0f || trace.entityNum == entityNum );
+}
+
+static qboolean CG_TeammatePOIVisible( const centity_t *cent ) {
+	vec3_t target;
+
+	VectorCopy( cent->lerpOrigin, target );
+	target[2] += 48.0f;
+	if ( CG_TeammatePOITraceVisible( cent->currentState.number, target ) ) {
+		return qtrue;
+	}
+
+	VectorCopy( cent->lerpOrigin, target );
+	target[2] += 28.0f;
+	if ( CG_TeammatePOITraceVisible( cent->currentState.number, target ) ) {
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+void CG_DrawTeammatePOIs( void ) {
+	int i;
+	int ourClientNum;
+	int ourTeam;
+	vec4_t markerColor;
+
+	if ( !cg_drawFriend.integer || !cg.snap || cgs.gametype < GT_TEAM ) {
+		return;
+	}
+
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+		return;
+	}
+
+	ourClientNum = cg.snap->ps.clientNum;
+	ourTeam = cg.snap->ps.persistant[PERS_TEAM];
+
+	if ( ourTeam != TEAM_RED && ourTeam != TEAM_BLUE ) {
+		return;
+	}
+
+	for ( i = 0; i < cgs.maxclients; i++ ) {
+		centity_t *cent;
+		clientInfo_t *ci;
+		teammatePOICache_t *cache;
+		qhandle_t shader;
+		qboolean isFlagCarrierPOI;
+
+		if ( i == ourClientNum ) {
+			continue;
+		}
+
+		cent = &cg_entities[i];
+		ci = &cgs.clientinfo[i];
+		cache = &s_teammatePOI[i];
+
+		if ( !ci->infoValid || ci->team != ourTeam ) {
+			continue;
+		}
+
+		/* If this teammate is not currently represented as a live player entity,
+		   clear stale cache immediately so death POIs do not linger. */
+		if ( !cent->currentValid ||
+		     cent->currentState.eType != ET_PLAYER ||
+		     ( cent->currentState.eFlags & EF_DEAD ) ) {
+			cache->valid = qfalse;
+			continue;
+		}
+
+		CG_UpdateTeammatePOI( i, cent->lerpOrigin, cent->currentState.powerups );
+
+		if ( CG_TeammatePOIVisible( cent ) ) {
+			continue;
+		}
+
+		if ( !cache->valid ) {
+			continue;
+		}
+
+		shader = cgs.media.friendPOIShader;
+		isFlagCarrierPOI = qfalse;
+		markerColor[0] = 1.0f;
+		markerColor[1] = 1.0f;
+		markerColor[2] = 1.0f;
+		markerColor[3] = 1.0f;
+		if ( ourTeam == TEAM_BLUE && ( cache->powerups & ( 1 << PW_REDFLAG ) ) ) {
+			shader = cgs.media.friendPOIRedFlagStolenShader;
+			isFlagCarrierPOI = qtrue;
+			markerColor[0] = 1.0f;
+			markerColor[1] = 0.0f;
+			markerColor[2] = 0.0f;
+		} else if ( ourTeam == TEAM_RED && ( cache->powerups & ( 1 << PW_BLUEFLAG ) ) ) {
+			shader = cgs.media.friendPOIBlueFlagStolenShader;
+			isFlagCarrierPOI = qtrue;
+			markerColor[0] = 0.0f;
+			markerColor[1] = 0.0f;
+			markerColor[2] = 1.0f;
+		} else if ( cache->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
+			shader = cgs.media.friendPOINeutralFlagCarrierShader;
+			isFlagCarrierPOI = qtrue;
+		}
+
+		if ( isFlagCarrierPOI && ( cg.time - cent->pe.painTime ) < 1500 ) {
+			shader = cgs.media.friendPOIFlagCarrierHitShader;
+			markerColor[0] = 1.0f;
+			markerColor[1] = 0.0f;
+			markerColor[2] = 0.0f;
+		}
+
+		/* Regular teammates already have a depth-hacked sprite drawn by
+		   CG_PlayerSprites.  Only draw the POI overlay here for flag carriers
+		   so we don't stack two markers on the same player. */
+		if ( !isFlagCarrierPOI ) {
+			continue;
+		}
+
+		CG_DrawFlagPOIMarker( cache->origin, shader, markerColor );
+	}
+
+	trap_R_SetColor( NULL );
+}
+
 void CG_ClearFlagPOIs( void ) {
 	memset( s_flagPOI, 0, sizeof( s_flagPOI ) );
 	memset( s_teammatePOI, 0, sizeof( s_teammatePOI ) );
@@ -413,17 +699,18 @@ void CG_ClearFlagPOIs( void ) {
 CG_DrawFlagPOIPair
 
 Shared helper: renders POIs for one defending flag and the attacker's
-capture base.
+capture base using the same logic for both GT_CTF and GT_RTF.
 
   defTeam       - team that owns/defends this flag (TEAM_RED or TEAM_BLUE)
   defFlagSlot   - s_flagPOI index for the defending flag (0=red, 1=blue)
   atkBaseSlot   - s_flagPOI index for the attacker's capture base
-  defFlagStatus - FLAG_ATBASE / FLAG_TAKEN / FLAG_DROPPED from cgs.redflag/blueflag
+  defFlagStatus - wire-protocol value from cgs.redflag/blueflag
+                  (0=atbase, 1=taken, 2=dropped; NOT the flagStatus_t enum)
   ourTeam       - local player's team
 
 Defenders see DEFEND on visible flag entities.
 Attackers see ATTACK on visible flag entities, plus CAPTURE at their own
-base while the flag is being carried (defFlagStatus == FLAG_TAKEN).
+base while the flag is being carried (defFlagStatus == 1).
 ===============
 */
 static void CG_DrawFlagPOIPair( int defTeam, int defFlagSlot, int atkBaseSlot,
@@ -473,126 +760,15 @@ static void CG_DrawFlagPOIPair( int defTeam, int defFlagSlot, int atkBaseSlot,
 	}
 }
 
-static qboolean CG_TeammatePOITraceVisible( int entityNum, const vec3_t target ) {
-	trace_t trace;
+/*
+===============
+CG_DrawFlagPOIs
 
-	CG_Trace( &trace, cg.refdef.vieworg, vec3_origin, vec3_origin, target,
-		cg.snap->ps.clientNum, CONTENTS_SOLID );
-	return ( trace.fraction == 1.0f || trace.entityNum == entityNum );
-}
-
-static qboolean CG_TeammatePOIVisible( const centity_t *cent ) {
-	vec3_t target;
-
-	VectorCopy( cent->lerpOrigin, target );
-	target[2] += 48.0f;
-	if ( CG_TeammatePOITraceVisible( cent->currentState.number, target ) ) {
-		return qtrue;
-	}
-
-	VectorCopy( cent->lerpOrigin, target );
-	target[2] += 28.0f;
-	if ( CG_TeammatePOITraceVisible( cent->currentState.number, target ) ) {
-		return qtrue;
-	}
-
-	return qfalse;
-}
-
-void CG_DrawTeammatePOIs( void ) {
-	int i;
-	int ourClientNum;
-	int ourTeam;
-	vec4_t markerColor;
-
-	if ( !cg_drawFriend.integer || !cg.snap || cgs.gametype < GT_TEAM ) {
-		return;
-	}
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
-		return;
-	}
-
-	ourClientNum = cg.snap->ps.clientNum;
-	ourTeam = cg.snap->ps.persistant[PERS_TEAM];
-
-	if ( ourTeam != TEAM_RED && ourTeam != TEAM_BLUE ) {
-		return;
-	}
-
-	for ( i = 0; i < cgs.maxclients; i++ ) {
-		centity_t          *cent;
-		clientInfo_t       *ci;
-		teammatePOICache_t *cache;
-		qhandle_t           shader;
-		qboolean            isFlagCarrierPOI;
-
-		if ( i == ourClientNum ) {
-			continue;
-		}
-
-		cent  = &cg_entities[i];
-		ci    = &cgs.clientinfo[i];
-		cache = &s_teammatePOI[i];
-
-		if ( !ci->infoValid || ci->team != ourTeam ) {
-			continue;
-		}
-
-		/* If teammate is not a live player entity, clear stale cache immediately. */
-		if ( !cent->currentValid ||
-		     cent->currentState.eType != ET_PLAYER ||
-		     ( cent->currentState.eFlags & EF_DEAD ) ) {
-			cache->valid = qfalse;
-			continue;
-		}
-
-		CG_UpdateTeammatePOI( i, cent->lerpOrigin, cent->currentState.powerups );
-
-		if ( CG_TeammatePOIVisible( cent ) ) {
-			continue;
-		}
-
-		if ( !cache->valid ) {
-			continue;
-		}
-
-		shader           = cgs.media.friendPOIShader;
-		isFlagCarrierPOI = qfalse;
-		markerColor[0]   = 1.0f;
-		markerColor[1]   = 1.0f;
-		markerColor[2]   = 1.0f;
-		markerColor[3]   = 1.0f;
-
-		if ( ourTeam == TEAM_BLUE && ( cache->powerups & ( 1 << PW_REDFLAG ) ) ) {
-			shader           = cgs.media.friendPOIRedFlagStolenShader;
-			isFlagCarrierPOI = qtrue;
-			markerColor[0]   = 1.0f;
-			markerColor[1]   = 0.0f;
-			markerColor[2]   = 0.0f;
-		} else if ( ourTeam == TEAM_RED && ( cache->powerups & ( 1 << PW_BLUEFLAG ) ) ) {
-			shader           = cgs.media.friendPOIBlueFlagStolenShader;
-			isFlagCarrierPOI = qtrue;
-			markerColor[0]   = 0.0f;
-			markerColor[1]   = 0.0f;
-			markerColor[2]   = 1.0f;
-		} else if ( cache->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
-			shader           = cgs.media.friendPOINeutralFlagCarrierShader;
-			isFlagCarrierPOI = qtrue;
-		}
-
-		if ( isFlagCarrierPOI && ( cg.time - cent->pe.painTime ) < 1500 ) {
-			shader         = cgs.media.friendPOIFlagCarrierHitShader;
-			markerColor[0] = 1.0f;
-			markerColor[1] = 0.0f;
-			markerColor[2] = 0.0f;
-		}
-
-		CG_DrawFlagPOIMarker( cache->origin, shader, markerColor );
-	}
-
-	trap_R_SetColor( NULL );
-}
-
+Called from CG_Draw2D (after trap_R_RenderScene) so the 2D overlay
+appears on top of the rendered scene.  Projects each stored flag world
+position to screen space and draws the icon there.
+===============
+*/
 void CG_DrawFlagPOIs( void ) {
 	int			slotIdx;
 	int			ourTeam, ourClientNum;
@@ -627,8 +803,18 @@ void CG_DrawFlagPOIs( void ) {
 	trap_R_SetColor( NULL );
 }
 
+/*
+===============
+CG_DrawFlagPOI
+
+Called during entity processing to cache the flag's world position.
+The actual drawing and shader selection is handled by CG_DrawFlagPOIs
+in CG_Draw2D, so the icon persists through walls and PVS gaps on every
+frame.
+===============
+*/
 static void CG_DrawFlagPOI( centity_t *cent, const gitem_t *item ) {
-	int    idx;
+	int	idx;
 	vec3_t pos;
 
 	if ( !cg_flagPOIs.integer ) {
@@ -637,7 +823,7 @@ static void CG_DrawFlagPOI( centity_t *cent, const gitem_t *item ) {
 	if ( cgs.gametype != GT_CTF && cgs.gametype != GT_RTF ) {
 		return;
 	}
-	if ( !cg.snap || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
 		return;
 	}
 
@@ -654,223 +840,6 @@ static void CG_DrawFlagPOI( centity_t *cent, const gitem_t *item ) {
 	VectorCopy( cent->currentState.pos.trBase, pos );
 	pos[2] += 62;
 	CG_UpdateFlagPOISlot( &s_flagPOI[idx], cent->currentState.number, pos );
-}
-
-/*
-==================
-CG_Item
-==================
-*/
-static void CG_Item(centity_t* cent)
-{
-	refEntity_t     ent;
-	entityState_t*   es;
-	gitem_t*         item;
-	int             msec;
-	float           frac;
-	float           scale;
-	weaponInfo_t*    wi;
-
-	es = &cent->currentState;
-	if (es->modelindex >= bg_numItems)
-	{
-		CG_Error("Bad item index %i on entity", es->modelindex);
-	}
-
-	// if modelindex missing, skip entirely
-	if (!es->modelindex)
-	{
-		return;
-	}
-
-	item = &bg_itemlist[ es->modelindex ];
-
-	// Cache flag POI before the EF_NODRAW check so home positions are
-	// recorded even when the entity is invisible.
-	if (item->giType == IT_TEAM) {
-		CG_DrawFlagPOI( cent, item );
-	}
-
-	// if set to invisible, skip rendering
-	if (es->eFlags & EF_NODRAW)
-	{
-		return;
-	}
-	if (cg_simpleItems.integer && item->giType != IT_TEAM)
-	{
-		CG_AddSimpleItem(cent);
-		return;
-	}
-
-	// items bob up and down continuously
-	if (cg_itemFx.integer & 1)
-	{
-		scale = 0.005 + cent->currentState.number * 0.00001;
-		cent->lerpOrigin[2] += 4 + cos((cg.time + 1000) * scale) * 4;
-	}
-
-	memset(&ent, 0, sizeof(ent));
-
-	// autorotate at one of two speeds
-	if (cg_itemFx.integer & 2)
-	{
-		if (item->giType == IT_HEALTH)
-		{
-			VectorCopy(cg.autoAnglesFast, cent->lerpAngles);
-			AxisCopy(cg.autoAxisFast, ent.axis);
-		}
-		else
-		{
-			VectorCopy(cg.autoAngles, cent->lerpAngles);
-			AxisCopy(cg.autoAxis, ent.axis);
-		}
-	}
-	else
-	{
-		VectorClear(cent->lerpAngles);
-		AxisClear(ent.axis);
-		ent.axis[0][0] = 1;
-		ent.axis[1][1] = 1;
-		ent.axis[2][2] = 1;
-	}
-
-
-
-	wi = NULL;
-	// the weapons have their origin where they attatch to player
-	// models, so we need to offset them or they will rotate
-	// eccentricly
-	if (item->giType == IT_WEAPON)
-	{
-		wi = &cg_weapons[item->giTag];
-		cent->lerpOrigin[0] -=
-		    wi->weaponMidpoint[0] * ent.axis[0][0] +
-		    wi->weaponMidpoint[1] * ent.axis[1][0] +
-		    wi->weaponMidpoint[2] * ent.axis[2][0];
-		cent->lerpOrigin[1] -=
-		    wi->weaponMidpoint[0] * ent.axis[0][1] +
-		    wi->weaponMidpoint[1] * ent.axis[1][1] +
-		    wi->weaponMidpoint[2] * ent.axis[2][1];
-		cent->lerpOrigin[2] -=
-		    wi->weaponMidpoint[0] * ent.axis[0][2] +
-		    wi->weaponMidpoint[1] * ent.axis[1][2] +
-		    wi->weaponMidpoint[2] * ent.axis[2][2];
-
-		cent->lerpOrigin[2] += 8;   // an extra height boost
-	}
-
-	ent.hModel = cg_items[es->modelindex].models[0];
-
-	/* flagStyle=2: substitute the alternate (flag3) model for team flag entities */
-	if ( item->giType == IT_TEAM && cg_flagStyle.integer == 2 ) {
-		if ( item->giTag == PW_REDFLAG && cgs.media.redFlagModel2 )
-			ent.hModel = cgs.media.redFlagModel2;
-		else if ( item->giTag == PW_BLUEFLAG && cgs.media.blueFlagModel2 )
-			ent.hModel = cgs.media.blueFlagModel2;
-	}
-
-	VectorCopy(cent->lerpOrigin, ent.origin);
-	VectorCopy(cent->lerpOrigin, ent.oldorigin);
-
-	ent.nonNormalizedAxes = qfalse;
-
-	// if just respawned, slowly scale up
-	if (cg_itemFx.integer & 4)
-	{
-		msec = cg.time - cent->miscTime;
-		if (msec >= 0 && msec < ITEM_SCALEUP_TIME)
-		{
-			frac = (float)msec / ITEM_SCALEUP_TIME;
-			VectorScale(ent.axis[0], frac, ent.axis[0]);
-			VectorScale(ent.axis[1], frac, ent.axis[1]);
-			VectorScale(ent.axis[2], frac, ent.axis[2]);
-			ent.nonNormalizedAxes = qtrue;
-		}
-		else
-		{
-			frac = 1.0;
-		}
-	}
-	else
-	{
-		frac = 1.0;
-	}
-
-	// items without glow textures need to keep a minimum light value
-	// so they are always visible
-	if ((item->giType == IT_WEAPON) ||
-	        (item->giType == IT_ARMOR))
-	{
-		ent.renderfx |= RF_MINLIGHT;
-	}
-
-	// increase the size of the weapons when they are presented as items
-	if (item->giType == IT_WEAPON)
-	{
-		VectorScale(ent.axis[0], 1.5, ent.axis[0]);
-		VectorScale(ent.axis[1], 1.5, ent.axis[1]);
-		VectorScale(ent.axis[2], 1.5, ent.axis[2]);
-		ent.nonNormalizedAxes = qtrue;
-		if (CG_BE_FEATURE_ENABLED(CG_BE_FULLBRIGHT) && (cg_drawBrightWeapons.integer & 8))
-		{
-			ent.customShader = cgs.media.firstPersonGun;
-			CG_SetWeaponBrightColorWorld(&ent, item->giTag);
-		}
-	}
-
-	// set railgun color to client's rail rings color
-	if (item->giType == IT_WEAPON && item->giTag == WP_RAILGUN && ((CG_BE_FEATURE_ENABLED(CG_BE_FULLBRIGHT) && !(cg_drawBrightWeapons.integer & 8))))
-	{
-		if (cg_railCustomChamber.integer == 2)
-		{
-			clientInfo_t* ci = &cgs.clientinfo[cg.clientNum];
-			ent.shaderRGBA[0] = 255 * ci->colors.railRings[0];
-			ent.shaderRGBA[1] = 255 * ci->colors.railRings[1];
-			ent.shaderRGBA[2] = 255 * ci->colors.railRings[2];
-			ent.shaderRGBA[3] = 255;
-		}
-		else
-		{
-			ent.shaderRGBA[0] = 255;
-			ent.shaderRGBA[1] = 255;
-			ent.shaderRGBA[2] = 255;
-			ent.shaderRGBA[3] = 255;
-		}
-	}
-
-	// add to refresh list
-	trap_R_AddRefEntityToScene(&ent);
-
-	// accompanying rings / spheres for powerups
-	if (!cg_simpleItems.integer)
-	{
-		vec3_t spinAngles;
-
-		VectorClear(spinAngles);
-
-		if (item->giType == IT_HEALTH || item->giType == IT_POWERUP)
-		{
-			if ((ent.hModel = cg_items[es->modelindex].models[1]) != 0)
-			{
-				if (item->giType == IT_POWERUP)
-				{
-					ent.origin[2] += 12;
-					spinAngles[1] = (cg.time & 1023) * 360 / -1024.0f;
-				}
-				AnglesToAxis(spinAngles, ent.axis);
-
-				// scale up if respawning
-				if (frac != 1.0)
-				{
-					VectorScale(ent.axis[0], frac, ent.axis[0]);
-					VectorScale(ent.axis[1], frac, ent.axis[1]);
-					VectorScale(ent.axis[2], frac, ent.axis[2]);
-					ent.nonNormalizedAxes = qtrue;
-				}
-				trap_R_AddRefEntityToScene(&ent);
-			}
-		}
-	}
 }
 
 //============================================================================
@@ -947,107 +916,14 @@ static void CG_Missile(centity_t* cent)
 		ent.radius = 16;
 		ent.rotation = 0;
 		ent.customShader = cgs.media.plasmaBallShader;
-
-		if (CG_BE_FEATURE_ENABLED(CG_BE_ALT_PLASMAGUN)&& cg_altPlasma.integer == 2)
-		{
-			ent.customShader = cgs.media.plasmaOldBallShader;
-		}
-		else if (cg_oldPlasma.integer || !cg_altPlasma.integer || !(cgs.osp.custom_client & OSP_CUSTOM_CLIENT_ALT_WEAPON_FLAG))
-		{
-			if ((cg_nomip.integer & 2) == 0)
-			{
-				ent.customShader = cgs.media.plasmaBallShader;
-			}
-			else
-			{
-				ent.customShader = cgs.media.plasmaBallNoPicMipShader;
-			}
-		}
-		else
-		{
-			if ((cg_nomip.integer & 2) == 0)
-			{
-				ent.customShader = cgs.media.plasmaNewBallShader;
-			}
-			else
-			{
-				ent.customShader = cgs.media.plasmaNewBallNoPicMipShader;
-			}
-		}
-
 		trap_R_AddRefEntityToScene(&ent);
 		return;
 	}
-
 
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame & 1;
 	ent.hModel = weapon->missileModel;
 	ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
-
-	if (cent->currentState.weapon == WP_GRENADE_LAUNCHER && cg_altGrenades.integer)
-	{
-		if (CG_BE_FEATURE_ENABLED(CG_BE_ALT_GRENADES) && cg_altGrenades.integer == 2)
-		{
-			int owner = s1->otherEntityNum;
-
-			if (owner >= 0 && owner < MAX_CLIENTS)
-			{
-				const clientInfo_t* ci = &cgs.clientinfo[owner];
-
-				qboolean isAlly = CG_OSPIsGameTypeCA(cgs.gametype) || !CG_IsEnemy(ci); // На OSP CA нет данных otherEntityNum
-
-				if (isAlly)
-				{
-					ent.shaderRGBA[0] = cgs.be.altGrenadesColor[0] * 255;
-					ent.shaderRGBA[1] = cgs.be.altGrenadesColor[1] * 255;
-					ent.shaderRGBA[2] = cgs.be.altGrenadesColor[2] * 255;
-
-					if (CG_BE_FEATURE_ENABLED(CG_BE_FULLBRIGHT) && (cg_drawBrightWeapons.integer & 1 || cg_drawBrightWeapons.integer & 2) && cgs.media.firstPersonGun)
-					{
-						ent.customShader = cgs.media.firstPersonGun;
-					}
-					else
-					{
-						ent.customShader = cgs.media.grenadeCPMANoPicMipShaderNew;
-					}
-				}
-				else
-				{
-					ent.shaderRGBA[0] = cgs.be.enemyGrenadesColor[0] * 255;
-					ent.shaderRGBA[1] = cgs.be.enemyGrenadesColor[1] * 255;
-					ent.shaderRGBA[2] = cgs.be.enemyGrenadesColor[2] * 255;
-
-					if (cg_drawBrightWeapons.integer & 4 && cgs.media.firstPersonGun)
-					{
-						ent.customShader = cgs.media.firstPersonGun;
-					}
-					else
-					{
-						ent.customShader = cgs.media.grenadeCPMANoPicMipShaderNew;
-					}
-				}
-
-				ent.shaderRGBA[3] = 255;
-			}
-			else
-			{
-				ent.customShader = cgs.media.grenadeCPMANoPicMipShaderNew;
-			}
-		}
-		else
-		{
-			if ((cg_nomip.integer & 8) && cgs.media.grenadeCPMANoPicMipShader)
-			{
-				ent.customShader = cgs.media.grenadeCPMANoPicMipShader;
-			}
-		}
-
-		ent.hModel = cgs.media.grenadeCPMAModel;
-	}
-
-
-
 
 	// convert direction of travel into axis
 	if (VectorNormalize2(s1->pos.trDelta, ent.axis[0]) == 0)
@@ -1192,6 +1068,7 @@ void CG_Beam(centity_t* cent)
 	ent.reType = RT_BEAM;
 
 	ent.renderfx = RF_NOSHADOW;
+	ent.customShader = cgs.media.whiteShader;
 
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
@@ -1317,8 +1194,6 @@ CG_CalcEntityLerpPositions
 */
 static void CG_CalcEntityLerpPositions(centity_t* cent)
 {
-	int timeshift = 0;
-
 	// if this player does not want to see extrapolated players
 	if (!cg_smoothClients.integer)
 	{
@@ -1345,52 +1220,9 @@ static void CG_CalcEntityLerpPositions(centity_t* cent)
 		return;
 	}
 
-	// if it's a missile but not a grappling hook
-	if (cent->currentState.eType == ET_MISSILE && cent->currentState.weapon != WP_GRAPPLING_HOOK && cg_projectileNudge.integer && cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR && !cg.demoPlayback)
-	{
-		int serverTick = 0;
-		if (cg.nextSnap && cg.snap)
-		{
-			serverTick = cg.nextSnap->serverTime - cg.snap->serverTime;
-		}
-		// if it's one of ours
-		if ((cent->currentState.otherEntityNum) == cg.clientNum && (cg_projectileNudge.integer & 2))
-		{
-			// extrapolate one server frame's worth - this will correct for tiny
-			// visual inconsistencies introduced by backward-reconciling all players
-			// one server frame before running projectiles
-			timeshift = serverTick;
-		}
-		// if it's not, and it's not a grenade launcher
-		else if ((cent->currentState.weapon != WP_GRENADE_LAUNCHER) && (cg_projectileNudge.integer & 1))
-		{
-			// extrapolate based on cg_projectileNudge
-			timeshift = cgs.osp.pingMs + serverTick;
-		}
-	}
-
 	// just use the current frame and evaluate as best we can
-	BG_EvaluateTrajectory(&cent->currentState.pos, cg.time + timeshift, cent->lerpOrigin);
-	BG_EvaluateTrajectory(&cent->currentState.apos, cg.time + timeshift, cent->lerpAngles);
-
-	// if there's a time shift
-	if (timeshift != 0)
-	{
-		trace_t tr;
-		vec3_t lastOrigin;
-
-		BG_EvaluateTrajectory(&cent->currentState.pos, cg.time, lastOrigin);
-
-		CG_Trace(&tr, lastOrigin, vec3_origin, vec3_origin, cent->lerpOrigin, cent->currentState.number, MASK_SHOT);
-
-		// don't let the projectile go through the floor
-		if (tr.fraction < 1.0f)
-		{
-			cent->lerpOrigin[0] = lastOrigin[0] + tr.fraction * (cent->lerpOrigin[0] - lastOrigin[0]);
-			cent->lerpOrigin[1] = lastOrigin[1] + tr.fraction * (cent->lerpOrigin[1] - lastOrigin[1]);
-			cent->lerpOrigin[2] = lastOrigin[2] + tr.fraction * (cent->lerpOrigin[2] - lastOrigin[2]);
-		}
-	}
+	BG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
+	BG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);
 
 	// adjust for riding a mover if it wasn't rolled into the predicted
 	// player state
@@ -1409,7 +1241,7 @@ CG_TeamBase
 static void CG_TeamBase(centity_t* cent)
 {
 	refEntity_t model;
-	if (cgs.gametype == GT_CTF)
+	if (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF)
 	{
 		// show the flag base
 		memset(&model, 0, sizeof(model));
@@ -1556,31 +1388,10 @@ void CG_AddPacketEntities(void)
 	// lerp the non-predicted value for lightning gun origins
 	CG_CalcEntityLerpPositions(&cg_entities[ cg.snap->ps.clientNum ]);
 
-	if (cg.nextSnap)
-	{
-		// pre-add some of the entities sent over by the server
-		// we have data for them and they don't need to interpolate
-		for (num = 0 ; num < cg.nextSnap->numEntities ; num++)
-		{
-			cent = &cg_entities[ cg.nextSnap->entities[ num ].number ];
-			if (cent->nextState.eType == ET_MISSILE || cent->nextState.eType == ET_GENERAL)
-			{
-				// transition it immediately and add it
-				CG_TransitionEntity(cent);
-				cent->interpolate = qtrue;
-				CG_AddCEntity(cent);
-			}
-		}
-	}
-
 	// add each entity sent over by the server
 	for (num = 0 ; num < cg.snap->numEntities ; num++)
 	{
 		cent = &cg_entities[ cg.snap->entities[ num ].number ];
-		if (!cg.nextSnap || (cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL))
-		{
-			CG_AddCEntity(cent);
-		}
+		CG_AddCEntity(cent);
 	}
 }
-

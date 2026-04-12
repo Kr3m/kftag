@@ -14,7 +14,7 @@ qboolean CG_OSPIsGameTypeCA(int gametype)
 
 qboolean CG_OSPIsGameTypeFreeze()
 {
-	return (cgs.gametype == GT_TEAM || cgs.gametype == GT_CTF) && cgs.osp.gameTypeFreeze;
+	return (cgs.gametype == GT_TEAM || cgs.gametype == GT_CTF || cgs.gametype == GT_RTF) && cgs.osp.gameTypeFreeze;
 }
 
 qboolean Q_Isfreeze(int clientNum)

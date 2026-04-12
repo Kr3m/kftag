@@ -2260,10 +2260,10 @@ void CG_DrawWarmup(void)
 			{
 				text = "Capture the Flag";
 			}
-			else if (cgs.gametype == GT_CA)
-			{
-				text = "Clan Arena";
-			}
+				else if (cgs.gametype == GT_RTF)
+				{
+					text = "Return The Flag";
+				}
 			else
 			{
 				text = "";

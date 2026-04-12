@@ -152,6 +152,7 @@ static void CG_SHUDElementNameGetPair(const char** own, const char** nme)
 			break;
 		case GT_TEAM: // red/blue
 		case GT_CTF:
+		case GT_RTF:
 		case GT_CA:
 			CG_SHUDElementNameGetPairTeam(own, nme);
 			break;

@@ -313,7 +313,7 @@ void CG_SHUDRoutine(void)
 	const qboolean is_gt_ffa = cgs.gametype == GT_FFA;
 	const qboolean is_gt_tourney = cgs.gametype == GT_TOURNAMENT;
 	const qboolean is_gt_tdm = CG_OSPIsGameTypeTDM();
-	const qboolean is_gt_ctf = cgs.gametype == GT_CTF;
+	const qboolean is_gt_ctf = cgs.gametype == GT_CTF || cgs.gametype == GT_RTF;
 	const qboolean is_gt_ft = CG_OSPIsGameTypeFreeze();
 	const qboolean is_gt_ca = CG_OSPIsGameTypeCA(cgs.gametype);
 

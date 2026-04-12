@@ -256,7 +256,7 @@ void CG_SHUDElementTeamRoutine(void* context)
 		}
 		else
 		{
-			if (ch_ColorLocations.integer != 0 && cgs.gametype == GT_CTF)
+			   if (ch_ColorLocations.integer != 0 && (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF))
 			{
 				element->ctxLocation.text = CG_GetCTFLocation(ci->location);
 			}

@@ -104,7 +104,7 @@ void CG_CHUDConfigPickTextColor(const cherryhudConfig_t* config, float* color, q
 	CG_CHUDConfigPickColorGeneric(&config->textExt.color.isSet, &config->textExt.color.value,
 	                              &config->textExt.color2.isSet, &config->textExt.color2.value,
 	                              color, alphaOverride);
-	
+
 }
 
 void CG_CHUDConfigPickBgColor(const cherryhudConfig_t* config, float* color, qboolean alphaOverride)
@@ -206,7 +206,7 @@ void CG_CHUDConfigDefaultsCheck(cherryhudConfig_t* config)
 		config->color.value.type = CHERRYHUD_COLOR_RGBA;
 		config->color.isSet = qtrue;
 	}
-	
+
 	if (!config->textExt.alignH.isSet)
 	{
 		config->textExt.alignH.value = CHERRYHUD_ALIGNH_LEFT;
@@ -252,7 +252,7 @@ void CG_CHUDConfigDefaultsCheck(cherryhudConfig_t* config)
 	{
 		config->fill.isSet = qtrue;
 	}
-	
+
 }
 
 
@@ -355,7 +355,7 @@ void CG_CHUDTextMakeContext(const cherryhudConfig_t* in, cherryhudTextContext_t*
 				break;
 		}
 	}
- 
+
 	if (!config.monospace.isSet)
 	{
 		out->flags |= DS_PROPORTIONAL;
@@ -393,7 +393,7 @@ void CG_CHUDTextMakeContext(const cherryhudConfig_t* in, cherryhudTextContext_t*
 	} else {
 		out->fontIndex = CG_FontIndexFromName("sansman");
 	}
-	
+
 	// Set maxWidth from config
 	if (config.maxWidth.isSet) {
 		out->width = config.maxWidth.value;
@@ -403,17 +403,17 @@ void CG_CHUDTextMakeContext(const cherryhudConfig_t* in, cherryhudTextContext_t*
 
 	CG_CHUDConfigPickTextColor(&config, out->color, qtrue);
 	Vector4Copy(out->color, out->color_origin);
-	
+
 	// Copy text-specific border, bordercolor, and bgcolor from config to text context
 	// Use only textExt parameters for text (no fallback to regular parameters)
 	if (config.textExt.border.isSet) {
 		Vector4Copy(config.textExt.border.sideSizes, out->border);
 	}
-	
+
 	if (config.textExt.bordercolor.isSet) {
 		Vector4Copy(config.textExt.bordercolor.value.rgba, out->borderColor);
 	}
-	
+
 	if (config.textExt.background.isSet) {
 		Vector4Copy(config.textExt.background.color.rgba, out->background);
 	}
@@ -939,8 +939,8 @@ void CG_CHUDFillDirect(float x, float y, float w, float h, float* color) {
 	trap_R_SetColor(NULL);
 }
 
-void CG_CHUDDrawStretchPic(float x, float y, float w, float h, 
-                          float picX, float picY, float picW, float picH, 
+void CG_CHUDDrawStretchPic(float x, float y, float w, float h,
+                          float picX, float picY, float picW, float picH,
                           const float* color, qhandle_t shader)
 {
 	if (!shader) return;
@@ -958,11 +958,11 @@ void CG_CHUDDrawBorderCentralized(float x, float y, float w, float h, const vec4
 	vec4_t adjCoords;
 	qboolean isInner;
 	int i;
-	
+
 	if (!borderSize || !borderColor) {
 		return;
 	}
-	
+
 	// Check if any border size is non-zero
 	if (borderSize[0] == 0.0f && borderSize[1] == 0.0f && borderSize[2] == 0.0f && borderSize[3] == 0.0f) {
 		return;
@@ -977,7 +977,7 @@ void CG_CHUDDrawBorderCentralized(float x, float y, float w, float h, const vec4
 	// Process border sizes: negative = inner, positive = outer
 	Vector4Copy(borderSize, adjustedBorderSize);
 	isInner = qfalse;
-	
+
 	for (i = 0; i < 4; i++) {
 		if (adjustedBorderSize[i] < 0.0f) {
 			// Negative value = inner border
@@ -988,7 +988,7 @@ void CG_CHUDDrawBorderCentralized(float x, float y, float w, float h, const vec4
 			isInner = qfalse;
 		}
 	}
-	
+
 	// Draw the border (coordinates are already in correct scale)
 	CG_OSPDrawFrame(adjCoords[0], adjCoords[1], adjCoords[2], adjCoords[3], adjustedBorderSize, (float*)borderColor, isInner);
 }
@@ -1066,10 +1066,10 @@ void CG_CHUDDrawStretchPicCtx(const cherryhudConfig_t* cfg, cherryhudDrawContext
 {
 	// Draw background and border first (if configured)
 	CG_CHUDFillAndFrameForImage(cfg, ctx);
-	
+
 	// we have to pick color again, because team could changed
 	CG_CHUDConfigPickColor(cfg, ctx->color, qfalse);
-	
+
 	CG_CHUDDrawStretchPic(ctx->pos[0], ctx->pos[1], ctx->size[0], ctx->size[1],
 	                     ctx->picPos[0], ctx->picPos[1], ctx->picSize[0], ctx->picSize[1],
 	                     ctx->color, ctx->image);
@@ -1081,30 +1081,30 @@ void CG_CHUDFillAndFrameForImage(const cherryhudConfig_t* cfg, cherryhudDrawCont
 	qboolean drawBorder;
 	vec4_t bgColor;
 	vec4_t borderColor;
-	
+
 	drawBackground = CG_CHUDConfigHasImageBackground(cfg);
 	drawBorder = CG_CHUDConfigHasImageBorder(cfg);
-	
+
 	if (!drawBackground && !drawBorder)
 	{
 		return;
 	}
-	
+
 	if (drawBackground)
 	{
 		CG_CHUDConfigPickImageBgColor(cfg, bgColor, qfalse);
 		CG_CHUDFillCentralized(ctx->pos[0], ctx->pos[1], ctx->size[0], ctx->size[1], bgColor);
 	}
-	
+
 	if (drawBorder)
 	{
 		CG_CHUDConfigPickImageBorderColor(cfg, borderColor, qfalse);
 		// Use image-specific border if available, otherwise fallback to global
 		if (cfg->imageBorder.isSet) {
-			CG_CHUDDrawBorderCentralized(ctx->pos[0], ctx->pos[1], ctx->size[0], ctx->size[1], 
+			CG_CHUDDrawBorderCentralized(ctx->pos[0], ctx->pos[1], ctx->size[0], ctx->size[1],
 			                            cfg->imageBorder.sideSizes, borderColor);
 		} else {
-			CG_CHUDDrawBorderCentralized(ctx->pos[0], ctx->pos[1], ctx->size[0], ctx->size[1], 
+			CG_CHUDDrawBorderCentralized(ctx->pos[0], ctx->pos[1], ctx->size[0], ctx->size[1],
 			                            cfg->border.sideSizes, borderColor);
 		}
 	}
@@ -1195,7 +1195,7 @@ qboolean CG_CHUDConfigHasImageBorder(const cherryhudConfig_t* config)
 void CG_CHUDRenderContainerBackground(const cherryhudConfig_t* config, float x, float y, float w, float h)
 {
 	float bgColor[4];
-	
+
 	CG_CHUDConfigPickBgColor(config, bgColor, qfalse);
 	CG_CHUDFillCentralized(x, y, w, h, bgColor);
 }
@@ -1203,7 +1203,7 @@ void CG_CHUDRenderContainerBackground(const cherryhudConfig_t* config, float x, 
 void CG_CHUDRenderContainerBackgroundWithHeight(const cherryhudConfig_t* config, float x, float y, float w, float h, float currentHeight)
 {
 	float bgColor[4];
-	
+
 	CG_CHUDGetActiveBgColor(config, currentHeight, bgColor);
 	CG_CHUDFillCentralized(x, y, w, h, bgColor);
 }
@@ -1211,7 +1211,7 @@ void CG_CHUDRenderContainerBackgroundWithHeight(const cherryhudConfig_t* config,
 void CG_CHUDRenderContainerBackgroundFromBounds(const cherryhudConfig_t* config, cherryhudLayoutBounds_t* bounds)
 {
 	float bgColor[4];
-	
+
 	CG_CHUDConfigPickBgColor(config, bgColor, qfalse);
 	CG_CHUDFillCentralized(bounds->x, bounds->y, bounds->width, bounds->height, bgColor);
 }
@@ -1219,7 +1219,7 @@ void CG_CHUDRenderContainerBackgroundFromBounds(const cherryhudConfig_t* config,
 void CG_CHUDRenderContainerBackgroundFromBoundsWithHeight(const cherryhudConfig_t* config, cherryhudLayoutBounds_t* bounds, float currentHeight)
 {
 	float bgColor[4];
-	
+
 	CG_CHUDGetActiveBgColor(config, currentHeight, bgColor);
 	CG_CHUDFillCentralized(bounds->x, bounds->y, bounds->width, bounds->height, bgColor);
 }
@@ -1232,11 +1232,11 @@ void CG_CHUDRenderContainerBackgroundFromBoundsWithHeight(const cherryhudConfig_
 qboolean CG_CHUDRenderBackground(const cherryhudConfig_t* config, float x, float y, float w, float h)
 {
 	vec4_t bgColor;
-	
+
 	if (!config || !config->background.color.isSet) {
 		return qfalse;
 	}
-	
+
 	CG_CHUDConfigPickBgColor(config, bgColor, qfalse);
 	CG_CHUDFillCentralized(x, y, w, h, bgColor);
 	return qtrue;
@@ -1246,11 +1246,11 @@ qboolean CG_CHUDRenderBackground(const cherryhudConfig_t* config, float x, float
 qboolean CG_CHUDRenderBorder(const cherryhudConfig_t* config, float x, float y, float w, float h)
 {
 	vec4_t borderColor;
-	
+
 	if (!config || !config->border.isSet || !config->border.color.isSet) {
 		return qfalse;
 	}
-	
+
 	CG_CHUDConfigPickBorderColor(config, borderColor, qfalse);
 	CG_CHUDDrawBorderCentralized(x, y, w, h, config->border.sideSizes, borderColor);
 	return qtrue;
@@ -1260,10 +1260,10 @@ qboolean CG_CHUDRenderBorder(const cherryhudConfig_t* config, float x, float y, 
 void CG_CHUDRenderBackgroundAndBorder(const cherryhudConfig_t* config, float x, float y, float w, float h)
 {
 	if (!config) return;
-	
+
 	// Render background first
 	CG_CHUDRenderBackground(config, x, y, w, h);
-	
+
 	// Then render border on top
 	CG_CHUDRenderBorder(config, x, y, w, h);
 }
@@ -1303,7 +1303,7 @@ float CG_CHUDApplyAlignV(float y, float height, cherryhudAlignV_t alignV)
 }
 
 // Apply both horizontal and vertical alignment to position
-void CG_CHUDApplyAlignment(float* x, float* y, float width, float height, 
+void CG_CHUDApplyAlignment(float* x, float* y, float width, float height,
                           cherryhudAlignH_t alignH, cherryhudAlignV_t alignV)
 {
 	if (x) *x = CG_CHUDApplyAlignH(*x, width, alignH);
@@ -1311,11 +1311,11 @@ void CG_CHUDApplyAlignment(float* x, float* y, float width, float height,
 }
 
 // Get alignment values from config with defaults
-void CG_CHUDGetAlignmentFromConfig(const cherryhudConfig_t* config, 
+void CG_CHUDGetAlignmentFromConfig(const cherryhudConfig_t* config,
                                   cherryhudAlignH_t* alignH, cherryhudAlignV_t* alignV)
 {
 	if (!config) return;
-	
+
 	if (alignH) {
 		*alignH = config->alignH.isSet ? config->alignH.value : CHERRYHUD_ALIGNH_LEFT;
 	}
@@ -1325,11 +1325,11 @@ void CG_CHUDGetAlignmentFromConfig(const cherryhudConfig_t* config,
 }
 
 // Get textExt alignment values from config with defaults
-void CG_CHUDGetTextExtAlignmentFromConfig(const cherryhudConfig_t* config, 
+void CG_CHUDGetTextExtAlignmentFromConfig(const cherryhudConfig_t* config,
                                          cherryhudAlignH_t* alignH, cherryhudAlignV_t* alignV)
 {
 	if (!config) return;
-	
+
 	if (alignH) {
 		*alignH = config->textExt.alignH.isSet ? config->textExt.alignH.value : CHERRYHUD_ALIGNH_LEFT;
 	}
@@ -1339,31 +1339,31 @@ void CG_CHUDGetTextExtAlignmentFromConfig(const cherryhudConfig_t* config,
 }
 
 // Apply alignment to text context
-void CG_CHUDApplyAlignmentToTextContext(cherryhudTextContext_t* textCtx, 
+void CG_CHUDApplyAlignmentToTextContext(cherryhudTextContext_t* textCtx,
                                        cherryhudAlignH_t alignH, cherryhudAlignV_t alignV)
 {
 	if (!textCtx) return;
-	
+
 	textCtx->pos[0] = CG_CHUDApplyAlignH(textCtx->pos[0], textCtx->width, alignH);
 	textCtx->pos[1] = CG_CHUDApplyAlignV(textCtx->pos[1], textCtx->width, alignV);
 }
 
 // Apply alignment to draw context
-void CG_CHUDApplyAlignmentToDrawContext(cherryhudDrawContext_t* drawCtx, 
+void CG_CHUDApplyAlignmentToDrawContext(cherryhudDrawContext_t* drawCtx,
                                        cherryhudAlignH_t alignH, cherryhudAlignV_t alignV)
 {
 	if (!drawCtx) return;
-	
+
 	drawCtx->pos[0] = CG_CHUDApplyAlignH(drawCtx->pos[0], drawCtx->size[0], alignH);
 	drawCtx->pos[1] = CG_CHUDApplyAlignV(drawCtx->pos[1], drawCtx->size[1], alignV);
 }
 
 // Apply alignment to layout bounds
-void CG_CHUDApplyAlignmentToBounds(cherryhudLayoutBounds_t* bounds, 
+void CG_CHUDApplyAlignmentToBounds(cherryhudLayoutBounds_t* bounds,
                                   cherryhudAlignH_t alignH, cherryhudAlignV_t alignV)
 {
 	if (!bounds) return;
-	
+
 	bounds->x = CG_CHUDApplyAlignH(bounds->x, bounds->width, alignH);
 	bounds->y = CG_CHUDApplyAlignV(bounds->y, bounds->height, alignV);
 }
@@ -1373,9 +1373,9 @@ void CG_CHUDApplyConfigAlignmentToBounds(const cherryhudConfig_t* config, cherry
 {
 	cherryhudAlignH_t alignH;
 	cherryhudAlignV_t alignV;
-	
+
 	if (!config || !bounds) return;
-	
+
 	CG_CHUDGetAlignmentFromConfig(config, &alignH, &alignV);
 	CG_CHUDApplyAlignmentToBounds(bounds, alignH, alignV);
 }
@@ -1385,9 +1385,9 @@ void CG_CHUDApplyTextExtAlignmentToBounds(const cherryhudConfig_t* config, cherr
 {
 	cherryhudAlignH_t alignH;
 	cherryhudAlignV_t alignV;
-	
+
 	if (!config || !bounds) return;
-	
+
 	CG_CHUDGetTextExtAlignmentFromConfig(config, &alignH, &alignV);
 	CG_CHUDApplyAlignmentToBounds(bounds, alignH, alignV);
 }
@@ -1403,20 +1403,20 @@ void CG_CHUDFormatNumber(float value, const char* format, char* output, int maxl
 	int len;
 	qboolean hasDecimal;
 	qboolean hasSuffix;
-	
+
 	if (!format || !output || maxlen <= 0) {
 		if (output && maxlen > 0) {
 			output[0] = '\0';
 		}
 		return;
 	}
-	
+
 	// Initialize
 	decimalPlaces = 0;
 	suffix[0] = '\0';
 	hasDecimal = qfalse;
 	hasSuffix = qfalse;
-	
+
 	// Parse format string
 	len = strlen(format);
 	for (i = 0; i < len; i++) {
@@ -1439,7 +1439,7 @@ void CG_CHUDFormatNumber(float value, const char* format, char* output, int maxl
 			hasSuffix = qtrue;
 		}
 	}
-	
+
 	// Build format string for sprintf
 	if (hasDecimal) {
 		if (hasSuffix && suffix[0] == '%') {
@@ -1485,20 +1485,20 @@ qboolean CG_CHUDValidateBounds(cherryhudLayoutBounds_t* bounds) {
 }
 
 // Common rendering utilities
-void CG_CHUDRenderElementWithValidation(void* element, const cherryhudConfig_t* config, 
+void CG_CHUDRenderElementWithValidation(void* element, const cherryhudConfig_t* config,
                                        cherryhudLayoutBounds_t* bounds, int clientNum) {
     // Validate inputs
-    if (!CG_CHUDValidateElementAndConfig(element, config) || 
-        !CG_CHUDValidateBounds(bounds) || 
+    if (!CG_CHUDValidateElementAndConfig(element, config) ||
+        !CG_CHUDValidateBounds(bounds) ||
         !CG_CHUDValidateClientNumber(clientNum)) {
         return;
     }
-    
+
     // Check visibility
     if (!CG_CHUDCheckElementVisibility(config, clientNum, (cherryhudElement_t*)element)) {
         return;
     }
-    
+
     // Check hide flags
     if (CG_CHUDCheckElementHideFlags(config, clientNum, (cherryhudElement_t*)element)) {
         return;
@@ -1507,12 +1507,12 @@ void CG_CHUDRenderElementWithValidation(void* element, const cherryhudConfig_t* 
 
 void CG_CHUDRenderElementBackgroundAndBorder(const cherryhudConfig_t* config, cherryhudLayoutBounds_t* bounds) {
     if (!config || !bounds) return;
-    
+
     // Render background
     if (config->background.color.isSet) {
         CG_CHUDRenderContainerBackgroundFromBounds(config, bounds);
     }
-    
+
     // Render border
     if (config->border.isSet) {
         vec4_t borderColor;
@@ -1539,24 +1539,24 @@ qboolean CG_CHUDCheckElementVisibility(const cherryhudConfig_t* config, int clie
     qboolean is_gt_ca;
     qboolean anyFlagActive;
     qboolean allFlagsActive;
-    
+
     if (!config) {
         return qtrue; // No config, show by default
     }
-    
+
     // Get visflags from config
     vflags = config->visflags.isSet ? config->visflags.flags : 0;
-    
+
     // For scoreboard (element == NULL), always add chudscoreboard flag
     if (element == NULL) {
         vflags |= SE_CHUDSCOREBOARD_SHOW;
     }
-    
+
     // If no visflags set, show by default
     if (vflags == 0) {
         return qtrue;
     }
-    
+
     // Determine game state (similar to SuperHUD)
     is_intermission = (cg.intermissionStarted != 0);
     is_team_game = (cgs.gametype >= GT_TEAM);
@@ -1565,11 +1565,11 @@ qboolean CG_CHUDCheckElementVisibility(const cherryhudConfig_t* config, int clie
     is_scores = (cg.showScores != 0);
     is_gt_ffa = (cgs.gametype == GT_FFA);
     is_gt_tdm = (cgs.gametype == GT_TEAM);
-    is_gt_ctf = (cgs.gametype == GT_CTF);
+    is_gt_ctf = (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF);
     is_gt_tourney = (cgs.gametype == GT_TOURNAMENT);
     is_gt_ft = (cgs.gametype == GT_TEAM && cgs.osp.gameTypeFreeze);
     is_gt_ca = (cgs.gametype == GT_CA);
-    
+
     // Check which flags are currently active
     anyFlagActive = ((vflags & SE_IM) && is_intermission) ||
                     ((vflags & SE_TEAM_ONLY) && is_team_game) ||
@@ -1592,7 +1592,7 @@ qboolean CG_CHUDCheckElementVisibility(const cherryhudConfig_t* config, int clie
                     ((vflags & SE_ACTIVE_PLAYER) && (clientNum == cg.snap->ps.clientNum)) ||
                     ((vflags & SE_READY) && (cg.warmup && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum)))) ||
                     ((vflags & SE_FROZEN) && (!cg.warmup && CG_OSPIsGameTypeFreeze() && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum))));
-    
+
     // Check if ALL flags are active (for AND operation)
     // Only check flags that are actually set in the visflags
     allFlagsActive = qtrue;
@@ -1617,29 +1617,29 @@ qboolean CG_CHUDCheckElementVisibility(const cherryhudConfig_t* config, int clie
     if (vflags & SE_ACTIVE_PLAYER) allFlagsActive = allFlagsActive && (clientNum == cg.snap->ps.clientNum);
     if (vflags & SE_READY) allFlagsActive = allFlagsActive && (cg.warmup && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum)));
     if (vflags & SE_FROZEN) allFlagsActive = allFlagsActive && (!cg.warmup && CG_OSPIsGameTypeFreeze() && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum)));
-    
+
     // Determine if we should show based on operation type
     if (config->visflags.op == CHERRYHUD_VISFLAGS_OP_AND) {
         skip = !allFlagsActive; // Show only if ALL flags are active
     } else {
         skip = !anyFlagActive;  // Show if ANY flag is active (OR operation)
     }
-    
+
     // Check container mode flags
     if (!skip) {
         int elementMode = CG_CHUDGetElementContainerMode(element);
-        
+
         // Check compact mode flag
         if ((vflags & SE_COMPACT_MODE) && elementMode != 1) {
             skip = qtrue; // Don't show if compact mode required but not active
         }
-        
+
         // Check double mode flag
         if ((vflags & SE_DOUBLE_MODE) && elementMode != 2) {
             skip = qtrue; // Don't show if double mode required but not active
         }
     }
-    
+
     return !skip; // Return true if not skipped (should be visible)
 }
 
@@ -1662,19 +1662,19 @@ qboolean CG_CHUDCheckElementHideFlags(const cherryhudConfig_t* config, int clien
     qboolean is_gt_ca;
     qboolean anyFlagActive;
     qboolean allFlagsActive;
-    
+
     if (!config) {
         return qfalse; // No config, don't hide by default
     }
-    
+
     // Get hideflags from config
     hflags = config->hideflags.isSet ? config->hideflags.flags : 0;
-    
+
     // If no hideflags set, don't hide by default
     if (hflags == 0) {
         return qfalse;
     }
-    
+
     // Determine game state (same as visflags)
     is_intermission = (cg.intermissionStarted != 0);
     is_team_game = (cgs.gametype >= GT_TEAM);
@@ -1683,11 +1683,11 @@ qboolean CG_CHUDCheckElementHideFlags(const cherryhudConfig_t* config, int clien
     is_scores = (cg.showScores != 0);
     is_gt_ffa = (cgs.gametype == GT_FFA);
     is_gt_tdm = (cgs.gametype == GT_TEAM);
-    is_gt_ctf = (cgs.gametype == GT_CTF);
+    is_gt_ctf = (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF);
     is_gt_tourney = (cgs.gametype == GT_TOURNAMENT);
     is_gt_ft = (cgs.gametype == GT_TEAM && cgs.osp.gameTypeFreeze);
     is_gt_ca = (cgs.gametype == GT_CA);
-    
+
     // Check which flags are currently active (same logic as visflags)
     anyFlagActive = ((hflags & SE_IM) && is_intermission) ||
                     ((hflags & SE_TEAM_ONLY) && is_team_game) ||
@@ -1710,7 +1710,7 @@ qboolean CG_CHUDCheckElementHideFlags(const cherryhudConfig_t* config, int clien
                     ((hflags & SE_ACTIVE_PLAYER) && (clientNum == cg.snap->ps.clientNum)) ||
                     ((hflags & SE_READY) && (cg.warmup && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum)))) ||
                     ((hflags & SE_FROZEN) && (!cg.warmup && CG_OSPIsGameTypeFreeze() && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum))));
-    
+
     // Check if ALL flags are active (for AND operation)
     allFlagsActive = qtrue;
     if (hflags & SE_IM) allFlagsActive = allFlagsActive && is_intermission;
@@ -1734,29 +1734,29 @@ qboolean CG_CHUDCheckElementHideFlags(const cherryhudConfig_t* config, int clien
     if (hflags & SE_ACTIVE_PLAYER) allFlagsActive = allFlagsActive && (clientNum == cg.snap->ps.clientNum);
     if (hflags & SE_READY) allFlagsActive = allFlagsActive && (cg.warmup && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum)));
     if (hflags & SE_FROZEN) allFlagsActive = allFlagsActive && (!cg.warmup && CG_OSPIsGameTypeFreeze() && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum)));
-    
+
     // Determine if we should hide based on operation type
     if (config->hideflags.op == CHERRYHUD_VISFLAGS_OP_AND) {
         hide = allFlagsActive; // Hide if ALL flags are active
     } else {
         hide = anyFlagActive;  // Hide if ANY flag is active (OR operation)
     }
-    
+
     // Check container mode flags
     if (!hide) {
         int elementMode = CG_CHUDGetElementContainerMode(element);
-        
+
         // Check compact mode flag
         if ((hflags & SE_COMPACT_MODE) && elementMode == 1) {
             hide = qtrue; // Hide if compact mode is active
         }
-        
+
         // Check double mode flag
         if ((hflags & SE_DOUBLE_MODE) && elementMode == 2) {
             hide = qtrue; // Hide if double mode is active
         }
     }
-    
+
     return hide; // Return true if should be hidden
 }
 
@@ -1768,31 +1768,31 @@ qboolean CG_CHUDCheckLocalClientVisibility(const cherryhudConfig_t* config, int 
     if (!config || !config->visflags.isSet) {
         return qtrue; // No visflags set, show by default
     }
-    
+
     // Check if localClient flag is set
     if (config->visflags.flags & SE_LOCAL_CLIENT) {
         // Only show if this is the local client (our ID)
         return (clientNum == cg.clientNum);
     }
-    
+
     // Check if activePlayer flag is set
     if (config->visflags.flags & SE_ACTIVE_PLAYER) {
         // Only show if this is the active player (who we're observing)
         return (clientNum == cg.snap->ps.clientNum);
     }
-    
+
     // Check if ready flag is set
     if (config->visflags.flags & SE_READY) {
         // Only show if this player is ready AND we're in warmup
         return (cg.warmup && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum)) != 0);
     }
-    
+
     // Check if frozen flag is set
     if (config->visflags.flags & SE_FROZEN) {
         // Only show if this player is frozen (ready in freeze tag mode, not in warmup)
         return (!cg.warmup && CG_OSPIsGameTypeFreeze() && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum)) != 0);
     }
-    
+
     return qtrue; // No localClient restriction, show by default
 }
 
@@ -1801,11 +1801,11 @@ int CG_CHUDGetElementContainerMode(cherryhudElement_t* element) {
     if (!element || !element->containerType) {
         return 0; // No container, no mode
     }
-    
+
     // For containers with extendedtype, determine mode dynamically
     if (Q_stricmp(element->containerType, "playersRows") == 0 ||
         Q_stricmp(element->containerType, "spectatorsRows") == 0) {
-        
+
         // Get the container config to check extendedtype
         const cherryhudScoreboardOrder_t* scoreboardOrder = CG_CHUDScoreboardOrderGet();
         if (scoreboardOrder) {
@@ -1815,7 +1815,7 @@ int CG_CHUDGetElementContainerMode(cherryhudElement_t* element) {
                      scoreboardOrder->blocks[i].type == CHERRYHUD_BLOCK_TYPE_PLAYERS_ROWS) ||
                     (Q_stricmp(element->containerType, "spectatorsRows") == 0 &&
                      scoreboardOrder->blocks[i].type == CHERRYHUD_BLOCK_TYPE_SPECTATORS_ROWS)) {
-                    
+
                     // Check if container has extendedtype and if it's currently active
                     if (scoreboardOrder->blocks[i].config.extendedType.isSet) {
                         const char* activeMode = CG_CHUDGetContainerActiveMode(element->containerType, 0.0f);
@@ -1834,7 +1834,7 @@ int CG_CHUDGetElementContainerMode(cherryhudElement_t* element) {
             }
         }
     }
-    
+
     return 0; // none mode
 }
 
@@ -1843,31 +1843,31 @@ qboolean CG_CHUDCheckHideFlagVisibility(const cherryhudConfig_t* config, int cli
     if (!config || !config->hideflags.isSet) {
         return qtrue; // No hideflags set, show by default
     }
-    
+
     // Check if localClient flag is set in hideflags
     if (config->hideflags.flags & SE_LOCAL_CLIENT) {
         // Hide if this is the local client (our ID)
         return (clientNum != cg.clientNum);
     }
-    
+
     // Check if activePlayer flag is set in hideflags
     if (config->hideflags.flags & SE_ACTIVE_PLAYER) {
         // Hide if this is the active player (who we're observing)
         return (clientNum != cg.snap->ps.clientNum);
     }
-    
+
     // Check if ready flag is set in hideflags
     if (config->hideflags.flags & SE_READY) {
         // Hide if this player is ready AND we're in warmup
         return !(cg.warmup && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum)) != 0);
     }
-    
+
     // Check if frozen flag is set in hideflags
     if (config->hideflags.flags & SE_FROZEN) {
         // Hide if this player is frozen (ready in freeze tag mode, not in warmup)
         return !(!cg.warmup && CG_OSPIsGameTypeFreeze() && (cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << clientNum)) != 0);
     }
-    
+
     return qtrue; // No localClient restriction, show by default
 }
 

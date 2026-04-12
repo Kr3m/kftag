@@ -330,7 +330,7 @@ void CG_UpdateWeaponTracking(int weapon)
 	// Получаем текущее количество патронов и вычисляем разность попаданий
 	currentAmmo = ps->ammo[weapon];
 	hitsDelta = ps->persistant[PERS_HITS] - lastHitsValue;
-	
+
 	// Проверяем режим OSP для определения метода подсчета попаданий и урона
 	if (atta == 0) // OSP режим - в PERS_HITS хранится урон, количество попаданий = 1
 	{
@@ -342,7 +342,7 @@ void CG_UpdateWeaponTracking(int weapon)
 		actualHits = hitsDelta; // Количество попаданий равно разности
 		currentDamage = atta & 0x00FF; // Урон извлекается из PERS_ATTACKEE_ARMOR
 	}
-	
+
 	// Обновляем значение для следующего вызова
 	lastHitsValue = ps->persistant[PERS_HITS];
 
@@ -635,7 +635,7 @@ void CG_HitSound(playerState_t* ps, playerState_t* ops)
 		// TODO we need some solution when we take quad cuz sometimes with LG dmg + delayedDMG > 25
 		//damage = ops->powerups[PW_QUAD] ? 26 : damage; // for a homogeneous sound with quad
 
-		
+
 		if (((BE_IsDamageInfoAllowed())
 		        && cg_hitSounds.integer) || cgs.osp.server_mode == OSP_SERVER_MODE_PROMODE || cgs.osp.server_mode == OSP_SERVER_MODE_CQ3)
 		{
@@ -758,9 +758,23 @@ void CG_CheckLocalSounds(playerState_t* ps, playerState_t* ops)
 	// check for flag pickup
 	if (cgs.gametype >= GT_TEAM)
 	{
-		if ((ps->powerups[PW_REDFLAG] != ops->powerups[PW_REDFLAG] && ps->powerups[PW_REDFLAG]) ||
-		        (ps->powerups[PW_BLUEFLAG] != ops->powerups[PW_BLUEFLAG] && ps->powerups[PW_BLUEFLAG]) ||
-		        (ps->powerups[PW_NEUTRALFLAG] != ops->powerups[PW_NEUTRALFLAG] && ps->powerups[PW_NEUTRALFLAG]))
+		int myTeam = cgs.clientinfo[cg.clientNum].team;
+		qboolean pickedUpEnemyFlag;
+
+		if (cgs.gametype == GT_RTF) {
+			// In RTF a player can carry their OWN team's flag (to return it).
+			// Only play the "you have the flag" sound when picking up the ENEMY flag.
+			pickedUpEnemyFlag =
+				(myTeam == TEAM_RED  && ps->powerups[PW_BLUEFLAG] != ops->powerups[PW_BLUEFLAG] && ps->powerups[PW_BLUEFLAG]) ||
+				(myTeam == TEAM_BLUE && ps->powerups[PW_REDFLAG]  != ops->powerups[PW_REDFLAG]  && ps->powerups[PW_REDFLAG]);
+		} else {
+			pickedUpEnemyFlag =
+				(ps->powerups[PW_REDFLAG]    != ops->powerups[PW_REDFLAG]    && ps->powerups[PW_REDFLAG]) ||
+				(ps->powerups[PW_BLUEFLAG]   != ops->powerups[PW_BLUEFLAG]   && ps->powerups[PW_BLUEFLAG]) ||
+				(ps->powerups[PW_NEUTRALFLAG] != ops->powerups[PW_NEUTRALFLAG] && ps->powerups[PW_NEUTRALFLAG]);
+		}
+
+		if (pickedUpEnemyFlag)
 		{
 			trap_S_StartLocalSound(cgs.media.youHaveFlagSound, CHAN_ANNOUNCER);
 		}

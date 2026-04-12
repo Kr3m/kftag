@@ -538,11 +538,32 @@ static gentity_t *Team_ResetFlag( team_t team ) {
 
 	ent = NULL;
 	while ((ent = G_Find (ent, FOFS(classname), c)) != NULL) {
-		if (ent->flags & FL_DROPPED_ITEM)
+		if (ent->flags & FL_DROPPED_ITEM) {
 			G_FreeEntity(ent);
-		else {
+		} else {
 			rent = ent;
-			RespawnItem(ent);
+			// Only respawn if the flag was taken (EF_NODRAW set).
+			// Calling RespawnItem on an already-visible base entity fires
+			// EV_ITEM_RESPAWN and causes a phantom "flag spawn" visual.
+			if (ent->s.eFlags & EF_NODRAW) {
+				RespawnItem(ent);
+			}
+		}
+	}
+
+	// Strip the flag powerup from any player still carrying this flag.
+	// When a flag is reset (after a capture, auto-return, etc.) any carrier
+	// must lose their powerup immediately.  Without this the base entity
+	// becomes visible again while the player still appears as a carrier,
+	// producing a phantom extra flag on the map.
+	if ( team == TEAM_RED || team == TEAM_BLUE ) {
+		int flag_pw = (team == TEAM_RED) ? PW_REDFLAG : PW_BLUEFLAG;
+		int i;
+		for ( i = 0; i < level.maxclients; i++ ) {
+			gentity_t *player = &g_entities[i];
+			if ( player->inuse && player->client ) {
+				player->client->ps.powerups[flag_pw] = 0;
+			}
 		}
 	}
 
@@ -725,33 +746,59 @@ static int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 	// GT_RTF: player picks up their own flag and carries it home.
 	if ( g_gametype.integer == GT_RTF ) {
 		if ( ent->flags & FL_DROPPED_ITEM ) {
+			// Sanity check: if the base already has this flag (FLAG_ATBASE),
+			// this dropped entity is spurious (left over from a prior reset).
+			// Free it silently rather than handing the player a second flag.
+			{
+				flagStatus_t baseStatus = (team == TEAM_RED) ? teamgame.redStatus
+				                                             : teamgame.blueStatus;
+				if ( baseStatus == FLAG_ATBASE ) {
+					return -1; // discard ghost dropped entity
+				}
+			}
 			// Own flag is dropped — player picks it up and carries it back.
 			PrintMsg( NULL, "%s" S_COLOR_WHITE " picked up the %s flag!\n",
 				cl->pers.netname, TeamName(team));
 			cl->ps.powerups[own_flag] = INT_MAX;
 			other->client->pers.teamState.flagsince = level.time;
 			Team_SetFlagStatus( team, FLAG_TAKEN );
-			Team_TakeFlagSound( ent, team );
+			// Do NOT call Team_TakeFlagSound here: that function emits
+			// GTS_BLUE_TAKEN/GTS_RED_TAKEN with inverted semantics, which
+			// would play "enemy took your flag" for an own-flag return pickup.
 			return -1; // delete the dropped entity, do not respawn
 		}
-		// Flag is at base.
+		// Touching a base entity (not a dropped item).
 		if ( cl->ps.powerups[own_flag] ) {
-			// Player carrying own flag touches base — return it.
-			PrintMsg( NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n",
-				cl->pers.netname, TeamName(team));
-			cl->ps.powerups[own_flag] = 0;
-			AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
-			other->client->pers.teamState.flagrecovery++;
-			other->client->pers.teamState.lastreturnedflag = level.time;
-			Team_ReturnFlagSound(Team_ResetFlag(team), team);
-			// If the player also has the enemy flag they capture right now.
-			if ( cl->ps.powerups[enemy_flag] ) {
-				goto rtf_capture;
+			if ( ent->s.eFlags & EF_NODRAW ) {
+				// Slot is empty — return the flag here, then try to capture.
+				PrintMsg( NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n",
+					cl->pers.netname, TeamName(team));
+				cl->ps.powerups[own_flag] = 0;
+				AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
+				other->client->pers.teamState.flagrecovery++;
+				other->client->pers.teamState.lastreturnedflag = level.time;
+				Team_ReturnFlagSound(Team_ResetFlag(team), team);
+				// If the player also has the enemy flag, capture right now.
+				if ( cl->ps.powerups[enemy_flag] ) {
+					goto rtf_capture;
+				}
+				return 0;
 			}
-			return 0;
+			// Slot is full — can't return here.
+			// If the player also has the enemy flag, fall through to the
+			// capture check below so they can still score on this occupied slot.
+			if ( !cl->ps.powerups[enemy_flag] ) {
+				return 0;
+			}
+			// else: fall through to enemy_flag capture check
 		}
-		// Player has only the enemy flag and reaches their own base — capture.
+		// Player has only the enemy flag and reaches their own base — capture
+		// only if this specific base entity currently has our flag present
+		// (EF_NODRAW clear means flag is home here).
 		if ( cl->ps.powerups[enemy_flag] ) {
+			if ( ent->s.eFlags & EF_NODRAW ) {
+				return 0; // no flag at this base, can't capture here
+			}
 			rtf_capture:;
 			PrintMsg( NULL, "%s" S_COLOR_WHITE " captured the %s flag!\n",
 				cl->pers.netname, TeamName(OtherTeam(team)));
@@ -797,7 +844,10 @@ static int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 					}
 				}
 			}
-			Team_ResetFlags();
+			// RTF: only reset the enemy flag that was just captured.
+			// The own team's flags (dropped or carried) stay where they are.
+			// Team_ResetFlags() would wrongly pull own dropped flags back to base.
+			Team_ResetFlag( OtherTeam( team ) );
 			CalculateRanks();
 			return 0;
 		}

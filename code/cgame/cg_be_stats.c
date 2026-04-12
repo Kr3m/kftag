@@ -702,7 +702,7 @@ void CG_BEStatsBuildGeneral(BEStatToken_t tokens[32][12], int startRow, int* out
 	{
 		CG_BEStatsBuildGeneral_Team(tokens, outCols);
 	}
-	else if (cgs.gametype == GT_CTF)
+	else if (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF)
 	{
 		CG_BEStatsBuildGeneral_CTF(tokens, outCols);
 		numRows = (set->statsStyle == 2) ? 6 : 3;

@@ -277,6 +277,9 @@ void CG_DrawInformation(void)
 		case GT_CTF:
 			s = "Capture The Flag";
 			break;
+		case GT_RTF:
+			s = "Return The Flag";
+			break;
 		default:
 			s = "Unknown Gametype";
 			break;

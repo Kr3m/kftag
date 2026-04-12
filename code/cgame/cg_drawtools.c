@@ -114,11 +114,14 @@ Adjusted for resolution and screen aspect ratio
 */
 void CG_AdjustFrom640(float* x, float* y, float* w, float* h)
 {
-	// scale for screen sizes
-	if (x) *x *= cgs.screenXScale_Old;
-	if (y) *y *= cgs.screenYScale_Old;
-	if (w) *w *= cgs.screenXScale_Old;
-	if (h) *h *= cgs.screenYScale_Old;
+	// Aspect-correct scaling: matches missionpackplus CG_AdjustFrom640.
+	// screenXScale = vidHeight/480 (keeps 4:3 FOV projection correct),
+	// screenXBias  = (vidWidth - vidHeight*640/480)/2 (centres the area).
+	// screenYScale = same as screenXScale; screenYBias = 0 for widescreen.
+	if (x) *x = *x * cgs.screenXScale + cgs.screenXBias;
+	if (y) *y = *y * cgs.screenYScale + cgs.screenYBias;
+	if (w) *w *= cgs.screenXScale;
+	if (h) *h *= cgs.screenYScale;
 }
 void CG_AdjustFrom640_Old(float* x, float* y, float* w, float* h, qboolean correctWide)
 {

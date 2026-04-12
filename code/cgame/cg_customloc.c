@@ -256,7 +256,7 @@ void CG_InitCTFLocations(void)
 	for (i = 0; i < MAX_LOCATIONS; ++i)
 	{
 		locStrCS = CG_ConfigString(CS_LOCATIONS + i);
-		if (cgs.gametype == GT_CTF)
+		if (cgs.gametype == GT_CTF || cgs.gametype == GT_RTF)
 		{
 			if (Q_stricmpn("blue", locStrCS, 4) == 0)
 			{
