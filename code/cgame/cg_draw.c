@@ -824,7 +824,7 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	for (i = 0; i < count; i++)
 	{
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if (ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM])
+		if (ci->infoValid && ci->rt == (team_t)cg.snap->ps.persistant[PERS_TEAM])
 		{
 			plyrs++;
 			len = CG_DrawStrlen(ci->name);
@@ -895,7 +895,7 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	for (i = 0; i < count; i++)
 	{
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if (ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM])
+		if (ci->infoValid && ci->rt == (team_t)cg.snap->ps.persistant[PERS_TEAM])
 		{
 
 			hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0;

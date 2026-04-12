@@ -251,7 +251,7 @@ void CG_RailTrail(clientInfo_t* ci, vec3_t start, vec3_t end)
 
 	if (cg_teamRails.integer && cgs.gametype >= GT_TEAM)
 	{
-		if (ci->team == TEAM_RED)
+		if (ci->rt == TEAM_RED)
 		{
 			re->shaderRGBA[0] = cgs.be.redTeamColor[0] * 255;
 			re->shaderRGBA[1] = cgs.be.redTeamColor[1] * 255;
@@ -261,7 +261,7 @@ void CG_RailTrail(clientInfo_t* ci, vec3_t start, vec3_t end)
 			le->color[1] = cgs.be.redTeamColor[1] * 0.75;
 			le->color[2] = cgs.be.redTeamColor[2] * 0.75;
 		}
-		else if (ci->team == TEAM_BLUE)
+		else if (ci->rt == TEAM_BLUE)
 		{
 			re->shaderRGBA[0] = cgs.be.blueTeamColor[0] * 255;
 			re->shaderRGBA[1] = cgs.be.blueTeamColor[1] * 255;
@@ -1434,7 +1434,7 @@ static void CG_SpawnRailTrail(centity_t* cent, vec3_t origin)
 	{
 		return;
 	}
-	cent->pe.railgunFlash = qtrue;
+	cent->pe.railgunFlash = qfalse;
 	ci = &cgs.clientinfo[ cent->currentState.clientNum ];
 	CG_RailTrail(ci, origin, cent->pe.railgunImpact);
 }

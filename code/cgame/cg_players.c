@@ -46,15 +46,9 @@ qboolean CG_IsEnemy(const clientInfo_t* target)
 {
 	const clientInfo_t* local = &cgs.clientinfo[cg.clientNum];
 	int myStateTeam = cg.snap->ps.persistant[PERS_TEAM];
-	int myRealTeam  = local->team;
-	int enemyTeam = target->team;
+	int myRealTeam  = local->rt;
+	int enemyTeam = target->rt;
 	team_t ourPerspectiveTeam;
-
-	if (CG_OSPIsGameTypeCA(cgs.gametype))
-	{
-		myRealTeam = local->rt;
-		enemyTeam = target->rt;
-	}
 
 
 	if (target == local)
@@ -75,16 +69,8 @@ qboolean CG_IsEnemy(const clientInfo_t* target)
 			qboolean result;
 			team_t targetTeam;
 
-			if (CG_OSPIsGameTypeCA(cgs.gametype))
-			{
-				ourPerspectiveTeam = cgs.clientinfo[cg.snap->ps.clientNum].rt;
-				targetTeam = target->rt;
-			}
-			else
-			{
-				ourPerspectiveTeam = cgs.clientinfo[cg.snap->ps.clientNum].team;
-				targetTeam = target->team;
-			}
+			ourPerspectiveTeam = cgs.clientinfo[cg.snap->ps.clientNum].rt;
+			targetTeam = target->rt;
 
 			result = (ourPerspectiveTeam != targetTeam);
 
@@ -3299,7 +3285,7 @@ void CG_AddOutline(refEntity_t* ent, centity_t* cent)
 
 	if (isSpectator && !cg_spectPOV.integer)
 	{
-		if (ci->team == TEAM_RED)
+		if (ci->rt == TEAM_RED)
 			Vector4Copy(cgs.be.teamOutlineColor, color);
 		else
 			Vector4Copy(cgs.be.enemyOutlineColor, color);
