@@ -846,6 +846,13 @@ void CG_PredictPlayerState(void)
 		{
 			CG_Printf("not moved\n");
 		}
+		// nextSnap->ps may have advanced eventSequence past what was previously
+		// predicted (e.g. a jumppad touch whose snapshot arrived before we had
+		// a new cmd to replay). Fire the transition so those events aren't dropped.
+		if (cg.predictedPlayerState.eventSequence != oldPlayerState.eventSequence)
+		{
+			CG_TransitionPlayerState(&cg.predictedPlayerState, &oldPlayerState);
+		}
 		return;
 	}
 

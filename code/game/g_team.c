@@ -791,13 +791,14 @@ static int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 				}
 				return 0;
 			}
-			// Slot is full — can't return here.
-			// If the player also has the enemy flag, fall through to the
-			// capture check below so they can still score on this occupied slot.
+			// Slot is full — the base entity was already respawned while the
+			// player was carrying the own flag from a dropped pickup. Clear the
+			// stale powerup so the client stays in sync with the entity state.
+			cl->ps.powerups[own_flag] = 0;
 			if ( !cl->ps.powerups[enemy_flag] ) {
 				return 0;
 			}
-			// else: fall through to enemy_flag capture check
+			// Has the enemy flag too — fall through and capture it.
 		}
 		// Player has only the enemy flag and reaches their own base — capture
 		// only if this specific base entity currently has our flag present
