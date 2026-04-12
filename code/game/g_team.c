@@ -562,6 +562,13 @@ static gentity_t *Team_ResetFlag( team_t team ) {
 		for ( i = 0; i < level.maxclients; i++ ) {
 			gentity_t *player = &g_entities[i];
 			if ( player->inuse && player->client ) {
+				// In RTF, a player on the same team as this flag may be
+				// carrying it for return — do not strip their powerup.
+				// Only enemy carriers lose it when the flag is reset.
+				if ( g_gametype.integer == GT_RTF &&
+				     player->client->sess.sessionTeam == team ) {
+					continue;
+				}
 				player->client->ps.powerups[flag_pw] = 0;
 			}
 		}

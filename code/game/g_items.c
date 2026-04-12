@@ -793,8 +793,15 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 #else
 	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_RTF) && item->giType == IT_TEAM) { // Special case for CTF flags
 #endif
-		dropped->think = Team_DroppedFlagThink;
-		dropped->nextthink = level.time + 30000;
+		if ( g_gametype.integer == GT_RTF ) {
+			// In RTF dropped flags must stay on the map until a player
+			// picks them up — they never auto-return to base.
+			dropped->think = NULL;
+			dropped->nextthink = 0;
+		} else {
+			dropped->think = Team_DroppedFlagThink;
+			dropped->nextthink = level.time + 30000;
+		}
 		Team_CheckDroppedItem( dropped );
 	} else { // auto-remove after 30 seconds
 		dropped->think = G_FreeEntity;

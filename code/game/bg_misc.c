@@ -1168,28 +1168,26 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 		if( gametype == GT_RTF ) {
 			// ent->modelindex2 is non-zero if the item is a dropped instance.
-			// Own flag at base: only touchable when carrying own flag (dock/return)
-			// or enemy flag (capture).  No interaction when empty-handed.
-			// Dropped own flag and enemy flag (at base or dropped) are always touchable.
-			// EF_NODRAW is set on a base flag entity after the flag is taken — the
-			// trigger volume stays active (for carrier docking) but must not allow
-			// additional pickups of an already-carried flag.
+			// A player may carry at most two flags and they must be different colors.
+			// EF_NODRAW is set on a base flag entity while the flag is away.
 			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
-				if (item->giTag == PW_BLUEFLAG && !(ent->eFlags & EF_NODRAW))
+				// Enemy (blue) flag: grabbable unless already carrying one
+				if (item->giTag == PW_BLUEFLAG && !ps->powerups[PW_BLUEFLAG] && !(ent->eFlags & EF_NODRAW))
 					return qtrue;
 				if (item->giTag == PW_REDFLAG) {
-					if (ent->modelindex2) // dropped — pick up to carry home
+					if (ent->modelindex2 && !ps->powerups[PW_REDFLAG]) // dropped own flag — carry home
 						return qtrue;
-					if (ps->powerups[PW_REDFLAG] || ps->powerups[PW_BLUEFLAG])
+					if (ps->powerups[PW_REDFLAG] || ps->powerups[PW_BLUEFLAG]) // touch base to dock/cap
 						return qtrue;
 				}
 			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
-				if (item->giTag == PW_REDFLAG && !(ent->eFlags & EF_NODRAW))
+				// Enemy (red) flag: grabbable unless already carrying one
+				if (item->giTag == PW_REDFLAG && !ps->powerups[PW_REDFLAG] && !(ent->eFlags & EF_NODRAW))
 					return qtrue;
 				if (item->giTag == PW_BLUEFLAG) {
-					if (ent->modelindex2)
+					if (ent->modelindex2 && !ps->powerups[PW_BLUEFLAG]) // dropped own flag — carry home
 						return qtrue;
-					if (ps->powerups[PW_BLUEFLAG] || ps->powerups[PW_REDFLAG])
+					if (ps->powerups[PW_BLUEFLAG] || ps->powerups[PW_REDFLAG]) // touch base to dock/cap
 						return qtrue;
 				}
 			}

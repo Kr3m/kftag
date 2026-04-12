@@ -756,27 +756,15 @@ void CG_CheckLocalSounds(playerState_t* ps, playerState_t* ops)
 	}
 
 	// check for flag pickup
-	if (cgs.gametype >= GT_TEAM)
-	{
-		int myTeam = cgs.clientinfo[cg.clientNum].team;
-		qboolean pickedUpEnemyFlag;
-
-		if (cgs.gametype == GT_RTF) {
-			// In RTF a player can carry their OWN team's flag (to return it).
-			// Only play the "you have the flag" sound when picking up the ENEMY flag.
-			pickedUpEnemyFlag =
-				(myTeam == TEAM_RED  && ps->powerups[PW_BLUEFLAG] != ops->powerups[PW_BLUEFLAG] && ps->powerups[PW_BLUEFLAG]) ||
-				(myTeam == TEAM_BLUE && ps->powerups[PW_REDFLAG]  != ops->powerups[PW_REDFLAG]  && ps->powerups[PW_REDFLAG]);
-		} else {
-			pickedUpEnemyFlag =
-				(ps->powerups[PW_REDFLAG]    != ops->powerups[PW_REDFLAG]    && ps->powerups[PW_REDFLAG]) ||
-				(ps->powerups[PW_BLUEFLAG]   != ops->powerups[PW_BLUEFLAG]   && ps->powerups[PW_BLUEFLAG]) ||
-				(ps->powerups[PW_NEUTRALFLAG] != ops->powerups[PW_NEUTRALFLAG] && ps->powerups[PW_NEUTRALFLAG]);
-		}
-
-		if (pickedUpEnemyFlag)
+	// In RTF, GTS_RED_TAKEN / GTS_BLUE_TAKEN entity events are the authoritative
+	// trigger for youHaveFlagSound (immune to prediction !moved swallowing the
+	// powerup transition).  Skip this path in RTF to avoid double-play.
+	if ( cgs.gametype >= GT_TEAM && cgs.gametype != GT_RTF ) {
+		if ((ps->powerups[PW_REDFLAG]     != ops->powerups[PW_REDFLAG]     && ps->powerups[PW_REDFLAG]) ||
+			(ps->powerups[PW_BLUEFLAG]    != ops->powerups[PW_BLUEFLAG]    && ps->powerups[PW_BLUEFLAG]) ||
+			(ps->powerups[PW_NEUTRALFLAG] != ops->powerups[PW_NEUTRALFLAG] && ps->powerups[PW_NEUTRALFLAG]))
 		{
-			trap_S_StartLocalSound(cgs.media.youHaveFlagSound, CHAN_ANNOUNCER);
+			trap_S_StartLocalSound( cgs.media.youHaveFlagSound, CHAN_ANNOUNCER );
 		}
 	}
 

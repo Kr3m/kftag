@@ -620,7 +620,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	// if I committed suicide, the flag does not fall, it returns.
-	if (meansOfDeath == MOD_SUICIDE) {
+	// Exception: in RTF, flags should drop so teammates can pick them up.
+	// TossClientItems below handles the drop when the powerup is not pre-cleared here.
+	if (meansOfDeath == MOD_SUICIDE && g_gametype.integer != GT_RTF) {
 #ifdef MISSIONPACK
 		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
 			Team_ReturnFlag( TEAM_FREE );
