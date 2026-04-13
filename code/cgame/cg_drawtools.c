@@ -114,7 +114,8 @@ Adjusted for resolution and screen aspect ratio
 */
 void CG_AdjustFrom640(float* x, float* y, float* w, float* h)
 {
-	// scale for screen sizes
+	// Full-screen stretch: maps 640x480 virtual space to the full viewport.
+	// screenXScale_Old = vidWidth/640, so x=0 stays left, x=640 stays right.
 	if (x) *x *= cgs.screenXScale_Old;
 	if (y) *y *= cgs.screenYScale_Old;
 	if (w) *w *= cgs.screenXScale_Old;

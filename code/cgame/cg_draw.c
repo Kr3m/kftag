@@ -2362,7 +2362,7 @@ static void CG_DrawDamageFrame()
 	if (!cg.damageValue || cg.time - cg.damageTime <= 0 || cg.time - cg.damageTime >= DAMAGE_TIME)
 		return;
 
-	CG_AdjustFrom640(&x, &y, &w, &h);
+	CG_AdjustFrom640_Old(&x, &y, &w, &h, qfalse);
 
 	Vector4Set(red, 1.0f, 0.0f, 0.0f, cg_damageFrameOpaque.value);
 
@@ -2391,7 +2391,7 @@ static void CG_DrawHealthLowOverlay(void)
 	pulse = sin((float)cg.time * 2.0f * M_PI / 2000.0f) * 0.4f + 0.6f;
 	color[3] = pulse;
 
-	CG_AdjustFrom640(&x, &y, &w, &h);
+	CG_AdjustFrom640_Old(&x, &y, &w, &h, qfalse);
 	CG_OSPDrawBlurFrame(x, y, w, h, 128, color);
 }
 
