@@ -557,7 +557,7 @@ static void CG_DrawFlagPOIMarker( const vec3_t origin, qhandle_t shader, const v
 	}
 
 	trap_R_SetColor( color4 );
-	CG_DrawPic( sx - iconHalf, sy, iconHalf * 2.0f, iconHalf * 2.0f, shader );
+	CG_DrawPicAspect( sx - iconHalf, sy, iconHalf * 2.0f, iconHalf * 2.0f, shader );
 }
 
 static qboolean CG_TeammatePOITraceVisible( int entityNum, const vec3_t target ) {

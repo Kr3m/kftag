@@ -114,10 +114,18 @@ Adjusted for resolution and screen aspect ratio
 */
 void CG_AdjustFrom640(float* x, float* y, float* w, float* h)
 {
-	// Aspect-correct scaling: matches missionpackplus CG_AdjustFrom640.
-	// screenXScale = vidHeight/480 (keeps 4:3 FOV projection correct),
-	// screenXBias  = (vidWidth - vidHeight*640/480)/2 (centres the area).
-	// screenYScale = same as screenXScale; screenYBias = 0 for widescreen.
+	// scale for screen sizes
+	if (x) *x *= cgs.screenXScale_Old;
+	if (y) *y *= cgs.screenYScale_Old;
+	if (w) *w *= cgs.screenXScale_Old;
+	if (h) *h *= cgs.screenYScale_Old;
+}
+
+// Aspect-correct scaling for coordinates derived from 3D world projection
+// (e.g. flag/teammate POIs). Uses screenXScale (vidHeight/480) + centering
+// bias so icons track the renderer viewport on widescreen displays.
+void CG_AdjustFrom640Aspect(float* x, float* y, float* w, float* h)
+{
 	if (x) *x = *x * cgs.screenXScale + cgs.screenXBias;
 	if (y) *y = *y * cgs.screenYScale + cgs.screenYBias;
 	if (w) *w *= cgs.screenXScale;
@@ -388,6 +396,12 @@ void CG_DrawPicOld(float x, float y, float width, float height, qhandle_t hShade
 void CG_DrawPic(float x, float y, float width, float height, qhandle_t hShader)
 {
 	CG_AdjustFrom640(&x, &y, &width, &height);
+	trap_R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
+}
+
+void CG_DrawPicAspect(float x, float y, float width, float height, qhandle_t hShader)
+{
+	CG_AdjustFrom640Aspect(&x, &y, &width, &height);
 	trap_R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
 }
 
