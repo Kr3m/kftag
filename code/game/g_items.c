@@ -731,6 +731,12 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	     && !( ent->flags & FL_DROPPED_ITEM ) ) ) {
 		ent->r.contents = 0;
 	}
+	// Debug: log when a team flag base entity gets hidden via Touch_Item
+	if ( g_gametype.integer == GT_RTF && ent->item && ent->item->giType == IT_TEAM
+	     && !( ent->flags & FL_DROPPED_ITEM ) ) {
+		G_Printf( "RTF_TI: base entity #%d hidden (EF_NODRAW) respawn=%d freeAfterEvent=%d\n",
+		          (int)(ent - g_entities), respawn, ent->freeAfterEvent );
+	}
 
 	// ZOID
 	// A negative respawn times means to never respawn this item (but don't

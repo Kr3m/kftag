@@ -868,7 +868,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 		SetTeam( ent, "spectator" );
 	}
 
-	G_LogPrintf("CALL: CheckLastPlayerAlive from Cmd_Follow_f\n");
+	// G_LogPrintf("CALL: CheckLastPlayerAlive from Cmd_Follow_f\n");
     CheckLastPlayerAlive( ent->client->sess.sessionTeam );
 	ent->client->ps.stats[STAT_SPECTATED_CLIENT] = i;
 
@@ -899,7 +899,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
         ent->client->ps.stats[STAT_SPECTATED_CLIENT] = ent->client->sess.spectatorClient;
         cent = &g_entities[ent->client->sess.spectatorClient];
         UpdateLastPlayerNotification(ent, cent);
-        G_LogPrintf("CALL: UpdateLastPlayerNotification from Cmd_FollowCycle_f\n");
+        // G_LogPrintf("CALL: UpdateLastPlayerNotification from Cmd_FollowCycle_f\n");
 //		if ( ent->freezeState && !is_spectator( ent->client ) ) return;
 		if ( Set_Client( ent ) ) return;
 	}

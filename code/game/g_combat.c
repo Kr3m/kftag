@@ -101,6 +101,8 @@ void TossClientItems( gentity_t *self ) {
 	if ( !g_freezeTag.integer ) {
 //qlone - freezetag
 	if ( g_gametype.integer != GT_TEAM ) {
+		// In RTF, update flag tracking BEFORE powerups are cleared.
+		Team_RTF_DropFlags( self );
 		angle = 45;
 		for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
 			if ( self->client->ps.powerups[ i ] > level.time ) {
@@ -116,6 +118,13 @@ void TossClientItems( gentity_t *self ) {
 				}
 				// for pickup prediction
 				drop->s.time2 = drop->count;
+				// Clear flag powerups immediately when dropped on death.
+				// Without this, the dead player's stale ps.powerups value persists
+				// in the snapshot until respawn, causing the cgame GTS handler
+				// to play youHaveFlagSound when a bot teammate picks up the flag.
+				if ( item->giType == IT_TEAM ) {
+					self->client->ps.powerups[ i ] = 0;
+				}
 				angle += 45;
 			}
 		}
@@ -147,6 +156,10 @@ void TossClientItems( gentity_t *self ) {
 				}
 				// for pickup prediction
 				drop->s.time2 = drop->count;
+				// Clear flag powerups immediately when dropped on death.
+				if ( item->giType == IT_TEAM ) {
+					self->client->ps.powerups[ i ] = 0;
+				}
 				angle += 45;
 			}
 		}
@@ -645,14 +658,23 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		TossClientItems( self );
 	}
 	else {
+		// In RTF, a player may carry both their own flag and the enemy flag
+		// simultaneously.  Use sequential ifs (not else-if) so that both are
+		// returned when the carrier dies in a NODROP area.
 		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
 			Team_ReturnFlag( TEAM_FREE );
 		}
-		else if ( self->client->ps.powerups[PW_REDFLAG] ) {		// only happens in standard CTF
-			Team_ReturnFlag( TEAM_RED );
-		}
-		else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
-			Team_ReturnFlag( TEAM_BLUE );
+		if ( g_gametype.integer == GT_RTF ) {
+			// RTF: return only the specific flags this player carries,
+			// not all flags of the team.
+			Team_RTF_ReturnPlayerFlags( self );
+		} else {
+			if ( self->client->ps.powerups[PW_REDFLAG] ) {
+				Team_ReturnFlag( TEAM_RED );
+			}
+			if ( self->client->ps.powerups[PW_BLUEFLAG] ) {
+				Team_ReturnFlag( TEAM_BLUE );
+			}
 		}
 	}
 #ifdef MISSIONPACK

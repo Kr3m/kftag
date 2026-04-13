@@ -519,6 +519,16 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_CheckTeamItems();
 	}
 
+	// RTF-specific initialization
+	if ( g_gametype.integer == GT_RTF ) {
+		// Disable auto-return for RTF mode (flags never auto-return unless out of world)
+		trap_Cvar_Set( "g_flagReturnTime", "0" );
+		G_Printf( "RTF: Return The Flag mode initialized - flags never auto-return\n" );
+	}
+
+	// Initialize team game state (including RTF flag tracking)
+	Team_InitGame();
+
 	SaveRegisteredItems();
 
 	G_LocateSpawnSpots();
@@ -1446,7 +1456,7 @@ static void CheckExitRules( void ) {
 		return;
 	}
 
-	if ( g_gametype.integer < GT_CTF && g_fraglimit.integer && !g_freezeTag.integer ) {
+	if ( g_gametype.integer < GT_CTF && g_fraglimit.integer ) {
 		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) {
 			G_BroadcastServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
 			LogExit( "Fraglimit hit." );
@@ -1477,16 +1487,10 @@ static void CheckExitRules( void ) {
 		}
 	}
 
-//qlone - freezetag
-	//if ( g_gametype.integer >= GT_CTF && g_capturelimit.integer ) {
-	if ( (!g_freezeTag.integer && g_gametype.integer >= GT_CTF && g_capturelimit.integer)
-                || (g_freezeTag.integer && g_gametype.integer >= GT_TEAM && g_capturelimit.integer) ) {
-//qlone - freezetag
+	if ( (g_gametype.integer == GT_CTF || g_gametype.integer == GT_RTF) && g_capturelimit.integer ) {
 
 		if ( level.teamScores[TEAM_RED] >= g_capturelimit.integer ) {
 			G_BroadcastServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
-			Com_Printf("DEBUG: Red wins! Team Red Score: %d, Team Blue Score: %d, Capture Limit: %d\n",
-				level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], g_capturelimit.integer);
 			for ( i = 0; i < level.maxclients; i++ ) {
 				cl = level.clients + i;
 				if ( cl->pers.connected != CON_CONNECTED ) {
@@ -1495,7 +1499,7 @@ static void CheckExitRules( void ) {
 				if ( cl->sess.sessionTeam == TEAM_RED ) {
 					cl->sess.wins++;
 					ClientUserinfoChanged( cl->ps.clientNum );
-				} else {
+				} else if ( cl->sess.sessionTeam == TEAM_BLUE && cl->sess.sessionTeam != TEAM_SPECTATOR ) {
 					cl->sess.losses++;
 					ClientUserinfoChanged( cl->ps.clientNum );
 				}
@@ -1506,18 +1510,15 @@ static void CheckExitRules( void ) {
 
 		if ( level.teamScores[TEAM_BLUE] >= g_capturelimit.integer ) {
 			G_BroadcastServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
-			Com_Printf("DEBUG: Blue wins! Team Red Score: %d, Team Blue Score: %d, Capture Limit: %d\n",
-				level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], g_capturelimit.integer);
 			for ( i = 0; i < level.maxclients; i++ ) {
 				cl = level.clients + i;
 				if ( cl->pers.connected != CON_CONNECTED ) {
 					continue;
 				}
 				if ( cl->sess.sessionTeam == TEAM_BLUE ) {
-					// Com_Printf("Team Blue Score: %d, Capture Limit: %d\n", level.teamScores[TEAM_BLUE], g_capturelimit.integer);
 					cl->sess.wins++;
 					ClientUserinfoChanged( cl->ps.clientNum );
-				} else {
+				} else if ( cl->sess.sessionTeam == TEAM_RED && cl->sess.sessionTeam != TEAM_SPECTATOR ) {
 					cl->sess.losses++;
 					ClientUserinfoChanged( cl->ps.clientNum );
 				}
@@ -1672,6 +1673,12 @@ static void G_WarmupEnd( void )
 			// remove all launched missiles
 			G_FreeEntity( ent );
 		}
+	}
+
+	// RTF: Reinitialize flag tracking after warmup
+	if ( g_gametype.integer == GT_RTF ) {
+		Team_InitGame();  // This will call RTF_InitFlagTracking
+		G_Printf( "RTF: Flag tracking reinitialized after warmup\n" );
 	}
 }
 

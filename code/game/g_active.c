@@ -596,32 +596,25 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			break;
 
 		case EV_USE_ITEM1:		// teleporter
-			// drop flags in CTF
-			item = NULL;
-			j = 0;
-
-			if ( ent->client->ps.powerups[ PW_REDFLAG ] ) {
-				item = BG_FindItemForPowerup( PW_REDFLAG );
-				j = PW_REDFLAG;
-			} else if ( ent->client->ps.powerups[ PW_BLUEFLAG ] ) {
-				item = BG_FindItemForPowerup( PW_BLUEFLAG );
-				j = PW_BLUEFLAG;
-			} else if ( ent->client->ps.powerups[ PW_NEUTRALFLAG ] ) {
-				item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
-				j = PW_NEUTRALFLAG;
-			}
-
-			if ( item ) {
-				drop = Drop_Item( ent, item, 0 );
-				// decide how many seconds it has left
-				drop->count = ( ent->client->ps.powerups[ j ] - level.time ) / 1000;
-				if ( drop->count < 1 ) {
-					drop->count = 1;
+			// drop flags in CTF / RTF.
+			// In RTF a player may carry both their own flag and the enemy flag
+			// simultaneously, so iterate all flag slots rather than else-if.
+			{
+				static const int flag_pws[] = { PW_REDFLAG, PW_BLUEFLAG, PW_NEUTRALFLAG };
+				int fi;
+				for ( fi = 0; fi < 3; fi++ ) {
+					int pw = flag_pws[fi];
+					if ( ent->client->ps.powerups[ pw ] ) {
+						item = BG_FindItemForPowerup( pw );
+						if ( item ) {
+							drop = Drop_Item( ent, item, 0 );
+							drop->count = ( ent->client->ps.powerups[ pw ] - level.time ) / 1000;
+							if ( drop->count < 1 ) { drop->count = 1; }
+							drop->s.time2 = drop->count;
+							ent->client->ps.powerups[ pw ] = 0;
+						}
+					}
 				}
-				// for pickup prediction
-				drop->s.time2 = drop->count;
-
-				ent->client->ps.powerups[ j ] = 0;
 			}
 
 #ifdef MISSIONPACK

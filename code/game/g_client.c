@@ -211,7 +211,7 @@ static gentity_t *SelectRandomFurthestSpawnPoint( const gentity_t *ent, vec3_t a
 	checkTelefrag = qtrue;
 
 	if ( ent )
-		isBot = ((ent->r.svFlags & SVF_BOT) == SVF_BOT); 
+		isBot = ((ent->r.svFlags & SVF_BOT) == SVF_BOT);
 	else
 		isBot = qfalse;
 
@@ -232,7 +232,7 @@ __search:
 		if ( checkTelefrag && SpotWouldTelefrag( spot ) )
 			continue;
 
-		if ( checkType ) 
+		if ( checkType )
 		{
 			if ( (spot->flags & FL_NO_BOTS) && isBot )
 				continue;
@@ -395,7 +395,7 @@ void BodySink( gentity_t *ent ) {
 		// the body ques are never actually freed, they are just unlinked
 		trap_UnlinkEntity( ent );
 		ent->physicsObject = qfalse;
-		return;	
+		return;
 	}
 	ent->nextthink = level.time + FRAMETIME;
 	ent->s.pos.trBase[2] -= 1;
@@ -814,7 +814,7 @@ qboolean ClientUserinfoChanged( int clientNum ) {
 			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader );
 	} else {
 		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-			client->pers.netname, client->sess.sessionTeam, model, headModel, c1, c2, 
+			client->pers.netname, client->sess.sessionTeam, model, headModel, c1, c2,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader );
 	}
 
@@ -1039,7 +1039,7 @@ void ClientBegin( int clientNum ) {
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
 	client->ps.persistant[PERS_SPAWN_COUNT] = spawns;
-	
+
 	// Initialize input tracking for spectator controls
 	client->oldUpmove = 0;
 	client->lastSpectatorSwitchTime = 0;
@@ -1064,7 +1064,7 @@ void ClientBegin( int clientNum ) {
 			G_BroadcastServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
 		}
 	}
-	
+
 	client->pers.inGame = qtrue;
     client->notifiedLastPlayer = qfalse;
 
@@ -1226,7 +1226,7 @@ void ClientSpawn(gentity_t *ent) {
 	ent->waterlevel = 0;
 	ent->watertype = 0;
 	ent->flags = 0;
-	
+
 	VectorCopy (playerMins, ent->r.mins);
 	VectorCopy (playerMaxs, ent->r.maxs);
 
@@ -1274,7 +1274,7 @@ void ClientSpawn(gentity_t *ent) {
 	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
 
-	// entity should be unlinked before calling G_KillBox()	
+	// entity should be unlinked before calling G_KillBox()
 //qlone - freezetag
 	//if ( !isSpectator )
 	if ( !is_spectator( client ) ) {
@@ -1338,7 +1338,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	if ( g_spawnProtection.integer > 0 ) {
 		ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
-		ent->client->spawnProtectionTime = ent->client->respawnTime + ( g_spawnProtection.integer * 1000 );		
+		ent->client->spawnProtectionTime = ent->client->respawnTime + ( g_spawnProtection.integer * 1000 );
 	}
 
 	if (ent->r.svFlags & SVF_BOT) {
@@ -1347,20 +1347,20 @@ void ClientSpawn(gentity_t *ent) {
 	}
 
     ResetFreezeTimeEvent(ent, ent->s.clientNum);
-	
+
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
 	client->pers.cmd.serverTime = level.time;
 	ent->s.time2 = level.time;
-	G_LogPrintf("CALL: CheckLastPlayerAlive from ClientSpawn\n");
-	
+	// G_LogPrintf("CALL: CheckLastPlayerAlive from ClientSpawn\n");
+
 	// Always reset UI state when spawning, regardless of server flags
 	trap_SendServerCommand(ent - g_entities, "lastplayer 0");
 	ent->client->notifiedLastPlayer = qfalse;
 	ent->lastState = qfalse;
-	G_LogPrintf("DEBUG: Reset last player state for %s on spawn\n", 
-				client->pers.netname);
+	// G_LogPrintf("DEBUG: Reset last player state for %s on spawn\n",
+				//client->pers.netname);
 
 	CheckLastPlayerAlive( client->sess.sessionTeam );
 	ClientThink( ent-g_entities );
@@ -1419,7 +1419,7 @@ void ClientDisconnect( int clientNum ) {
 	}
 
 	// send effect if they were completely connected
-	if ( ent->client->pers.connected == CON_CONNECTED 
+	if ( ent->client->pers.connected == CON_CONNECTED
 //qlone - freezetag
 		&& /*ent->client->sess.sessionTeam != TEAM_SPECTATOR*/ !is_spectator( ent->client ) ) {
 //qlone - freezetag
