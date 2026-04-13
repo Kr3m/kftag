@@ -3269,6 +3269,67 @@ void CG_DrawWeaponStatsWrapper(void)
 }
 
 
+#ifdef MISSIONPACK
+void CG_CheckOrderPending(void) {
+	if (cgs.gametype < GT_CTF) {
+		return;
+	}
+	if (cgs.orderPending) {
+		const char *p1, *p2, *b;
+		p1 = p2 = b = NULL;
+		switch (cgs.currentOrder) {
+			case TEAMTASK_OFFENSE:
+				p1 = VOICECHAT_ONOFFENSE;
+				p2 = VOICECHAT_OFFENSE;
+				b = "+button7; wait; -button7";
+			break;
+			case TEAMTASK_DEFENSE:
+				p1 = VOICECHAT_ONDEFENSE;
+				p2 = VOICECHAT_DEFEND;
+				b = "+button8; wait; -button8";
+			break;
+			case TEAMTASK_PATROL:
+				p1 = VOICECHAT_ONPATROL;
+				p2 = VOICECHAT_PATROL;
+				b = "+button9; wait; -button9";
+			break;
+			case TEAMTASK_FOLLOW:
+				p1 = VOICECHAT_ONFOLLOW;
+				p2 = VOICECHAT_FOLLOWME;
+				b = "+button10; wait; -button10";
+			break;
+			case TEAMTASK_CAMP:
+				p1 = VOICECHAT_ONCAMPING;
+				p2 = VOICECHAT_CAMP;
+			break;
+			case TEAMTASK_RETRIEVE:
+				p1 = VOICECHAT_ONGETFLAG;
+				p2 = VOICECHAT_RETURNFLAG;
+			break;
+			case TEAMTASK_ESCORT:
+				p1 = VOICECHAT_ONFOLLOWCARRIER;
+				p2 = VOICECHAT_FOLLOWFLAGCARRIER;
+			break;
+		}
+
+		if (cg_currentSelectedPlayer.integer == numSortedTeamPlayers) {
+			trap_SendConsoleCommand(va("cmd vsay_team %s\n", p2));
+		} else {
+			if (sortedTeamPlayers[cg_currentSelectedPlayer.integer] == cg.snap->ps.clientNum && p1) {
+				trap_SendConsoleCommand(va("teamtask %i\n", cgs.currentOrder));
+				trap_SendConsoleCommand(va("cmd vsay_team %s\n", p1));
+			} else if (p2) {
+				trap_SendConsoleCommand(va("cmd vtell %d %s\n", sortedTeamPlayers[cg_currentSelectedPlayer.integer], p2));
+			}
+		}
+		if (b) {
+			trap_SendConsoleCommand(b);
+		}
+		cgs.orderPending = qfalse;
+	}
+}
+#endif
+
 /*
 =================
 CG_Draw2D
@@ -3279,6 +3340,11 @@ static int colorChangeStartTime;
 
 static void CG_Draw2D(void)
 {
+#ifdef MISSIONPACK
+	if (cgs.orderPending && cg.time > cgs.orderTime) {
+		CG_CheckOrderPending();
+	}
+#endif
 	// if we are taking a levelshot for the menu, don't draw anything
 	if (cg.levelShot)
 	{
