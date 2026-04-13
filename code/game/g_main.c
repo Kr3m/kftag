@@ -1755,6 +1755,9 @@ static void CheckTournament( void ) {
 				}
 
 				trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+				if ( level.warmupTime > 0 ) {
+					trap_SetConfigstring( CS_LEVEL_START_TIME, va( "%i", level.warmupTime ) );
+				}
 			}
 			return;
 		}
@@ -1811,6 +1814,9 @@ static void CheckTournament( void ) {
 			}
 
 			trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+			if ( level.warmupTime > 0 ) {
+				trap_SetConfigstring( CS_LEVEL_START_TIME, va( "%i", level.warmupTime ) );
+			}
 			return;
 		}
 
