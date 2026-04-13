@@ -940,7 +940,7 @@ void CG_OSPDrawClientScore(int x, int y, const score_t* score, const float* colo
 	headAngles[1] = 180.0f;
 	CG_DrawHead(x + 22, y, 16.0f, 16.0f, score->client, headAngles);
 
-	if (!cg.warmup && cgs.gametype == GT_TEAM && cgs.osp.gameTypeFreeze && cg.snap->ps.stats[ STAT_CLIENTS_READY ] & (1 << score->client))
+	if (!cg.warmup && cgs.gametype >= GT_TEAM && cgs.osp.gameTypeFreeze && cg.snap->ps.stats[ STAT_CLIENTS_READY ] & (1 << score->client))
 	{
 		CG_OSPDrawPic(x + 22, y, 16.0f, 16.0f, cgs.media.frozenFoeTagShader);
 	}
@@ -1166,7 +1166,7 @@ void CG_BEDrawTeamClientScore(int x, int y, const score_t* score, const float* c
 	headAngles[1] = 180.0f;
 	CG_DrawHead(x + 22, y, 16.0f, 16.0f, score->client, headAngles);
 
-	if (!cg.warmup && cgs.gametype == GT_TEAM && cgs.osp.gameTypeFreeze && cg.snap->ps.stats[ STAT_CLIENTS_READY ] & (1 << score->client))
+	if (!cg.warmup && cgs.gametype >= GT_TEAM && cgs.osp.gameTypeFreeze && cg.snap->ps.stats[ STAT_CLIENTS_READY ] & (1 << score->client))
 	{
 		CG_OSPDrawPic(x + 22, y, 16.0f, 16.0f, cgs.media.frozenFoeTagShader);
 	}
@@ -1272,13 +1272,13 @@ int CG_OSPDrawTeamScores(int x, int y, int team, float fade, int maxScores)
 	{
 		score = &cg.scores[i];
 		ci = &cgs.clientinfo[score->client];
-		
+
 		// In demo mode, if clientinfo is not valid, skip this entry
 		if (cg.demoPlayback && !ci->infoValid)
 		{
 			continue;
 		}
-		
+
 		if (ci->team != team && ci->rt != team)
 		{
 			continue;
@@ -2003,7 +2003,7 @@ qboolean CG_BEDrawTeamScoretable(void)
 		CG_DrawWeaponStatsWrapper();
 	}
 
-	
+
 	if (cg_drawAccuracy.integer && !cg.showAccuracy && cg.statsRequestTime + 2500 < cg.time)
 	{
 		cg.statsRequestTime = cg.time;

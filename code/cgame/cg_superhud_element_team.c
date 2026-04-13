@@ -231,7 +231,7 @@ void CG_SHUDElementTeamRoutine(void* context)
 		{
 			if (cgs.osp.gameTypeFreeze && ci->health <= 0)
 			{
-				element->ctxPowerup.image = cgs.media.noammoShader;
+				element->ctxPowerup.image = cgs.media.frozenFoeTagShader;
 				CG_SHUDDrawStretchPicCtx(&element->config, &element->ctxPowerup);
 				break;
 			}
