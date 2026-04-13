@@ -228,6 +228,34 @@ static void CG_TellAttacker_f(void)
 	trap_SendClientCommand(command);
 }
 
+static void CG_VoiceTellTarget_f( void ) {
+	char    command[128];
+	char    parameter[MAX_TOKEN_CHARS];
+	int     clientNum;
+
+	clientNum = CG_CrosshairPlayer();
+	if ( clientNum == -1 ) {
+		return;
+	}
+	trap_Argv( 1, parameter, sizeof( parameter ) );
+	Com_sprintf( command, sizeof( command ), "vtell %i %s", clientNum, parameter );
+	trap_SendClientCommand( command );
+}
+
+static void CG_VoiceTellAttacker_f( void ) {
+	char    command[128];
+	char    parameter[MAX_TOKEN_CHARS];
+	int     clientNum;
+
+	clientNum = CG_LastAttacker();
+	if ( clientNum == -1 ) {
+		return;
+	}
+	trap_Argv( 1, parameter, sizeof( parameter ) );
+	Com_sprintf( command, sizeof( command ), "vtell %i %s", clientNum, parameter );
+	trap_SendClientCommand( command );
+}
+
 /*
 ==================
 CG_StartOrbit_f
@@ -578,7 +606,7 @@ void CG_ChudKey4Up_f(void)
 void CG_ChudScoreboardUp_f(void)
 {
 	cgs.osp.chud.scoreboard = qtrue;
-	
+
 	// Send commands to server to get scoreboard data (copied from bescores)
 	if (!cg.demoPlayback && cg.scoresRequestTime < cg.time)
 	{
@@ -1068,6 +1096,8 @@ static consoleCommand_t commands[] =
 	{ "sa", cg_sa_f },
 	{ "salist", cg_printsa_f },
 	{ "allowedfeatures", CG_BEdisabledFeatures_f },
+	{ "vtell_target",   CG_VoiceTellTarget_f },
+	{ "vtell_attacker", CG_VoiceTellAttacker_f },
 };
 
 /*
@@ -1135,6 +1165,15 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("teamtask");
 	trap_AddCommand("teamvote");
 	trap_AddCommand("tell");
+#ifdef MISSIONPACK
+	trap_AddCommand("vsay");
+	trap_AddCommand("vsay_team");
+	trap_AddCommand("vtell");
+	trap_AddCommand("vtaunt");
+	trap_AddCommand("vosay");
+	trap_AddCommand("vosay_team");
+	trap_AddCommand("votell");
+#endif
 	trap_AddCommand("vote");
 	trap_AddCommand("?");
 	trap_AddCommand("acc");

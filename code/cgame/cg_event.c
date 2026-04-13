@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 #include "cg_superhud.h"
+#include "../../ui/menudef.h" // for VOICECHAT_* constants
 
 //==========================================================================
 
@@ -1290,12 +1291,45 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 			break;
 
 		case EV_TAUNT_YES:
+			DEBUGNAME("EV_TAUNT_YES");
+#ifdef MISSIONPACK
+			CG_VoiceChatLocal( SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_YES );
+#endif
+			break;
+
 		case EV_TAUNT_NO:
+			DEBUGNAME("EV_TAUNT_NO");
+#ifdef MISSIONPACK
+			CG_VoiceChatLocal( SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_NO );
+#endif
+			break;
+
 		case EV_TAUNT_FOLLOWME:
+			DEBUGNAME("EV_TAUNT_FOLLOWME");
+#ifdef MISSIONPACK
+			CG_VoiceChatLocal( SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_FOLLOWME );
+#endif
+			break;
+
 		case EV_TAUNT_GETFLAG:
+			DEBUGNAME("EV_TAUNT_GETFLAG");
+#ifdef MISSIONPACK
+			CG_VoiceChatLocal( SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_GETFLAG );
+#endif
+			break;
+
 		case EV_TAUNT_GUARDBASE:
+			DEBUGNAME("EV_TAUNT_GUARDBASE");
+#ifdef MISSIONPACK
+			CG_VoiceChatLocal( SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_DEFEND );
+#endif
+			break;
+
 		case EV_TAUNT_PATROL:
-			DEBUGNAME("EV_TAUNT_*");
+			DEBUGNAME("EV_TAUNT_PATROL");
+#ifdef MISSIONPACK
+			CG_VoiceChatLocal( SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_PATROL );
+#endif
 			break;
 
 		case EV_FREEZE_TIME:

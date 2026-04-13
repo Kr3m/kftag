@@ -632,6 +632,9 @@ typedef struct
 	// attacking player
 	int         attackerTime;
 	int         voiceTime;
+	int         voiceChatTime;
+	int         voiceChatBufferIn;
+	int         voiceChatBufferOut;
 
 	// reward medals
 	int         rewardStack;
@@ -1463,8 +1466,10 @@ typedef struct
 	qboolean orderPending;
 	int orderTime;
 	int acceptOrderTime;
+	char acceptVoice[MAX_NAME_LENGTH];
 	int acceptTask;
 	int acceptLeader;
+	int currentVoiceClient;
 
 	qboolean		customModelSound;
 	sfxHandle_t     mySounds[MAX_CUSTOM_SOUNDS];
@@ -1726,6 +1731,9 @@ qboolean CG_OwnerDrawVisible(int flags);
 void CG_RunMenuScript(char** args);
 void CG_ShowResponseHead(void);
 void CG_SetPrintString(int type, const char* p);
+void CG_LoadVoiceChats( void );
+void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd );
+void CG_PlayBufferedVoiceChats( void );
 void CG_InitTeamChat(void);
 void CG_GetTeamColor(vec4_t* color);
 const char* CG_GetGameStatusText(void);

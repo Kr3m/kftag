@@ -794,6 +794,8 @@ static void CG_RegisterSounds(void)
 	char    name[MAX_QPATH];
 	const char*  soundName;
 
+	// voice commands
+	CG_LoadVoiceChats();
 
 	cgs.media.oneMinuteSound = trap_S_RegisterSound("sound/feedback/1_minute.wav", qtrue);
 	cgs.media.fiveMinuteSound = trap_S_RegisterSound("sound/feedback/5_minute.wav", qtrue);
