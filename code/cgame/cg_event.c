@@ -1340,7 +1340,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
 		case EV_FREEZE_TIME:
 			DEBUGNAME("EV_FREEZE_TIME");
-			if (es->eventParm == cg.clientNum)
+			if (CG_OSPIsGameTypeFreeze() && es->eventParm == cg.clientNum)
 			{
 				cg.thawTime = es->time;
 			}

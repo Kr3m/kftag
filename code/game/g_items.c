@@ -1041,7 +1041,7 @@ void ClearRegisteredItems( void ) {
 #endif
 //qlone - custom weapons
 	G_RegisterWeapon();
-	if ( g_freezeTag.integer ) FT_ResetFlags(); //qlone - freezetag
+	if ( g_gametype.integer == GT_CTF || g_gametype.integer == GT_RTF || g_freezeTag.integer ) FT_ResetFlags(); //qlone - freezetag
 //qlone - custom weapons
 }
 

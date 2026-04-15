@@ -1083,6 +1083,21 @@ void SP_target_location( gentity_t *self );
 void locationSpawn( gentity_t *ent, gitem_t *item ) {
 	gentity_t	*e;
 
+	// Always track flag base positions so the "don't freeze in own base" check
+	// in player_freeze works correctly in CTF/RTF regardless of freeze tag.
+	if ( item->giType == IT_TEAM ) {
+		if ( item->giTag == PW_BLUEFLAG ) {
+			VectorCopy( ent->r.currentOrigin, blueflag );
+		} else if ( item->giTag == PW_REDFLAG ) {
+			VectorCopy( ent->r.currentOrigin, redflag );
+		}
+	}
+
+	// target_location entities are only used by the freeze tag item-location HUD.
+	if ( !g_freezeTag.integer ) {
+		return;
+	}
+
 	switch ( item->giType ) {
 	case IT_AMMO:
 		return;
@@ -1098,12 +1113,6 @@ void locationSpawn( gentity_t *ent, gitem_t *item ) {
 		return;
 	case IT_PERSISTANT_POWERUP:
 		return;
-	case IT_TEAM:
-		if ( item->giTag == PW_BLUEFLAG ) {
-			VectorCopy( ent->r.currentOrigin, blueflag );
-		} else if ( item->giTag == PW_REDFLAG ) {
-			VectorCopy( ent->r.currentOrigin, redflag );
-		}
 	default:
 		break;
 	}

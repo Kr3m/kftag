@@ -275,7 +275,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	// check item spawn functions
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
 		if ( !strcmp(item->classname, ent->classname) ) {
-			if ( g_freezeTag.integer ) locationSpawn( ent, item ); //qlone - freezetag
+			if ( g_gametype.integer == GT_CTF || g_gametype.integer == GT_RTF || g_freezeTag.integer ) locationSpawn( ent, item ); //qlone - freezetag
 			if ( G_RemoveWeapon( item ) ) return qfalse; //qlone - custom items
 			if ( G_RemoveAmmo( item ) ) return qfalse; //qlone - custom items
 			if ( G_RemoveItem( item ) ) return qfalse; //qlone - custom items

@@ -170,7 +170,7 @@ static superHUDConfigElement_t superHUDConfigItemElements[] =
 	{ "playerStats_damageRatio", SE_IM, CG_SHUDElementCreatePlayerStatsDamageRatio, CG_SHUDElementPlayerStatsRoutine, CG_SHUDElementPlayerStatsDestroy },
 	{ "player_name", 0, CG_SHUDElementPlayerNameCreate, CG_SHUDElementPlayerNameRoutine, CG_SHUDElementPlayerNameDestroy },
 	{ "postdecorate", 0, CG_SHUDElementDecorCreate, CG_SHUDElementDecorRoutine, CG_SHUDElementDecorDestroy },
-	{ "thawtime", SE_SPECT, CG_SHUDElementThawTimeCreate, CG_SHUDElementThawTimeRoutine, CG_SHUDElementThawTimeDestroy },
+	{ "thawtime", SE_SPECT | SE_DEAD, CG_SHUDElementThawTimeCreate, CG_SHUDElementThawTimeRoutine, CG_SHUDElementThawTimeDestroy },
 	{ "spawnprotect", SE_IM, CG_SHUDElementSpawnProtectCreate, CG_SHUDElementSpawnProtectRoutine, CG_SHUDElementSpawnProtectDestroy },
 	{ "warnlast", SE_IM, CG_SHUDElementWarnLastCreate, CG_SHUDElementWarnLastRoutine, CG_SHUDElementWarnLastDestroy },
 	{ NULL },
