@@ -648,7 +648,13 @@ void CG_DrawTeammatePOIs( void ) {
 		markerColor[1] = 1.0f;
 		markerColor[2] = 1.0f;
 		markerColor[3] = 1.0f;
-		if ( ourTeam == TEAM_BLUE && ( cache->powerups & ( 1 << PW_REDFLAG ) ) ) {
+		if ( ( cache->powerups & ( 1 << PW_REDFLAG ) ) && ( cache->powerups & ( 1 << PW_BLUEFLAG ) ) ) {
+			shader = cgs.media.friendPOIRedFlagStolenShader;
+			isFlagCarrierPOI = qtrue;
+			markerColor[0] = 1.0f;
+			markerColor[1] = 0.0f;
+			markerColor[2] = 1.0f;
+		} else if ( ourTeam == TEAM_BLUE && ( cache->powerups & ( 1 << PW_REDFLAG ) ) ) {
 			shader = cgs.media.friendPOIRedFlagStolenShader;
 			isFlagCarrierPOI = qtrue;
 			markerColor[0] = 1.0f;

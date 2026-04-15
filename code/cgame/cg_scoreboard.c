@@ -131,6 +131,19 @@ void CG_DrawClientScore(int y, score_t* score, float* color, float fade, qboolea
 			CG_DrawFlagModel(iconx, y, 16, 16, TEAM_FREE, qfalse);
 		}
 	}
+	else if ((ci->powerups & (1 << PW_REDFLAG)) && (ci->powerups & (1 << PW_BLUEFLAG)))
+	{
+		if (largeFormat)
+		{
+			CG_DrawFlagModel(iconx,      y - (32 - BIGCHAR_HEIGHT) / 2, 16, 32, TEAM_RED, qfalse);
+			CG_DrawFlagModel(iconx + 16, y - (32 - BIGCHAR_HEIGHT) / 2, 16, 32, TEAM_BLUE, qfalse);
+		}
+		else
+		{
+			CG_DrawFlagModel(iconx,     y, 8, 16, TEAM_RED, qfalse);
+			CG_DrawFlagModel(iconx + 8, y, 8, 16, TEAM_BLUE, qfalse);
+		}
+	}
 	else if (ci->powerups & (1 << PW_REDFLAG))
 	{
 		if (largeFormat)
@@ -348,22 +361,38 @@ void CG_BEDrawClientScore(int y, score_t* score, float* color, float fade, qbool
 	        ci->powerups & (1 << PW_REDFLAG) ||
 	        ci->powerups & (1 << PW_BLUEFLAG))
 	{
-		int team = TEAM_FREE;
-		if (ci->powerups & (1 << PW_REDFLAG))
+		if ((ci->powerups & (1 << PW_REDFLAG)) && (ci->powerups & (1 << PW_BLUEFLAG)))
 		{
-			team = TEAM_RED;
-		}
-		else if (ci->powerups & (1 << PW_BLUEFLAG))
-		{
-			team = TEAM_BLUE;
-		}
-		if (largeFormat)
-		{
-			CG_DrawFlagModel(iconx, y - (32 - bHeight) / 2, 32, 32, team, qfalse);
+			if (largeFormat)
+			{
+				CG_DrawFlagModel(iconx,      y - (32 - bHeight) / 2, 16, 32, TEAM_RED, qfalse);
+				CG_DrawFlagModel(iconx + 16, y - (32 - bHeight) / 2, 16, 32, TEAM_BLUE, qfalse);
+			}
+			else
+			{
+				CG_DrawFlagModel(iconx,     y, 8, 16, TEAM_RED, qfalse);
+				CG_DrawFlagModel(iconx + 8, y, 8, 16, TEAM_BLUE, qfalse);
+			}
 		}
 		else
 		{
-			CG_DrawFlagModel(iconx, y, 16, 16, team, qfalse);
+			int team = TEAM_FREE;
+			if (ci->powerups & (1 << PW_REDFLAG))
+			{
+				team = TEAM_RED;
+			}
+			else if (ci->powerups & (1 << PW_BLUEFLAG))
+			{
+				team = TEAM_BLUE;
+			}
+			if (largeFormat)
+			{
+				CG_DrawFlagModel(iconx, y - (32 - bHeight) / 2, 32, 32, team, qfalse);
+			}
+			else
+			{
+				CG_DrawFlagModel(iconx, y, 16, 16, team, qfalse);
+			}
 		}
 	}
 	else
@@ -921,7 +950,12 @@ void CG_OSPDrawClientScore(int x, int y, const score_t* score, const float* colo
 		ourColor[3] = 0.2f * fade;
 		CG_FillRect(x + 8, y, 304.0f, 17.0f, ourColor);
 	}
-	if (ci->powerups & (1 << PW_REDFLAG))
+	if ((ci->powerups & (1 << PW_REDFLAG)) && (ci->powerups & (1 << PW_BLUEFLAG)))
+	{
+		CG_DrawFlagModel(x + 4,  y, 8.0f, 16.0f, TEAM_RED, qfalse);
+		CG_DrawFlagModel(x + 12, y, 8.0f, 16.0f, TEAM_BLUE, qfalse);
+	}
+	else if (ci->powerups & (1 << PW_REDFLAG))
 	{
 		CG_DrawFlagModel(x + 4, y, 16.0f, 16.0f, TEAM_RED, qfalse);
 	}
@@ -1136,7 +1170,12 @@ void CG_BEDrawTeamClientScore(int x, int y, const score_t* score, const float* c
 		ourColor[3] = 0.2f * fade;
 		CG_FillRect(x + 8, y, 304.0f, 17.0f, ourColor);
 	}
-	if (ci->powerups & (1 << PW_REDFLAG))
+	if ((ci->powerups & (1 << PW_REDFLAG)) && (ci->powerups & (1 << PW_BLUEFLAG)))
+	{
+		CG_DrawFlagModel(x + 4,  y, 8.0f, 16.0f, TEAM_RED, qfalse);
+		CG_DrawFlagModel(x + 12, y, 8.0f, 16.0f, TEAM_BLUE, qfalse);
+	}
+	else if (ci->powerups & (1 << PW_REDFLAG))
 	{
 		CG_DrawFlagModel(x + 4, y, 16.0f, 16.0f, TEAM_RED, qfalse);
 	}

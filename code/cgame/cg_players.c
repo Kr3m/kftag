@@ -2621,6 +2621,12 @@ static void CG_PlayerSprites(centity_t* cent)
 		// Blue viewer checks PW_REDFLAG; red viewer checks PW_BLUEFLAG.
 		{
 			int ourTeam = cg.snap->ps.persistant[PERS_TEAM];
+			if ((cent->currentState.powerups & (1 << PW_REDFLAG)) && (cent->currentState.powerups & (1 << PW_BLUEFLAG)))
+			{
+				vec4_t purple = { 1.0f, 0.0f, 1.0f, 1.0f };
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOIRedFlagStolenShader, purple, qfalse);
+				return;
+			}
 			if (ourTeam == TEAM_BLUE && (cent->currentState.powerups & (1 << PW_REDFLAG)))
 			{
 				CG_PlayerFloatSprite(cent, cgs.media.friendPOIRedFlagStolenShader, NULL, qfalse);

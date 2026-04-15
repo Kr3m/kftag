@@ -235,6 +235,14 @@ void CG_SHUDElementTeamRoutine(void* context)
 				CG_SHUDDrawStretchPicCtx(&element->config, &element->ctxPowerup);
 				break;
 			}
+			else if ((ci->powerups & (1 << PW_REDFLAG)) && (ci->powerups & (1 << PW_BLUEFLAG)))
+			{
+				/* Teammate is carrying both flags — draw the flag icon tinted purple. */
+				static const vec4_t purple = { 1.0f, 0.0f, 1.0f, 1.0f };
+				element->ctxPowerup.image = cgs.media.friendPOIRedFlagStolenShader;
+				CG_SHUDDrawStretchPic(element->ctxPowerup.coord, element->ctxPowerup.coordPicture, purple, element->ctxPowerup.image);
+				break;
+			}
 			else if (ci->powerups & (1 << k))
 			{
 				gi = BG_FindItemForPowerup(k);
