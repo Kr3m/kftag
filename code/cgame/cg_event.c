@@ -1163,7 +1163,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 					}
 					else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 					{
-						CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
+						trap_S_StartLocalSound(cgs.media.enemyTookYourFlagSound, CHAN_ANNOUNCER);
 					}
 					break;
 				case GTS_BLUE_TAKEN: // blue team took the red flag
@@ -1181,7 +1181,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 					}
 					else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
 					{
-						CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
+						trap_S_StartLocalSound(cgs.media.enemyTookYourFlagSound, CHAN_ANNOUNCER);
 					}
 					break;
 				case GTS_REDOBELISK_ATTACKED: // Overload: red obelisk is being attacked

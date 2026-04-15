@@ -179,25 +179,46 @@ struct gentity_s {
 	tag_t		tag;
 };
 
-// RTF flag tracking for multi-flag support
+// RTF Custom State Tracking System
 #define MAX_FLAGS_PER_TEAM 4
+#define MAX_RTF_FLAGS (MAX_FLAGS_PER_TEAM * 2)  // Red + Blue
+
+typedef enum {
+	RTF_FLAG_AT_BASE,      // Flag is at its base pole (visible)
+	RTF_FLAG_CARRIED,      // Flag is being carried by a player
+	RTF_FLAG_DROPPED,      // Flag is dropped on ground (waiting for pickup or return)
+	RTF_FLAG_RETURNING,    // Flag is in process of returning (scheduled)
+	RTF_FLAG_CAPTURED      // Flag was captured (being removed)
+} rtf_flag_state_t;
 
 typedef struct rtf_flag_s {
-	gentity_t	*ent;
-	int			flagIndex;
-	qboolean	isAtBase;
-	qboolean	isCarried;
-	int			carrier;
-	int			takenTime;
+	int              flagId;            // Unique ID for this flag
+	gentity_t       *baseEntity;        // The base pole entity
+	gentity_t       *droppedEntity;     // Dropped item entity (if dropped)
+	team_t           team;              // RED or BLUE
+	int              flagIndex;         // Which flag slot (0,1,2,3)
+	rtf_flag_state_t state;             // Current state
+	int              carrier;           // Client number of carrier (-1 if none)
+	int              stateChangeTime;   // When state last changed
+	qboolean         baseVisible;       // Should base pole be visible?
 } rtf_flag_t;
 
-typedef struct rtf_team_state_s {
-	rtf_flag_t	flags[MAX_FLAGS_PER_TEAM];
-	int			numFlags;
-	int			flagsAtBase;
-	int			flagsCarried;
-	team_t      team;
-} rtf_team_state_t;
+typedef struct rtf_player_state_s {
+	int     carryingFlags[2];   // flagId of carried flags (-1 if none)
+	int     numCarried;         // How many flags being carried (0,1,2)
+	int     lastPickupTime;     // For anti-spam
+} rtf_player_state_t;
+
+typedef struct rtf_game_state_s {
+	rtf_flag_t          flags[MAX_RTF_FLAGS];
+	int                 numFlags;
+	rtf_player_state_t  players[MAX_CLIENTS];
+	qboolean            initialized;
+	int                 lastFlagId;
+} rtf_game_state_t;
+
+// Global RTF state (single source of truth)
+extern rtf_game_state_t rtf_state;
 
 
 typedef enum {

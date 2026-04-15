@@ -521,7 +521,7 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	// RTF-specific initialization
 	if ( g_gametype.integer == GT_RTF ) {
-		// Disable auto-return for RTF mode (flags never auto-return unless out of world)
+		RTF_Init();
 		trap_Cvar_Set( "g_flagReturnTime", "0" );
 		G_Printf( "RTF: Return The Flag mode initialized - flags never auto-return\n" );
 	}
@@ -1677,8 +1677,7 @@ static void G_WarmupEnd( void )
 
 	// RTF: Reinitialize flag tracking after warmup
 	if ( g_gametype.integer == GT_RTF ) {
-		Team_InitGame();  // This will call RTF_InitFlagTracking
-		G_Printf( "RTF: Flag tracking reinitialized after warmup\n" );
+		RTF_Reset();
 	}
 }
 

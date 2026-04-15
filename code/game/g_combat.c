@@ -101,8 +101,8 @@ void TossClientItems( gentity_t *self ) {
 	if ( !g_freezeTag.integer ) {
 //qlone - freezetag
 	if ( g_gametype.integer != GT_TEAM ) {
-		// In RTF, update flag tracking BEFORE powerups are cleared.
-		Team_RTF_DropFlags( self );
+		// In RTF, pre-mark flag state before Drop_Item runs.
+		if ( g_gametype.integer == GT_RTF ) { RTF_PlayerDied( self ); }
 		angle = 45;
 		for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
 			if ( self->client->ps.powerups[ i ] > level.time ) {
@@ -123,6 +123,7 @@ void TossClientItems( gentity_t *self ) {
 				// in the snapshot until respawn, causing the cgame GTS handler
 				// to play youHaveFlagSound when a bot teammate picks up the flag.
 				if ( item->giType == IT_TEAM ) {
+					if ( g_gametype.integer == GT_RTF ) { RTF_LinkDroppedEntity( drop ); }
 					self->client->ps.powerups[ i ] = 0;
 				}
 				angle += 45;
@@ -131,8 +132,8 @@ void TossClientItems( gentity_t *self ) {
 	}
 //qlone - freezetag
 	} else {
-		// In RTF, update flag tracking BEFORE powerups are cleared/dropped.
-		Team_RTF_DropFlags( self );
+		// In RTF, pre-mark flag state before Drop_Item runs.
+		if ( g_gametype.integer == GT_RTF ) { RTF_PlayerDied( self ); }
 
 		for ( i = 1; i < HI_NUM_HOLDABLE; i++ ) {
 			if ( i == HI_KAMIKAZE ) continue;
@@ -161,6 +162,7 @@ void TossClientItems( gentity_t *self ) {
 				drop->s.time2 = drop->count;
 				// Clear flag powerups immediately when dropped on death.
 				if ( item->giType == IT_TEAM ) {
+					if ( g_gametype.integer == GT_RTF ) { RTF_LinkDroppedEntity( drop ); }
 					self->client->ps.powerups[ i ] = 0;
 				}
 				angle += 45;
@@ -670,7 +672,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( g_gametype.integer == GT_RTF ) {
 			// RTF: return only the specific flags this player carries,
 			// not all flags of the team.
-			Team_RTF_ReturnPlayerFlags( self );
+			RTF_PlayerNodropDeath( self );
 		} else {
 			if ( self->client->ps.powerups[PW_REDFLAG] ) {
 				Team_ReturnFlag( TEAM_RED );

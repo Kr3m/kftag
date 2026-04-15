@@ -45,6 +45,21 @@
 
 #define OVERLOAD_ATTACK_BASE_SOUND_TIME		20000
 
+// Shared team game state
+typedef struct teamgame_s {
+	float			last_flag_capture;
+	int				last_capture_team;
+	flagStatus_t	redStatus;		// CTF
+	flagStatus_t	blueStatus;		// CTF
+	flagStatus_t	flagStatus;		// One Flag CTF
+	int				redTakenTime;
+	int				blueTakenTime;
+	int				redObeliskAttackedTime;
+	int				blueObeliskAttackedTime;
+} teamgame_t;
+
+extern teamgame_t teamgame;
+
 // Prototypes
 
 int OtherTeam( team_t team );
@@ -57,8 +72,9 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker);
 void Team_InitGame(void);
 void Team_ReturnFlag(team_t team);
-void Team_RTF_DropFlags(gentity_t *player);
-void Team_RTF_ReturnPlayerFlags(gentity_t *player);
+void Team_SetFlagStatus(team_t team, flagStatus_t status);
+void Team_ReturnFlagSound(gentity_t *ent, team_t team);
+void Team_TakeFlagSound(gentity_t *ent, team_t team);
 void Team_FreeEntity(gentity_t *ent);
 gentity_t *SelectCTFSpawnPoint( gentity_t *ent, team_t team, int teamstate, vec3_t origin, vec3_t angles );
 gentity_t *SelectFreezeSpawnPoint ( gentity_t *ent, team_t team, int teamstate, vec3_t origin, vec3_t angles );
@@ -69,3 +85,13 @@ void CheckTeamStatus(void);
 
 int Pickup_Team( gentity_t *ent, gentity_t *other );
 void AddTeamScore( vec3_t origin, team_t team, int score );
+
+// RTF flag tracking
+void RTF_Init(void);
+void RTF_Reset(void);
+void RTF_TouchBasePole(gentity_t *player, gentity_t *pole);
+qboolean RTF_PickupFlag(gentity_t *player, gentity_t *flagEnt);
+void RTF_PlayerDied(gentity_t *player);
+void RTF_FlagDroppedIntoVoid(gentity_t *droppedEnt);
+void RTF_PlayerNodropDeath(gentity_t *player);
+void RTF_LinkDroppedEntity(gentity_t *dropped);

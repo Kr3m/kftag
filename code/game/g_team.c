@@ -3,39 +3,12 @@
 
 #include "g_local.h"
 
-typedef struct teamgame_s {
-	float			last_flag_capture;
-	int				last_capture_team;
-	flagStatus_t	redStatus;	// CTF
-	flagStatus_t	blueStatus;	// CTF
-	flagStatus_t	flagStatus;	// One Flag CTF
-	int				redTakenTime;
-	int				blueTakenTime;
-	int				redObeliskAttackedTime;
-	int				blueObeliskAttackedTime;
-} teamgame_t;
-
 teamgame_t teamgame;
 
 gentity_t	*neutralObelisk;
 
-// RTF state tracking
-static rtf_team_state_t rtf_redState;
-static rtf_team_state_t rtf_blueState;
-static qboolean rtf_tracking_initialized = qfalse;
-
-static void Team_SetFlagStatus( team_t team, flagStatus_t status );
-
-// RTF helper function declarations
-static void RTF_InitFlagTracking( void );
-static rtf_flag_t *RTF_FindFlagByEntity( gentity_t *flag );
-static rtf_flag_t *RTF_FindCarriedFlagByPlayer( gentity_t *player, team_t team );
-static void RTF_MarkFlagTaken( gentity_t *flag, gentity_t *carrier );
-static void RTF_MarkFlagReturned( gentity_t *flag );
-static void RTF_MarkFlagCaptured( gentity_t *flag );
-static void RTF_RemoveFlagFromCarrier( gentity_t *player, team_t team );
-// Sound/message helpers needed by Team_RTF_ReturnPlayerFlags (defined later)
-static void Team_ReturnFlagSound( gentity_t *ent, team_t team );
+void Team_SetFlagStatus( team_t team, flagStatus_t status );
+void Team_ReturnFlagSound( gentity_t *ent, team_t team );
 void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... );
 
 void Team_InitGame( void ) {
@@ -49,10 +22,6 @@ void Team_InitGame( void ) {
 		teamgame.blueStatus = -1; // Invalid to force update
 		Team_SetFlagStatus( TEAM_BLUE, FLAG_ATBASE );
 
-		// Initialize RTF flag tracking if this is RTF mode
-		if ( g_gametype.integer == GT_RTF ) {
-			RTF_InitFlagTracking();
-		}
 		break;
 #ifdef MISSIONPACK
 	case GT_1FCTF:
@@ -65,350 +34,8 @@ void Team_InitGame( void ) {
 	}
 }
 
-/*
-================
-RTF_InitFlagTracking
 
-Initialize tracking for all flags on the map
-================
-*/
-static void RTF_InitFlagTracking( void ) {
-	gentity_t *ent;
-	int redCount, blueCount;
 
-	memset(&rtf_redState, 0, sizeof(rtf_redState));
-	memset(&rtf_blueState, 0, sizeof(rtf_blueState));
-
-	rtf_redState.team = TEAM_RED;
-	rtf_blueState.team = TEAM_BLUE;
-
-	redCount = 0;
-	blueCount = 0;
-
-	// Find all red BASE flags (skip dropped items - they share classname but have FL_DROPPED_ITEM set)
-	ent = NULL;
-	while ((ent = G_Find(ent, FOFS(classname), "team_CTF_redflag")) != NULL) {
-		if (ent->flags & FL_DROPPED_ITEM) {
-			continue; // skip dropped flag entities; they are transient
-		}
-		if (redCount < MAX_FLAGS_PER_TEAM) {
-			rtf_redState.flags[redCount].ent = ent;
-			rtf_redState.flags[redCount].flagIndex = redCount;
-			// A base entity is at-base if it is visible (not hidden by pickup)
-			rtf_redState.flags[redCount].isAtBase = !(ent->s.eFlags & EF_NODRAW);
-			rtf_redState.flags[redCount].isCarried = qfalse;
-			rtf_redState.flags[redCount].carrier = -1;
-			rtf_redState.flags[redCount].takenTime = 0;
-			if (rtf_redState.flags[redCount].isAtBase) {
-				rtf_redState.flagsAtBase++;
-			}
-			redCount++;
-		}
-	}
-	rtf_redState.numFlags = redCount;
-
-	// Find all blue BASE flags (skip dropped items)
-	ent = NULL;
-	while ((ent = G_Find(ent, FOFS(classname), "team_CTF_blueflag")) != NULL) {
-		if (ent->flags & FL_DROPPED_ITEM) {
-			continue; // skip dropped flag entities; they are transient
-		}
-		if (blueCount < MAX_FLAGS_PER_TEAM) {
-			rtf_blueState.flags[blueCount].ent = ent;
-			rtf_blueState.flags[blueCount].flagIndex = blueCount;
-			// A base entity is at-base if it is visible (not hidden by pickup)
-			rtf_blueState.flags[blueCount].isAtBase = !(ent->s.eFlags & EF_NODRAW);
-			rtf_blueState.flags[blueCount].isCarried = qfalse;
-			rtf_blueState.flags[blueCount].carrier = -1;
-			rtf_blueState.flags[blueCount].takenTime = 0;
-			if (rtf_blueState.flags[blueCount].isAtBase) {
-				rtf_blueState.flagsAtBase++;
-			}
-			blueCount++;
-		}
-	}
-	rtf_blueState.numFlags = blueCount;
-
-	rtf_tracking_initialized = qtrue;
-
-	G_Printf("RTF: Found %d red flags, %d blue flags\n", redCount, blueCount);
-}
-
-/*
-================
-RTF_FindFlagByEntity
-
-Find which flag slot corresponds to a given entity
-================
-*/
-static rtf_flag_t *RTF_FindFlagByEntity( gentity_t *flag ) {
-	int i;
-
-	if (!flag) return NULL;
-
-	// Check red flags
-	for (i = 0; i < rtf_redState.numFlags; i++) {
-		if (rtf_redState.flags[i].ent == flag) {
-			return &rtf_redState.flags[i];
-		}
-	}
-
-	// Check blue flags
-	for (i = 0; i < rtf_blueState.numFlags; i++) {
-		if (rtf_blueState.flags[i].ent == flag) {
-			return &rtf_blueState.flags[i];
-		}
-	}
-
-	return NULL;
-}
-
-/*
-================
-RTF_FindCarriedFlagByPlayer
-
-Find which flag entity a player is carrying for a specific team
-================
-*/
-static rtf_flag_t *RTF_FindCarriedFlagByPlayer( gentity_t *player, team_t team ) {
-	rtf_team_state_t *state;
-	int flag_pw;
-	int i;
-
-	flag_pw = (team == TEAM_RED) ? PW_REDFLAG : PW_BLUEFLAG;
-
-	if (!player->client->ps.powerups[flag_pw]) {
-		return NULL;
-	}
-
-	state = (team == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-
-	for (i = 0; i < state->numFlags; i++) {
-		if (state->flags[i].isCarried && state->flags[i].carrier == player->s.number) {
-			return &state->flags[i];
-		}
-	}
-
-	return NULL;
-}
-
-/*
-================
-RTF_TeamOfFlag
-
-Determine the team from a flag tracking slot's classname.
-Returns TEAM_RED or TEAM_BLUE.
-================
-*/
-static team_t RTF_TeamOfFlag( rtf_flag_t *flagInfo ) {
-	return (flagInfo->ent->item && flagInfo->ent->item->giTag == PW_REDFLAG) ? TEAM_RED : TEAM_BLUE;
-}
-
-/*
-================
-RTF_MarkFlagTaken
-
-Mark a specific flag as taken by a carrier.
-Call ONLY for the base entity (not for a dropped item entity –
-dropped items are not in the tracking table).
-================
-*/
-static void RTF_MarkFlagTaken( gentity_t *flag, gentity_t *carrier ) {
-	rtf_flag_t *flagInfo;
-	rtf_team_state_t *state;
-
-	flagInfo = RTF_FindFlagByEntity(flag);
-	if (!flagInfo) {
-		G_Printf("RTF ERROR: RTF_MarkFlagTaken: could not find flag info for entity #%d\n",
-		         (int)(flag - g_entities));
-		return;
-	}
-
-	if (flagInfo->isCarried) {
-		G_Printf("RTF WARNING: RTF_MarkFlagTaken: flag already marked carried\n");
-	}
-
-	state = (RTF_TeamOfFlag(flagInfo) == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-
-	if (flagInfo->isAtBase) {
-		flagInfo->isAtBase = qfalse;
-		if (state->flagsAtBase > 0) state->flagsAtBase--;
-	}
-	flagInfo->isCarried = qtrue;
-	flagInfo->carrier = carrier->s.number;
-	flagInfo->takenTime = level.time;
-	state->flagsCarried++;
-
-	/* Hide the base entity while the flag is away. */
-	flag->s.eFlags |= EF_NODRAW;
-	flag->r.svFlags |= SVF_NOCLIENT;
-	trap_LinkEntity(flag);
-}
-
-/*
-================
-RTF_MarkFlagReturned
-
-Mark a specific flag as returned to base.
-Shows the base entity directly rather than going through
-RespawnItem (which has teamed-entity random-selection side effects).
-================
-*/
-static void RTF_MarkFlagReturned( gentity_t *flag ) {
-	rtf_flag_t *flagInfo;
-	rtf_team_state_t *state;
-
-	flagInfo = RTF_FindFlagByEntity(flag);
-	if (!flagInfo) {
-		G_Printf("RTF ERROR: RTF_MarkFlagReturned: could not find flag info for entity #%d\n",
-		         (int)(flag - g_entities));
-		return;
-	}
-
-	state = (RTF_TeamOfFlag(flagInfo) == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-
-	if (flagInfo->isCarried && state->flagsCarried > 0) {
-		state->flagsCarried--;
-	}
-	flagInfo->isAtBase = qtrue;
-	flagInfo->isCarried = qfalse;
-	flagInfo->carrier = -1;
-	state->flagsAtBase++;
-
-	/* Make the base pole entity visible and touchable again. */
-	flag->r.contents = CONTENTS_TRIGGER;
-	flag->s.eFlags &= ~EF_NODRAW;
-	flag->r.svFlags &= ~SVF_NOCLIENT;
-	flag->r.svFlags |= SVF_BROADCAST;
-	flag->nextthink = 0;
-	flag->think = NULL;
-	trap_LinkEntity(flag);
-}
-
-/*
-================
-RTF_MarkFlagCaptured
-
-When a capture happens, return only the specific enemy flag that was captured
-to its base.  Other flags are NOT affected.
-================
-*/
-static void RTF_MarkFlagCaptured( gentity_t *flag ) {
-	rtf_flag_t *flagInfo;
-	rtf_team_state_t *state;
-
-	flagInfo = RTF_FindFlagByEntity(flag);
-	if (!flagInfo) {
-		G_Printf("RTF ERROR: RTF_MarkFlagCaptured: could not find flag info for entity #%d\n",
-		         (int)(flag - g_entities));
-		return;
-	}
-
-	state = (RTF_TeamOfFlag(flagInfo) == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-
-	if (flagInfo->isCarried && state->flagsCarried > 0) {
-		state->flagsCarried--;
-	}
-	flagInfo->isAtBase = qtrue;
-	flagInfo->isCarried = qfalse;
-	flagInfo->carrier = -1;
-	state->flagsAtBase++;
-
-	/* Restore only this flag's base entity. */
-	flag->r.contents = CONTENTS_TRIGGER;
-	flag->s.eFlags &= ~EF_NODRAW;
-	flag->r.svFlags &= ~SVF_NOCLIENT;
-	flag->r.svFlags |= SVF_BROADCAST;
-	flag->nextthink = 0;
-	flag->think = NULL;
-	trap_LinkEntity(flag);
-}
-
-/*
-================
-RTF_RemoveFlagFromCarrier
-
-Force remove a flag from a carrier when they die or disconnect.
-Updates RTF tracking state but does NOT clear the powerup (caller
-handles that via TossClientItems / Drop_Item).
-================
-*/
-static void RTF_RemoveFlagFromCarrier( gentity_t *player, team_t team ) {
-	rtf_flag_t *flagInfo;
-	rtf_team_state_t *state;
-	int flag_pw;
-
-	flag_pw = (team == TEAM_RED) ? PW_REDFLAG : PW_BLUEFLAG;
-
-	if (!player->client->ps.powerups[flag_pw]) {
-		return;
-	}
-
-	flagInfo = RTF_FindCarriedFlagByPlayer(player, team);
-	if (flagInfo) {
-		state = (team == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-		flagInfo->isCarried = qfalse;
-		flagInfo->carrier = -1;
-		/* isAtBase stays false — the flag is now a dropped entity on the map */
-		if (state->flagsCarried > 0) {
-			state->flagsCarried--;
-		}
-	}
-}
-
-/*
-================
-Team_RTF_DropFlags
-
-Called when a player drops their flags (on death/disconnect) in RTF mode.
-Updates the RTF tracking state for all flags the player was carrying.
-Must be called BEFORE the powerups are cleared from ps.powerups so that
-RTF_RemoveFlagFromCarrier can check the powerup to confirm ownership.
-================
-*/
-void Team_RTF_DropFlags( gentity_t *player ) {
-	if ( g_gametype.integer != GT_RTF ) {
-		return;
-	}
-	RTF_RemoveFlagFromCarrier( player, TEAM_RED );
-	RTF_RemoveFlagFromCarrier( player, TEAM_BLUE );
-}
-
-/*
-================
-Team_RTF_ReturnPlayerFlags
-
-Return any flags the player is carrying to their bases.  Intended for use
-when the player dies in a NODROP area so no dropped entity is spawned.
-Mirrors the nodrop "Team_ReturnFlag" path but operates per-carrier rather
-than resetting all flags of the team.
-================
-*/
-void Team_RTF_ReturnPlayerFlags( gentity_t *player ) {
-	int i;
-	rtf_team_state_t *states[2];
-	team_t teams[2];
-
-	if ( g_gametype.integer != GT_RTF || !rtf_tracking_initialized ) {
-		return;
-	}
-
-	states[0] = &rtf_redState;  teams[0] = TEAM_RED;
-	states[1] = &rtf_blueState; teams[1] = TEAM_BLUE;
-
-	for (i = 0; i < 2; i++) {
-		rtf_team_state_t *state = states[i];
-		int j;
-		for (j = 0; j < state->numFlags; j++) {
-			rtf_flag_t *slot = &state->flags[j];
-			if (slot->isCarried && slot->carrier == player->s.number) {
-				RTF_MarkFlagReturned(slot->ent);
-				Team_ReturnFlagSound(slot->ent, teams[i]);
-				PrintMsg(NULL, "The %s flag has returned!\n", TeamName(teams[i]));
-			}
-		}
-	}
-}
 
 int OtherTeam( team_t team ) {
 	if ( team == TEAM_RED )
@@ -536,7 +163,7 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
 static char oneFlagStatusRemap[] = { '0', '1', '2', '3', '4' };
 
-static void Team_SetFlagStatus( team_t team, flagStatus_t status ) {
+void Team_SetFlagStatus( team_t team, flagStatus_t status ) {
 	qboolean modified = qfalse;
 
 	switch( team ) {
@@ -897,32 +524,14 @@ static gentity_t *Team_ResetFlag( team_t team ) {
 			G_FreeEntity(ent);
 		} else {
 			rent = ent;
-			if ( g_gametype.integer == GT_RTF && rtf_tracking_initialized ) {
-				/* In RTF, use the tracking helpers to restore each base entity
-				   cleanly.  RTF_MarkFlagReturned makes the entity visible and
-				   resets its trigger volume without calling RespawnItem
-				   (which can randomly select a teamed-entity partner). */
-				rtf_flag_t *flagInfo = RTF_FindFlagByEntity(ent);
-				if (flagInfo && !flagInfo->isAtBase) {
-					RTF_MarkFlagReturned(ent);
-				} else {
-					/* Already at base — just make sure it's visible and linked. */
-					ent->r.contents = CONTENTS_TRIGGER;
-					ent->s.eFlags &= ~EF_NODRAW;
-					ent->r.svFlags &= ~SVF_NOCLIENT;
-					ent->r.svFlags |= SVF_BROADCAST;
-					ent->nextthink = 0;
-					ent->think = NULL;
-					trap_LinkEntity(ent);
-				}
-			} else {
-				/* Standard CTF path. */
-				if (ent->s.eFlags & EF_NODRAW) {
-					RespawnItem(ent);
-				}
-				ent->s.eFlags &= ~EF_NODRAW;
-				ent->r.svFlags &= ~SVF_NOCLIENT;
-			}
+			/* Restore this base entity. RTF_Reset handles RTF-specific state. */
+			ent->r.contents = CONTENTS_TRIGGER;
+			ent->s.eFlags &= ~EF_NODRAW;
+			ent->r.svFlags &= ~SVF_NOCLIENT;
+			ent->r.svFlags |= SVF_BROADCAST;
+			ent->nextthink = 0;
+			ent->think = NULL;
+			trap_LinkEntity(ent);
 		}
 	}
 
@@ -943,7 +552,7 @@ void Team_ResetFlags( void ) {
 #endif
 }
 
-static void Team_ReturnFlagSound( gentity_t *ent, team_t team ) {
+void Team_ReturnFlagSound( gentity_t *ent, team_t team ) {
 	gentity_t	*te;
 
 	if (ent == NULL) {
@@ -961,7 +570,7 @@ static void Team_ReturnFlagSound( gentity_t *ent, team_t team ) {
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-static void Team_TakeFlagSound( gentity_t *ent, team_t team ) {
+void Team_TakeFlagSound( gentity_t *ent, team_t team ) {
 	gentity_t	*te;
 
 	if ( ent == NULL ) {
@@ -1014,7 +623,7 @@ static void Team_TakeFlagSound( gentity_t *ent, team_t team ) {
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-static void Team_CaptureFlagSound( gentity_t *ent, team_t team ) {
+void Team_CaptureFlagSound( gentity_t *ent, team_t team ) {
 	gentity_t	*te;
 
 	if (ent == NULL) {
@@ -1056,33 +665,8 @@ void Team_FreeEntity( gentity_t *ent ) {
 		return;
 	}
 
-	if ( g_gametype.integer == GT_RTF && rtf_tracking_initialized ) {
-		/* In RTF a dropped flag falling into void returns only its own base
-		   slot, not all flags of the team.  Find the matching unoccupied slot
-		   (isAtBase==false, isCarried==false) and restore it. */
-		rtf_team_state_t *state;
-		int i;
-		rtf_flag_t *slot;
-
-		state = (flag_team == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-		slot  = NULL;
-
-		for (i = 0; i < state->numFlags; i++) {
-			if (!state->flags[i].isAtBase && !state->flags[i].isCarried) {
-				slot = &state->flags[i];
-				break;
-			}
-		}
-
-		if (slot) {
-			/* RTF_MarkFlagReturned works on the base entity pointer. */
-			RTF_MarkFlagReturned(slot->ent);
-			Team_ReturnFlagSound(slot->ent, flag_team);
-			PrintMsg(NULL, "The %s flag has returned!\n", TeamName(flag_team));
-		} else {
-			/* Fallback: nothing matched, use legacy reset for the team. */
-			Team_ReturnFlag(flag_team);
-		}
+	if ( g_gametype.integer == GT_RTF ) {
+		RTF_FlagDroppedIntoVoid(ent);
 	} else {
 		Team_ReturnFlag(flag_team);
 	}
@@ -1114,286 +698,8 @@ void Team_DroppedFlagThink(gentity_t *ent) {
 	// Reset Flag will delete this entity
 }
 
-/*
-==============
-Team_TouchOurFlag - RTF mode handler
 
-Called when a player touches their own team's flag entity.
-The entity may be:
-  (a) FL_DROPPED_ITEM  – a dropped copy of their own flag lying on the map
-  (b) a base entity    – the trigger at the flag-pole location (occupied OR empty)
-
-RTF capture semantics:
-  • You can capture the enemy flag on ANY own-flag pole, occupied or empty.
-  • Occupied pole (your flag is there):
-      – Enemy flag only: capture it. Your pole stays occupied.
-      – Enemy flag + own flag:  capture the enemy flag here. You keep
-        your own flag and can return it to a different (empty) pole.
-      – No enemy flag: nothing to do.
-  • Empty pole (your flag has been taken or dropped elsewhere):
-      – Own flag only: return it.
-      – Own flag + enemy flag: return own flag, then immediately capture
-        the enemy flag on the now-filled pole.
-      – Enemy flag only: NOT a valid capture — pole must be filled first.
-  • A player can carry at most one flag of each team simultaneously.
-==============
-*/
-static int Team_TouchOurFlag_RTF( gentity_t *ent, gentity_t *other, team_t team ) {
-	gclient_t *cl;
-	int enemy_flag;
-	int own_flag;
-	rtf_flag_t *flagInfo;
-	rtf_flag_t *carriedEnemyFlag;
-	gentity_t *enemyFlagEnt;
-
-	cl = other->client;
-	enemy_flag = (team == TEAM_RED) ? PW_BLUEFLAG : PW_REDFLAG;
-	own_flag   = (team == TEAM_RED) ? PW_REDFLAG  : PW_BLUEFLAG;
-
-	/* -------------------------------------------------------
-	   Case A: picking up a DROPPED copy of our own flag.
-	   ------------------------------------------------------- */
-	if ( ent->flags & FL_DROPPED_ITEM ) {
-		if ( cl->ps.powerups[own_flag] ) {
-			/* Already carrying this team's flag — cannot stack. */
-			return 0;
-		}
-
-		PrintMsg( NULL, "%s" S_COLOR_WHITE " picked up the %s flag!\n",
-		          cl->pers.netname, TeamName(team));
-
-		cl->ps.powerups[own_flag] = INT_MAX;
-		cl->pers.teamState.flagsince = level.time;
-
-		/* The dropped entity is NOT in the tracking table, but we need to
-		   mark the correct base slot as carried.  Find the slot whose entity
-		   we already hid when the flag was first taken. */
-		{
-			rtf_team_state_t *state;
-			int i;
-			state = (team == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-			for (i = 0; i < state->numFlags; i++) {
-				if (!state->flags[i].isAtBase && !state->flags[i].isCarried) {
-					/* This slot's flag was previously dropped — now it's carried. */
-					state->flags[i].isCarried = qtrue;
-					state->flags[i].carrier   = other->s.number;
-					state->flags[i].takenTime = level.time;
-					if (state->flagsCarried < state->numFlags) {
-						state->flagsCarried++;
-					}
-					break;
-				}
-			}
-		}
-
-		Team_SetFlagStatus(team, FLAG_TAKEN);
-		return -1; /* Remove the dropped entity. */
-	}
-
-	/* -------------------------------------------------------
-	   Case B: touching a BASE entity (the pole trigger).
-	   The base entity is always touchable in RTF (r.contents stays
-	   CONTENTS_TRIGGER), whether or not the flag is currently at base.
-	   ------------------------------------------------------- */
-	flagInfo = RTF_FindFlagByEntity(ent);
-
-	if (!flagInfo) {
-		return 0; /* not a tracked base entity */
-	}
-
-	if (flagInfo->isAtBase) {
-		/* -------------------------------------------------------
-		   Case B-Occupied: pole has its own flag on it.
-		   The only valid action is capturing the enemy flag here.
-		   The player keeps any own flag they are also carrying.
-		   ------------------------------------------------------- */
-		if (!cl->ps.powerups[enemy_flag]) {
-			return 0; /* nothing useful at a full pole without enemy flag */
-		}
-
-		{
-			team_t enemy_team;
-			enemy_team = OtherTeam(team);
-
-			carriedEnemyFlag = RTF_FindCarriedFlagByPlayer(other, enemy_team);
-			if (!carriedEnemyFlag) {
-				G_Printf("RTF WARNING: enemy flag powerup without tracking entry for player %d\n",
-				         other->s.number);
-				return 0;
-			}
-			enemyFlagEnt = carriedEnemyFlag->ent;
-
-			PrintMsg( NULL, "%s" S_COLOR_WHITE " captured the %s flag!\n",
-			          cl->pers.netname, TeamName(enemy_team));
-
-			cl->ps.powerups[enemy_flag] = 0;
-
-			RTF_MarkFlagCaptured(enemyFlagEnt);
-
-			{
-				rtf_team_state_t *estate;
-				estate = (enemy_team == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-				if (estate->flagsAtBase == estate->numFlags) {
-					Team_SetFlagStatus(enemy_team, FLAG_ATBASE);
-				}
-			}
-
-			teamgame.last_flag_capture = level.time;
-			teamgame.last_capture_team = team;
-			AddTeamScore(ent->s.pos.trBase, other->client->sess.sessionTeam, 1);
-			Team_ForceGesture(other->client->sess.sessionTeam);
-			other->client->pers.teamState.captures++;
-			other->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
-			other->client->ps.eFlags |= EF_AWARD_CAP;
-			other->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-			other->client->ps.persistant[PERS_CAPTURES]++;
-			AddScore(other, ent->r.currentOrigin, CTF_CAPTURE_BONUS);
-			Team_CaptureFlagSound(ent, team);
-			CalculateRanks();
-		}
-		return 0;
-	}
-
-	/* -------------------------------------------------------
-	   Case B-Empty: pole is empty (flag was taken or dropped elsewhere).
-	   ------------------------------------------------------- */
-
-	/* --- Sub-case B1: player carries their own flag → return it here --- */
-	if ( cl->ps.powerups[own_flag] ) {
-		PrintMsg( NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n",
-		          cl->pers.netname, TeamName(team));
-
-		cl->ps.powerups[own_flag] = 0;
-		AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
-		other->client->pers.teamState.flagrecovery++;
-		other->client->pers.teamState.lastreturnedflag = level.time;
-
-		RTF_MarkFlagReturned(ent);
-
-		/* Update the flag-status configstring only if needed. */
-		{
-			rtf_team_state_t *state;
-			state = (team == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-			if (state->flagsAtBase == state->numFlags) {
-				Team_SetFlagStatus(team, FLAG_ATBASE);
-			}
-		}
-
-		Team_ReturnFlagSound(ent, team);
-
-		/* --- Sub-case B1a: if player ALSO has enemy flag, capture it now --- */
-		if ( cl->ps.powerups[enemy_flag] ) {
-			team_t enemy_team;
-			enemy_team = OtherTeam(team);
-
-			carriedEnemyFlag = RTF_FindCarriedFlagByPlayer(other, enemy_team);
-			if (carriedEnemyFlag) {
-				enemyFlagEnt = carriedEnemyFlag->ent;
-
-				PrintMsg( NULL, "%s" S_COLOR_WHITE " captured the %s flag!\n",
-				          cl->pers.netname, TeamName(enemy_team));
-
-				cl->ps.powerups[enemy_flag] = 0;
-
-				RTF_MarkFlagCaptured(enemyFlagEnt);
-
-				/* Only set FLAG_ATBASE for the enemy team if all their flags
-				   are back; otherwise leave status as FLAG_TAKEN. */
-				{
-					rtf_team_state_t *estate;
-					estate = (enemy_team == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-					if (estate->flagsAtBase == estate->numFlags) {
-						Team_SetFlagStatus(enemy_team, FLAG_ATBASE);
-					}
-				}
-
-				teamgame.last_flag_capture = level.time;
-				teamgame.last_capture_team = team;
-				AddTeamScore(ent->s.pos.trBase, other->client->sess.sessionTeam, 1);
-				Team_ForceGesture(other->client->sess.sessionTeam);
-				other->client->pers.teamState.captures++;
-				other->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
-				other->client->ps.eFlags |= EF_AWARD_CAP;
-				other->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-				other->client->ps.persistant[PERS_CAPTURES]++;
-				AddScore(other, ent->r.currentOrigin, CTF_CAPTURE_BONUS);
-				Team_CaptureFlagSound(ent, team);
-				CalculateRanks();
-			}
-		}
-		return 0;
-	}
-
-	/* Player has neither flag, or has only the enemy flag without their own
-	   to fill the pole — nothing to do at this empty pole. */
-	return 0;
-}
-
-/*
-==============
-Team_TouchEnemyFlag_RTF - RTF mode handler
-
-Called when a player touches an enemy flag entity.  The entity may be
-the base entity (first pickup) or a dropped-flag entity (relay pickup).
-
-Rules enforced:
-  • A player cannot carry two flags of the same team.
-  • Only one enemy flag may be carried at a time (powerup already enforces this).
-==============
-*/
-static int Team_TouchEnemyFlag_RTF( gentity_t *ent, gentity_t *other, team_t team ) {
-	gclient_t *cl;
-	int flag_pw;
-	rtf_team_state_t *state;
-	int i;
-
-	cl = other->client;
-	flag_pw = (team == TEAM_RED) ? PW_REDFLAG : PW_BLUEFLAG;
-
-	/* A player can carry at most one flag of this team. */
-	if ( cl->ps.powerups[flag_pw] ) {
-		return 0;
-	}
-
-	PrintMsg( NULL, "%s" S_COLOR_WHITE " got the %s flag!\n",
-	          cl->pers.netname, TeamName(team));
-
-	cl->ps.powerups[flag_pw] = INT_MAX;
-	cl->pers.teamState.flagsince = level.time;
-
-	if ( ent->flags & FL_DROPPED_ITEM ) {
-		/* Dropped enemy flag: entity is NOT in tracking table.
-		   Find the unoccupied base slot for this team's flag and mark it
-		   carried by this player. */
-		state = (team == TEAM_RED) ? &rtf_redState : &rtf_blueState;
-		for (i = 0; i < state->numFlags; i++) {
-			if (!state->flags[i].isAtBase && !state->flags[i].isCarried) {
-				state->flags[i].isCarried = qtrue;
-				state->flags[i].carrier   = other->s.number;
-				state->flags[i].takenTime = level.time;
-				if (state->flagsCarried < state->numFlags) {
-					state->flagsCarried++;
-				}
-				break;
-			}
-		}
-		Team_SetFlagStatus(team, FLAG_TAKEN);
-		Team_TakeFlagSound(ent, team);
-		return -1; /* Remove the dropped entity. */
-	}
-
-	/* Base entity pickup: use RTF_MarkFlagTaken which hides the base entity
-	   and updates tracking correctly. */
-	RTF_MarkFlagTaken(ent, other);
-	Team_SetFlagStatus(team, FLAG_TAKEN);
-	Team_TakeFlagSound(ent, team);
-
-	return -1; /* Returning -1 tells Pickup_Team to "delete" this entity, but
-	              for a base entity Touch_Item handles visibility; we already
-	              hid it in RTF_MarkFlagTaken so returning 0 vs -1 both work.
-	              Use -1 to match normal CTF behaviour and ensure freeAfterEvent
-	              is NOT set for the base entity (it's handled separately). */
-}
+/* Team_TouchEnemyFlag_RTF removed — handled by RTF_PickupFlag in Pickup_Team */
 
 /*
 ==============
@@ -1483,9 +789,6 @@ Team_TouchOurFlag - Dispatcher
 ==============
 */
 static int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
-	if ( g_gametype.integer == GT_RTF ) {
-		return Team_TouchOurFlag_RTF(ent, other, team);
-	}
 	return Team_TouchOurFlag_CTF(ent, other, team);
 }
 
@@ -1512,10 +815,6 @@ static int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, team_t team ) 
 		return -1;
 	}
 #endif
-
-	if ( g_gametype.integer == GT_RTF ) {
-		return Team_TouchEnemyFlag_RTF(ent, other, team);
-	}
 
 	// Standard CTF
 	if (team == TEAM_RED && cl->ps.powerups[PW_REDFLAG])
@@ -1584,6 +883,19 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 		return 0;
 	}
 #endif
+
+	if ( g_gametype.integer == GT_RTF ) {
+		if ( team == cl->sess.sessionTeam ) {
+			if ( ent->flags & FL_DROPPED_ITEM ) {
+				/* Own flag was dropped — pick it up for relay carry */
+				return RTF_PickupFlag(other, ent) ? -1 : 0;
+			}
+			RTF_TouchBasePole(other, ent);
+			return 0;
+		} else {
+			return RTF_PickupFlag(other, ent) ? -1 : 0;
+		}
+	}
 
 	if( team == cl->sess.sessionTeam) {
 		return Team_TouchOurFlag( ent, other, team );
