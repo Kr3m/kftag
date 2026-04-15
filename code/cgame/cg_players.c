@@ -2623,18 +2623,18 @@ static void CG_PlayerSprites(centity_t* cent)
 			int ourTeam = cg.snap->ps.persistant[PERS_TEAM];
 			if (ourTeam == TEAM_BLUE && (cent->currentState.powerups & (1 << PW_REDFLAG)))
 			{
-				CG_PlayerFloatSprite(cent, cgs.media.friendPOIRedFlagStolenShader, NULL, qtrue);
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOIRedFlagStolenShader, NULL, qfalse);
 				return;
 			}
 			if (ourTeam == TEAM_RED && (cent->currentState.powerups & (1 << PW_BLUEFLAG)))
 			{
-				CG_PlayerFloatSprite(cent, cgs.media.friendPOIBlueFlagStolenShader, NULL, qtrue);
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOIBlueFlagStolenShader, NULL, qfalse);
 				return;
 			}
 #ifdef MISSIONPACK
 			if (cent->currentState.powerups & (1 << PW_NEUTRALFLAG))
 			{
-				CG_PlayerFloatSprite(cent, cgs.media.friendPOINeutralFlagCarrierShader, NULL, qtrue);
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOINeutralFlagCarrierShader, NULL, qfalse);
 				return;
 			}
 #endif
