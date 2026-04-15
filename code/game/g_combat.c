@@ -131,6 +131,9 @@ void TossClientItems( gentity_t *self ) {
 	}
 //qlone - freezetag
 	} else {
+		// In RTF, update flag tracking BEFORE powerups are cleared/dropped.
+		Team_RTF_DropFlags( self );
+
 		for ( i = 1; i < HI_NUM_HOLDABLE; i++ ) {
 			if ( i == HI_KAMIKAZE ) continue;
 			if ( bg_itemlist[ self->client->ps.stats[ STAT_HOLDABLE_ITEM ] ].giTag == i ) {

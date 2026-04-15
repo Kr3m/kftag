@@ -176,6 +176,13 @@ static void CG_TransitionSnapshot(void)
 	oldFrame = cg.snap;
 	cg.snap = cg.nextSnap;
 
+	// Save the local player's flag powerup state from the old snapshot so that
+	// GTS_RED_TAKEN / GTS_BLUE_TAKEN event handlers can determine whether the
+	// local player is the one who JUST picked up the flag this frame, or whether
+	// they already held it when a teammate grabbed a second copy.
+	cg.prevBlueFlagPowerup = oldFrame->ps.powerups[PW_BLUEFLAG];
+	cg.prevRedFlagPowerup  = oldFrame->ps.powerups[PW_REDFLAG];
+
 	BG_PlayerStateToEntityState(&cg.snap->ps, &cg_entities[ cg.snap->ps.clientNum ].currentState, qfalse);
 	cg_entities[ cg.snap->ps.clientNum ].interpolate = qfalse;
 

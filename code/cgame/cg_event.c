@@ -1146,36 +1146,42 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
 				case GTS_RED_TAKEN: // red team took the blue flag
 					// GTS entity events fire reliably regardless of prediction state.
-					// cg.snap->ps already reflects this snap, so powerup checks are valid.
+					// Check cg.prevBlueFlagPowerup (saved before entity events fire) to
+					// confirm the local player NEWLY acquired the flag this snapshot,
+					// rather than already holding it while a teammate grabs a second copy.
 					if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED &&
-						(cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG]))
+						cg.snap->ps.powerups[PW_BLUEFLAG] &&
+						!cg.prevBlueFlagPowerup)
 					{
-						// Local player is the carrier.
+						// Local player just picked up the enemy flag.
 						trap_S_StartLocalSound(cgs.media.youHaveFlagSound, CHAN_ANNOUNCER);
+					}
+					else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+					{
+						// A teammate took the enemy flag.
+						trap_S_StartLocalSound(cgs.media.yourTeamTookEnemyFlagSound, CHAN_ANNOUNCER);
 					}
 					else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 					{
 						CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
-					}
-					else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-					{
-						CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
 					}
 					break;
 				case GTS_BLUE_TAKEN: // blue team took the red flag
 					if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE &&
-						(cg.snap->ps.powerups[PW_REDFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG]))
+						cg.snap->ps.powerups[PW_REDFLAG] &&
+						!cg.prevRedFlagPowerup)
 					{
-						// Local player is the carrier.
+						// Local player just picked up the enemy flag.
 						trap_S_StartLocalSound(cgs.media.youHaveFlagSound, CHAN_ANNOUNCER);
+					}
+					else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+					{
+						// A teammate took the enemy flag.
+						trap_S_StartLocalSound(cgs.media.yourTeamTookEnemyFlagSound, CHAN_ANNOUNCER);
 					}
 					else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
 					{
 						CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
-					}
-					else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-					{
-						CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
 					}
 					break;
 				case GTS_REDOBELISK_ATTACKED: // Overload: red obelisk is being attacked

@@ -701,61 +701,46 @@ CG_DrawFlagPOIPair
 Shared helper: renders POIs for one defending flag and the attacker's
 capture base using the same logic for both GT_CTF and GT_RTF.
 
-  defTeam       - team that owns/defends this flag (TEAM_RED or TEAM_BLUE)
-  defFlagSlot   - s_flagPOI index for the defending flag (0=red, 1=blue)
-  atkBaseSlot   - s_flagPOI index for the attacker's capture base
-  defFlagStatus - wire-protocol value from cgs.redflag/blueflag
-                  (0=atbase, 1=taken, 2=dropped; NOT the flagStatus_t enum)
-  ourTeam       - local player's team
+  defTeam          - team that owns/defends this flag (TEAM_RED or TEAM_BLUE)
+  defFlagSlot      - s_flagPOI index for the defending flag (0=red, 1=blue)
+  enemyFlagStatus  - wire-protocol status of the ENEMY flag (the one the
+                     attacker is trying to carry back): 0=atbase, 1=taken,
+                     2=dropped; NOT the flagStatus_t enum
+  ourTeam          - local player's team
 
-Defenders see DEFEND on visible flag entities.
-Attackers see ATTACK on visible flag entities, plus CAPTURE at their own
-base while the flag is being carried (defFlagStatus == 1).
+Defenders see DEFEND on their own visible base flags when the enemy flag is
+not currently carried, or CAPTURE when a teammate is carrying the enemy flag.
+These are mutually exclusive — only one POI shows per base flag entity.
+Attackers see ATTACK on visible enemy flag entities.
 ===============
 */
-static void CG_DrawFlagPOIPair( int defTeam, int defFlagSlot, int atkBaseSlot,
-                                int defFlagStatus, int ourTeam ) {
+static void CG_DrawFlagPOIPair( int defTeam, int defFlagSlot,
+                                int enemyFlagStatus, int ourTeam ) {
 	int				i;
-	int				atkTeam;
-	vec4_t			defColor, atkColor;
+	vec4_t			defColor;
 	qhandle_t		shader;
 	flagPOICache_t	*defFlags = &s_flagPOI[defFlagSlot];
-	flagPOICache_t	*atkBase  = &s_flagPOI[atkBaseSlot];
-
-	atkTeam = ( defTeam == TEAM_RED ) ? TEAM_BLUE : TEAM_RED;
 
 	defColor[0] = ( defTeam == TEAM_RED ) ? 1.0f : 0.0f;
 	defColor[1] = ( defTeam == TEAM_RED ) ? 0.0f : 0.5f;
 	defColor[2] = ( defTeam == TEAM_RED ) ? 0.0f : 1.0f;
 	defColor[3] = 1.0f;
 
-	atkColor[0] = ( atkTeam == TEAM_RED ) ? 1.0f : 0.0f;
-	atkColor[1] = ( atkTeam == TEAM_RED ) ? 0.0f : 0.5f;
-	atkColor[2] = ( atkTeam == TEAM_RED ) ? 0.0f : 1.0f;
-	atkColor[3] = 1.0f;
-
 	if ( ourTeam == defTeam ) {
-		/* Own flag: defend POI on every visible flag entity.
-		   When the flag is carried the entity leaves the snapshot so
-		   count falls to zero automatically — no explicit status check needed. */
-		shader = cgs.media.flagDefendPOI;
+		/* Own base flags: show Capture when a teammate is carrying the enemy
+		   flag (enemyFlagStatus == FLAG_TAKEN), Defense otherwise.
+		   Mutually exclusive — only one icon per base flag entity ever draws. */
+		shader = ( enemyFlagStatus == FLAG_TAKEN )
+		         ? cgs.media.flagCapturePOI
+		         : cgs.media.flagDefendPOI;
 		for ( i = 0; i < defFlags->count; i++ ) {
 			CG_DrawFlagPOIMarker( defFlags->origins[i], shader, defColor );
 		}
 	} else {
-		/* Enemy flag: attack POI on every visible flag entity. */
+		/* Enemy flag entities: attack POI only. */
 		shader = cgs.media.flagAttackPOI;
 		for ( i = 0; i < defFlags->count; i++ ) {
 			CG_DrawFlagPOIMarker( defFlags->origins[i], shader, defColor );
-		}
-
-		/* While a teammate is carrying the enemy flag, show capture POI at
-		   our own base.  defFlagStatus == 1 is "taken" in the wire protocol. */
-		if ( defFlagStatus == FLAG_TAKEN && atkBase->count > 0 ) {
-			shader = cgs.media.flagCapturePOI;
-			for ( i = 0; i < atkBase->count; i++ ) {
-				CG_DrawFlagPOIMarker( atkBase->origins[i], shader, atkColor );
-			}
 		}
 	}
 }
@@ -796,9 +781,11 @@ void CG_DrawFlagPOIs( void ) {
 
 	/* Both teams attack and defend simultaneously.  Treat each flag
 	   independently: red team defends red flag and attacks blue flag,
-	   blue team defends blue flag and attacks red flag. */
-	CG_DrawFlagPOIPair( TEAM_RED,  0, 1, cgs.redflag,  ourTeam );
-	CG_DrawFlagPOIPair( TEAM_BLUE, 1, 0, cgs.blueflag, ourTeam );
+	   blue team defends blue flag and attacks red flag.
+	   Each call receives the ENEMY flag's status so the defender path
+	   can choose Capture vs Defense exclusively. */
+	CG_DrawFlagPOIPair( TEAM_RED,  0, cgs.blueflag, ourTeam );
+	CG_DrawFlagPOIPair( TEAM_BLUE, 1, cgs.redflag,  ourTeam );
 
 	trap_R_SetColor( NULL );
 }

@@ -519,6 +519,11 @@ typedef struct
 	snapshot_t*  nextSnap;          // cg.nextSnap->serverTime > cg.time, or NULL
 	snapshot_t  activeSnapshots[2];
 
+	// local player's flag powerup state from the PREVIOUS snapshot,
+	// saved before entity events fire so GTS_*_TAKEN can detect a new pickup.
+	int         prevBlueFlagPowerup;
+	int         prevRedFlagPowerup;
+
 	float       frameInterpolation; // (float)( cg.time - cg.frame->serverTime ) / (cg.nextFrame->serverTime - cg.frame->serverTime)
 
 	qboolean    thisFrameTeleport;

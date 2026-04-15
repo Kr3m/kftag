@@ -969,27 +969,39 @@ static void Team_TakeFlagSound( gentity_t *ent, team_t team ) {
 		return;
 	}
 
-	// only play sound when the flag was at the base
-	// or not picked up the last 10 seconds
-	switch ( team ) {
-		case TEAM_RED:
-			if( teamgame.blueStatus != FLAG_ATBASE ) {
-				if (teamgame.blueTakenTime > level.time - 10000)
-					return;
-			}
-			teamgame.blueTakenTime = level.time;
-			break;
+	// In RTF every individual flag pickup must be announced -- the throttle
+	// below would suppress the second pickup on 2-flag maps when the first
+	// happened within 10 s and the team's own flag is away.
+	if ( g_gametype.integer != GT_RTF ) {
+		// only play sound when the flag was at the base
+		// or not picked up the last 10 seconds
+		switch ( team ) {
+			case TEAM_RED:
+				if( teamgame.blueStatus != FLAG_ATBASE ) {
+					if (teamgame.blueTakenTime > level.time - 10000)
+						return;
+				}
+				teamgame.blueTakenTime = level.time;
+				break;
 
-		case TEAM_BLUE:	// CTF
-			if( teamgame.redStatus != FLAG_ATBASE ) {
-				if (teamgame.redTakenTime > level.time - 10000)
-					return;
-			}
-			teamgame.redTakenTime = level.time;
-			break;
+			case TEAM_BLUE:
+				if( teamgame.redStatus != FLAG_ATBASE ) {
+					if (teamgame.redTakenTime > level.time - 10000)
+						return;
+				}
+				teamgame.redTakenTime = level.time;
+				break;
 
-		default:
-			return;
+			default:
+				return;
+		}
+	} else {
+		// Still gate on valid teams and update the taken-time bookkeeping.
+		switch ( team ) {
+			case TEAM_RED:   teamgame.blueTakenTime = level.time; break;
+			case TEAM_BLUE:  teamgame.redTakenTime  = level.time; break;
+			default:         return;
+		}
 	}
 
 	te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
