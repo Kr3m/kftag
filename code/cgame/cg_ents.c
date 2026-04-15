@@ -541,12 +541,8 @@ static void CG_DrawFlagPOIMarker( const vec3_t origin, qhandle_t shader, const v
 	sx = 320.0f - DotProduct( trans, cg.refdef.viewaxis[1] ) * hf;
 	sy = 240.0f - DotProduct( trans, cg.refdef.viewaxis[2] ) * hf;
 
-	if ( z > 500.0f ) {
-		iconHalf = 6.25f;
-	} else {
-		perspHalf = 12.0f * hf;
-		iconHalf  = ( perspHalf > 6.25f ) ? perspHalf : 6.25f;
-	}
+	perspHalf = 12.0f * hf;
+	iconHalf  = ( perspHalf > 6.25f ) ? perspHalf : 6.25f;
 
 	above = 1.0f;
 	sy = sy - above - iconHalf * 2.0f;
