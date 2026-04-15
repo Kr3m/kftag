@@ -4,7 +4,7 @@ QA_SRC = \
  q_math q_shared \
  ai_dmnet ai_dmq3 ai_team ai_main ai_chat ai_cmd ai_freeze ai_vcmd \
  g_active g_arenas g_bot g_client g_cmds g_combat g_items g_mem g_misc \
- g_missile g_mover g_freeze g_qlone g_rotation g_session g_spawn g_svcmds g_target g_team \
+ g_missile g_mover g_freeze g_qlone g_rotation g_session g_spawn g_svcmds g_target g_team g_rtf \
  g_trigger g_unlagged g_utils g_weapon \
 
 CG_SRC = \

@@ -963,10 +963,7 @@ static void CG_RegisterSounds(void)
 	cgs.media.hgrenb1aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb1a.wav", qfalse);
 	cgs.media.hgrenb2aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb2a.wav", qfalse);
 
-	if (CG_OSPIsGameTypeFreeze() || cg_buildScript.integer)
-	{
-		cgs.media.lastStandingSound = trap_S_RegisterSound("sound/feedback/last_standing.wav", qfalse);
-	}
+	cgs.media.lastStandingSound = trap_S_RegisterSound("sound/feedback/last_standing.wav", qfalse);
 
 }
 

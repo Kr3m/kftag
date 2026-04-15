@@ -473,6 +473,7 @@ QAOBJ_ = \
   $(B)/$(MOD)/game/g_svcmds.o \
   $(B)/$(MOD)/game/g_target.o \
   $(B)/$(MOD)/game/g_team.o \
+  $(B)/$(MOD)/game/g_rtf.o \
   $(B)/$(MOD)/game/g_trigger.o \
   $(B)/$(MOD)/game/g_utils.o \
   $(B)/$(MOD)/game/g_unlagged.o \
