@@ -258,11 +258,15 @@ qboolean RTF_PickupFlag( gentity_t *player, gentity_t *flagEnt ) {
     /* Hide the base entity now that the flag is away. */
     RTF_UpdateBaseVisibility(flag);
 
-    /* Sounds and HUD.  Only announce when picking up an enemy flag;
-       picking up your own dropped flag is silent. */
+    /* Sounds and HUD. */
     Team_SetFlagStatus(flag->team, FLAG_TAKEN);
     if (flag->team != player->client->sess.sessionTeam) {
+        PrintMsg(NULL, "%s" S_COLOR_WHITE " got the %s flag!\n",
+                 player->client->pers.netname, TeamName(flag->team));
         Team_TakeFlagSound(flagEnt, flag->team);
+    } else {
+        PrintMsg(NULL, "%s" S_COLOR_WHITE " secured the %s flag!\n",
+                 player->client->pers.netname, TeamName(flag->team));
     }
 
     return qtrue;
