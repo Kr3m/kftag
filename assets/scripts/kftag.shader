@@ -3,7 +3,7 @@ models/flag3/b_flag3
 {
 	cull none
 	nopicmip
-	
+
 	{
 		map models/flag3/b_flag3_tint.tga
 		blendfunc add
@@ -25,7 +25,7 @@ models/flag3/d_flag3
 {
 	cull none
 	nopicmip
-	
+
 	{
 		map models/flag3/d_flag3_tint.tga
 		blendfunc add
@@ -47,7 +47,7 @@ models/flag3/f_flag3
 {
 	cull none
 	nopicmip
-	
+
 	{
 		map models/flag3/f_flag3_tint.tga
 		blendfunc add
@@ -69,7 +69,7 @@ models/flag3/g_flag3
 {
 	cull none
 	nopicmip
-	
+
 	{
 		map models/flag3/g_flag3_tint.tga
 		blendfunc add
@@ -91,7 +91,7 @@ models/flag3/n_flag3
 {
 	cull none
 	nopicmip
-	
+
 	{
 		map models/flag3/n_flag3_tint.tga
 		blendfunc add
@@ -113,7 +113,7 @@ models/flag3/r_flag3
 {
 	cull none
 	nopicmip
-	
+
 	{
 		map models/flag3/r_flag3_tint.tga
 		blendfunc add
@@ -171,7 +171,7 @@ spawnShader
 
 iceTrail
 {
-        
+
         nopicmip                        // make sure a border remains
         entityMergable          // allow all the sprites to be merged together
         {
@@ -1066,7 +1066,7 @@ models/players/xaero/pmh
 }
 //teams
 "team_icon/the fallen_red"
-{       	
+{
 	cull none
         surfaceparm nolightmap
         surfaceparm trans
@@ -1075,12 +1075,12 @@ models/players/xaero/pmh
 		map team_icon/thefallen_red.tga
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
-                  
+
 	}
 
 }
 "team_icon/the fallen_blue"
-{       	
+{
 	cull none
         surfaceparm nolightmap
         surfaceparm trans
@@ -1089,7 +1089,7 @@ models/players/xaero/pmh
 		map team_icon/thefallen_blue.tga
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
-                  
+
 	}
 
 }
@@ -1122,7 +1122,7 @@ team_icon/thefallen_blue
 
 }
 team_icon/intruders_red
-{       	
+{
 	cull none
         surfaceparm nolightmap
         surfaceparm trans
@@ -1131,12 +1131,12 @@ team_icon/intruders_red
 		map team_icon/intruders_red.tga
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
-                  
+
 	}
 
 }
 team_icon/intruders_blue
-{       	
+{
 	cull none
         surfaceparm nolightmap
         surfaceparm trans
@@ -1145,12 +1145,12 @@ team_icon/intruders_blue
 		map team_icon/intruders_blue.tga
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
-                  
+
 	}
 
 }
 team_icon/crusaders_red
-{       	
+{
 	cull none
         surfaceparm nolightmap
         surfaceparm trans
@@ -1159,12 +1159,12 @@ team_icon/crusaders_red
 		map team_icon/crusaders_red.tga
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
-                  
+
 	}
 
 }
 team_icon/crusaders_blue
-{       	
+{
 	cull none
         surfaceparm nolightmap
         surfaceparm trans
@@ -1173,12 +1173,12 @@ team_icon/crusaders_blue
 		map team_icon/crusaders_blue.tga
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
-                  
+
 	}
 
 }
 team_icon/pagans_red
-{       	
+{
 	cull none
         surfaceparm nolightmap
         surfaceparm trans
@@ -1187,12 +1187,12 @@ team_icon/pagans_red
 		map team_icon/pagans_red.tga
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
-                  
+
 	}
 
 }
 team_icon/pagans_blue
-{       	
+{
 	cull none
         surfaceparm nolightmap
         surfaceparm trans
@@ -1201,12 +1201,12 @@ team_icon/pagans_blue
 		map team_icon/pagans_blue.tga
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
-                  
+
 	}
 
 }
 team_icon/stroggs_red
-{       	
+{
 	cull none
         surfaceparm nolightmap
         surfaceparm trans
@@ -1215,12 +1215,12 @@ team_icon/stroggs_red
 		map team_icon/stroggs_red.tga
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
-                  
+
 	}
 
 }
 team_icon/stroggs_blue
-{       	
+{
 	cull none
         surfaceparm nolightmap
         surfaceparm trans
@@ -1229,7 +1229,7 @@ team_icon/stroggs_blue
 		map team_icon/stroggs_blue.tga
 		blendFunc Add
 		rgbgen wave triangle 0.2 0.5 0 0.2
-                  
+
 	}
 
 }
@@ -1375,4 +1375,13 @@ team_icon/s_blue
 
 	}
 
+}
+sprites/infinity
+{
+	nopicmip
+	{
+		map sprites/infinity.tga
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		rgbGen vertex
+	}
 }

@@ -20,6 +20,9 @@ typedef struct
 	superhudDrawContext_t back[WP_NUM_WEAPONS];
 	superhudDrawContext_t weaponIcon[WP_NUM_WEAPONS];
 	superhudTextContext_t ammoCount[WP_NUM_WEAPONS];
+	qhandle_t infinityShader;
+	qboolean showInfinity[WP_NUM_WEAPONS];
+	superhudDrawContext_t infinityDraw[WP_NUM_WEAPONS];
 
 } shudElementWeaponList_t;
 
@@ -28,6 +31,8 @@ void* CG_SHUDElementWeaponListCreate(const superhudConfig_t* config)
 	shudElementWeaponList_t* element;
 
 	SHUD_ELEMENT_INIT(element, config);
+
+	element->infinityShader = trap_R_RegisterShader("icons/infinity");
 
 	if (!element->config.textAlign.isSet)
 	{
@@ -239,6 +244,29 @@ static void CG_SHUDElementWeaponListSetup(shudElementWeaponList_t* element, supe
 
 			ammo = CG_SHUDGetAmmo(wpi);
 
+			if (ammo > 500)
+			{
+				int gap = 5;
+				float infX = (align != SUPERHUD_ALIGNH_RIGHT) ? (x + w + gap) : (x - h - gap);
+				element->showInfinity[element->weaponNum] = qtrue;
+				memset(&element->infinityDraw[element->weaponNum], 0, sizeof(element->infinityDraw[element->weaponNum]));
+				element->infinityDraw[element->weaponNum].coord.named.x = infX;
+				element->infinityDraw[element->weaponNum].coord.named.y = y;
+				element->infinityDraw[element->weaponNum].coord.named.w = h;
+				element->infinityDraw[element->weaponNum].coord.named.h = h;
+				element->infinityDraw[element->weaponNum].coordPicture.named.x = 0.0f;
+				element->infinityDraw[element->weaponNum].coordPicture.named.y = 0.0f;
+				element->infinityDraw[element->weaponNum].coordPicture.named.w = 1.0f;
+				element->infinityDraw[element->weaponNum].coordPicture.named.h = 1.0f;
+				element->infinityDraw[element->weaponNum].image = element->infinityShader;
+				Vector4Copy(colorGreen, element->infinityDraw[element->weaponNum].color);
+				element->infinityDraw[element->weaponNum].color[3] = element->tmp_config.color.value.rgba[3];
+			}
+			else
+			{
+				element->showInfinity[element->weaponNum] = qfalse;
+			}
+
 			if (align != SUPERHUD_ALIGNH_RIGHT)
 			{
 				Com_sprintf(&element->ammo[element->weaponNum][0], 8, " %i", ammo);
@@ -287,7 +315,14 @@ void CG_SHUDElementWeaponListRoutine(void* context)
 	{
 		CG_SHUDFillWithColor(&element->back[i].coord, element->back[i].color);
 		CG_SHUDDrawStretchPicCtx(&element->config, &element->weaponIcon[i]);
-		CG_SHUDTextPrintNew(&element->config, &element->ammoCount[i], qfalse);
+		if (element->showInfinity[i])
+		{
+			CG_SHUDDrawStretchPic(element->infinityDraw[i].coord, element->infinityDraw[i].coordPicture, element->infinityDraw[i].color, element->infinityDraw[i].image);
+		}
+		else
+		{
+			CG_SHUDTextPrintNew(&element->config, &element->ammoCount[i], qfalse);
+		}
 		CG_SHUDDrawBorderDirect(&element->back[i].coord, element->border[i], element->borderColor[i]);
 	}
 }
