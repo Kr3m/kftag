@@ -3038,6 +3038,7 @@ static qboolean CG_IsEnemyValidAndVisible(int clientOrEntityNum)
 	vec3_t traceStart, traceEnd;
 	int clientNum;
 	int freezeLimit = MAX_CLIENTS;
+	team_t ourTeam;
 
 	if (cgs.osp.gameTypeFreeze && (cg_enemyIndicator.integer & PI_FROZEN))
 		freezeLimit = MAX_GENTITIES;
@@ -3075,7 +3076,15 @@ static qboolean CG_IsEnemyValidAndVisible(int clientOrEntityNum)
 	if (ci->team == TEAM_SPECTATOR)
 		return qfalse;
 
-	if (ci->team == cgs.clientinfo[cg.clientNum].team)
+	ourTeam = (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
+	    (cg.snap->ps.pm_flags & PMF_FOLLOW) &&
+	    cg.snap->ps.clientNum >= 0 &&
+	    cg.snap->ps.clientNum < MAX_CLIENTS &&
+	    cg.snap->ps.clientNum != cg.clientNum)
+	    ? cgs.clientinfo[cg.snap->ps.clientNum].rt
+	    : (team_t)cgs.clientinfo[cg.clientNum].team;
+
+	if (ci->team == ourTeam)
 		return qfalse;
 
 	VectorCopy(cg.refdef.vieworg, traceStart);

@@ -63,40 +63,34 @@ qboolean CG_IsEnemy(const clientInfo_t* target)
 
 	if (myStateTeam == TEAM_SPECTATOR)
 	{
-		/* BE: Enhanced spectator perspective logic - exact copy from OSP2-BE */
-		if (cg_spectPOV.integer && cg.snap->ps.pm_flags & PMF_FOLLOW && cg.snap->ps.clientNum >= 0 && cg.snap->ps.clientNum < MAX_CLIENTS)
+		/* When following, always use followed player's team as perspective */
+		if ((cg.snap->ps.pm_flags & PMF_FOLLOW) &&
+		    cg.snap->ps.clientNum >= 0 &&
+		    cg.snap->ps.clientNum < MAX_CLIENTS &&
+		    cg.snap->ps.clientNum != cg.clientNum)
 		{
-			qboolean result;
-			team_t targetTeam;
-
 			ourPerspectiveTeam = cgs.clientinfo[cg.snap->ps.clientNum].rt;
-			targetTeam = target->rt;
 
-			result = (ourPerspectiveTeam != targetTeam);
-
-			/* Debug output */
 			if (cg_debugAnim.integer)
 			{
 				CG_Printf("[CG_IsEnemy] Following %d (team %d) | Target: %s (team %d) | isEnemy=%d\n",
 				    cg.snap->ps.clientNum, ourPerspectiveTeam,
-				    target->name, targetTeam, result);
+				    target->name, target->rt, (ourPerspectiveTeam != target->rt));
 			}
 
-			return result;
+			return (ourPerspectiveTeam != target->rt);
 		}
-		else
+
+		/* Original PBE logic: not following anyone */
+		if (myRealTeam == TEAM_RED || myRealTeam == TEAM_SPECTATOR)
 		{
-			/* Original PBE logic */
-			if (myRealTeam == TEAM_RED || myRealTeam == TEAM_SPECTATOR)
-			{
-				return enemyTeam == TEAM_BLUE;
-			}
-			if (myRealTeam == TEAM_BLUE)
-			{
-				return enemyTeam == TEAM_RED;
-			}
-			return qfalse;
+			return enemyTeam == TEAM_BLUE;
 		}
+		if (myRealTeam == TEAM_BLUE)
+		{
+			return enemyTeam == TEAM_RED;
+		}
+		return qfalse;
 	}
 
 	if (myStateTeam == TEAM_RED)
@@ -1017,7 +1011,14 @@ static void CG_ClientInfoUpdateModel(clientInfo_t* ci, qboolean isOurClient, qbo
 		const char* forceModelString = cg_forceModel.integer ? cfgModelString : NULL;
 		const char* forceHModelString = cg_forceModel.integer ? cfgHModelString : NULL;
 		const char* enemyModelString = NULL;
-		const qboolean useOriginal = cg_spectOrigModel.integer && CG_IsFollowing() && cg.snap->ps.clientNum == clientNum;
+		qboolean isFollowing;
+		qboolean useOriginal;
+
+		isFollowing = (qboolean)((cg.snap->ps.pm_flags & PMF_FOLLOW) != 0 &&
+		    cg.snap->ps.clientNum >= 0 &&
+		    cg.snap->ps.clientNum < MAX_CLIENTS &&
+		    cg.snap->ps.clientNum != cg.clientNum);
+		useOriginal = (qboolean)(!isFollowing && cg_spectOrigModel.integer && CG_IsFollowing() && cg.snap->ps.clientNum == clientNum);
 
 		if (cg_enemyModel.string[0])
 		{
@@ -1073,30 +1074,17 @@ static void CG_ClientInfoUpdateModel(clientInfo_t* ci, qboolean isOurClient, qbo
 			const char* teamModelString = cg_teamModel.string[0] ? cg_teamModel.string : NULL;
 			qboolean isTeamMate;
 
-			/* BE: Enhanced spectator perspective logic */
-			if (cg_spectPOV.integer)
+			if (isFollowing)
 			{
-				team_t ourPerspectiveTeam;
-
-				if (cgs.clientinfo[cg.clientNum].team == TEAM_SPECTATOR)
-				{
-					if (cg.snap->ps.pm_flags & PMF_FOLLOW && cg.snap->ps.clientNum >= 0 && cg.snap->ps.clientNum < MAX_CLIENTS)
-					{
-						ourPerspectiveTeam = cgs.clientinfo[cg.snap->ps.clientNum].rt;
-					}
-					else
-					{
-						ourPerspectiveTeam = TEAM_SPECTATOR;
-					}
-				}
-				else
-				{
-					ourPerspectiveTeam = cgs.clientinfo[cg.clientNum].rt;
-				}
-
+				/* Always use the followed player's team as our perspective */
+				team_t ourPerspectiveTeam = cgs.clientinfo[cg.snap->ps.clientNum].rt;
+				isTeamMate = (ourPerspectiveTeam == ci->rt);
+			}
+			else if (cg_spectPOV.integer)
+			{
+				team_t ourPerspectiveTeam = cgs.clientinfo[cg.clientNum].rt;
 				if (ourPerspectiveTeam == TEAM_SPECTATOR)
 				{
-					/* Not following anyone - use default: red is teammate */
 					isTeamMate = (ci->rt == TEAM_RED);
 				}
 				else
@@ -2519,6 +2507,7 @@ qboolean CG_IsPlayerValidAndVisible(int clientOrEntityNum, qboolean wallhack)
 static void CG_FriendHudMarker(centity_t* cent)
 {
 	int team;
+	int ourTeam;
 	float distance;
 	float hfov_x;
 	float size;
@@ -2526,12 +2515,19 @@ static void CG_FriendHudMarker(centity_t* cent)
 	clientInfo_t* cl;
 
 	team = cgs.clientinfo[cent->currentState.clientNum].team;
+	ourTeam = (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
+	    (cg.snap->ps.pm_flags & PMF_FOLLOW) &&
+	    cg.snap->ps.clientNum >= 0 &&
+	    cg.snap->ps.clientNum < MAX_CLIENTS &&
+	    cg.snap->ps.clientNum != cg.clientNum)
+	    ? (int)cgs.clientinfo[cg.snap->ps.clientNum].rt
+	    : cg.snap->ps.persistant[PERS_TEAM];
 	if (cgs.gametype < GT_TEAM
 	        || !cg_teamIndicator.integer
-	        || cg.snap->ps.persistant[PERS_TEAM] != team
+	        || ourTeam != team
 	        || (cent->currentState.eFlags & EF_DEAD && !CG_IsFrozenEntity(cent))
 	        || cent->currentState.number == cg.snap->ps.clientNum
-	        || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
+	        || ourTeam == TEAM_SPECTATOR)
 	{
 		return;
 	}
@@ -2583,6 +2579,7 @@ Float sprites over the player's head
 */
 static void CG_PlayerSprites(centity_t* cent)
 {
+	int ourTeam;
 	clientInfo_t* cl;
 
 	if (cent->currentState.eFlags & EF_CONNECTION)
@@ -2599,9 +2596,17 @@ static void CG_PlayerSprites(centity_t* cent)
 
 	cl = &cgs.clientinfo[ cent->currentState.clientNum ];
 
+	ourTeam = (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
+	    (cg.snap->ps.pm_flags & PMF_FOLLOW) &&
+	    cg.snap->ps.clientNum >= 0 &&
+	    cg.snap->ps.clientNum < MAX_CLIENTS &&
+	    cg.snap->ps.clientNum != cg.clientNum)
+	    ? (int)cgs.clientinfo[cg.snap->ps.clientNum].rt
+	    : cg.snap->ps.persistant[PERS_TEAM];
+
 	// Live teammate in a team gametype: never show medals — only the
 	// appropriate team sprite based on state.
-	if (!(cent->currentState.eFlags & EF_DEAD) && cg.snap->ps.persistant[PERS_TEAM] == cl->team && cgs.gametype >= GT_TEAM)
+	if (!(cent->currentState.eFlags & EF_DEAD) && ourTeam == cl->team && cgs.gametype >= GT_TEAM)
 	{
 		// Frozen teammate: show only the frozen foe sprite.
 		if (cg_teamFrozenFoe.integer && cgs.osp.gameTypeFreeze && cent->currentState.powerups & (1 << PW_BATTLESUIT) && cent->currentState.weapon == WP_NONE)
@@ -3289,7 +3294,7 @@ void CG_AddOutline(refEntity_t* ent, centity_t* cent)
 
 	ent->customShader = isEnemy ? cgs.media.outlineShader : cgs.media.teamOutlineShader;
 
-	if (isSpectator && !cg_spectPOV.integer)
+	if (isSpectator && !cg_spectPOV.integer && !(cg.snap->ps.pm_flags & PMF_FOLLOW))
 	{
 		if (ci->rt == TEAM_RED)
 			Vector4Copy(cgs.be.teamOutlineColor, color);

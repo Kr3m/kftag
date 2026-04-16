@@ -478,13 +478,15 @@ void CG_ProcessSnapshots(void)
 		CG_Error("CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
 	}
 
-	if (cg_spectOrigModel.integer)
 	{
 		static int last_player = -1;
 		if (last_player != cg.snap->ps.clientNum)
 		{
 			last_player = cg.snap->ps.clientNum;
-			CG_UpdateAllClientsInfo();
+			if (cg.snap->ps.pm_flags & PMF_FOLLOW)
+			{
+				CG_UpdateAllClientsInfo();
+			}
 		}
 
 	}
