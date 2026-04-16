@@ -973,6 +973,12 @@ void team_wins( int team ) {
 
 		// Always reset armor
 		cl->ps.stats[ STAT_ARMOR ] = 0;
+		if ( g_startArmor.integer > 0 ) {
+			cl->ps.stats[ STAT_ARMOR ] = g_startArmor.integer;
+			if ( cl->ps.stats[ STAT_ARMOR ] > cl->ps.stats[ STAT_MAX_HEALTH ] * 2 ) {
+				cl->ps.stats[ STAT_ARMOR ] = cl->ps.stats[ STAT_MAX_HEALTH ] * 2;
+			}
+		}
 
 		if ( !( g_dmflags.integer & 1024 ) ) G_UseTargets( spawnPoint, e );
 		cl->ps.weapon = 1;
