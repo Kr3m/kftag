@@ -2620,39 +2620,9 @@ static void CG_PlayerSprites(centity_t* cent)
 			return;
 		}
 
-		// Flag carrier: show only the flag POI sprite.
-		// Only show for the ENEMY flag being carried — a teammate carrying
-		// their own flag (RTF own-flag return) must not trigger this.
-		// Blue viewer checks PW_REDFLAG; red viewer checks PW_BLUEFLAG.
-		{
-			int ourTeam = cg.snap->ps.persistant[PERS_TEAM];
-			if ((cent->currentState.powerups & (1 << PW_REDFLAG)) && (cent->currentState.powerups & (1 << PW_BLUEFLAG)))
-			{
-				vec4_t purple = { 1.0f, 0.0f, 1.0f, 1.0f };
-				CG_PlayerFloatSprite(cent, cgs.media.friendPOIRedFlagStolenShader, purple, qfalse);
-				return;
-			}
-			if (ourTeam == TEAM_BLUE && (cent->currentState.powerups & (1 << PW_REDFLAG)))
-			{
-				CG_PlayerFloatSprite(cent, cgs.media.friendPOIRedFlagStolenShader, NULL, qfalse);
-				return;
-			}
-			if (ourTeam == TEAM_RED && (cent->currentState.powerups & (1 << PW_BLUEFLAG)))
-			{
-				CG_PlayerFloatSprite(cent, cgs.media.friendPOIBlueFlagStolenShader, NULL, qfalse);
-				return;
-			}
-#ifdef MISSIONPACK
-			if (cent->currentState.powerups & (1 << PW_NEUTRALFLAG))
-			{
-				CG_PlayerFloatSprite(cent, cgs.media.friendPOINeutralFlagCarrierShader, NULL, qfalse);
-				return;
-			}
-#endif
-		}
-
-		// Friend sprite: depth hack on when cg_drawFriend is enabled (makes
-		// the sprite visible through geometry); off when disabled (line-of-sight only).
+		// Visible teammate: sprite from CG_GetPlayerSpriteShader.
+		// Obstructed teammate: flag carrier POI sprite only.
+		if (CG_FriendVisible(cent))
 		{
 			vec4_t color;
 			qhandle_t shader;
@@ -2660,11 +2630,34 @@ static void CG_PlayerSprites(centity_t* cent)
 				CG_GetColorForHealth(cl->health, cl->armor, color, NULL);
 			else
 				VectorCopy(colorWhite, color);
-			if (CG_BE_FEATURE_ENABLED(CG_BE_TEAM_FOE_WH) && cg_friendsWallhack.integer & 1)
-				shader = cgs.media.friendShaderWallhack;
-			else
-				shader = cgs.media.friendShader;
-			CG_PlayerFloatSprite(cent, shader, color, cg_drawFriend.integer ? qtrue : qfalse);
+			shader = CG_GetPlayerSpriteShader(cent);
+			CG_PlayerFloatSprite(cent, shader, color, qfalse);
+		}
+		else
+		{
+			// Flag carrier POI: only for the ENEMY flag being carried — a teammate
+			// carrying their own flag (RTF own-flag return) must not trigger this.
+			// Blue viewer checks PW_REDFLAG; red viewer checks PW_BLUEFLAG.
+			int ourTeam = cg.snap->ps.persistant[PERS_TEAM];
+			if ((cent->currentState.powerups & (1 << PW_REDFLAG)) && (cent->currentState.powerups & (1 << PW_BLUEFLAG)))
+			{
+				vec4_t purple = { 1.0f, 0.0f, 1.0f, 1.0f };
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOIRedFlagStolenShader, purple, qfalse);
+			}
+			else if (ourTeam == TEAM_BLUE && (cent->currentState.powerups & (1 << PW_REDFLAG)))
+			{
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOIRedFlagStolenShader, NULL, qfalse);
+			}
+			else if (ourTeam == TEAM_RED && (cent->currentState.powerups & (1 << PW_BLUEFLAG)))
+			{
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOIBlueFlagStolenShader, NULL, qfalse);
+			}
+#ifdef MISSIONPACK
+			else if (cent->currentState.powerups & (1 << PW_NEUTRALFLAG))
+			{
+				CG_PlayerFloatSprite(cent, cgs.media.friendPOINeutralFlagCarrierShader, NULL, qfalse);
+			}
+#endif
 		}
 		return;
 	}
