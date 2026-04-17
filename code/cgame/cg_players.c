@@ -3371,7 +3371,7 @@ void CG_Player(centity_t* cent)
 	qboolean        paintItBlack;
 	float           paintBlackLevel;
 
-	if (cg_spectPOV.integer)
+	if (cg_spectPOV.integer || cgs.gametype >= GT_TEAM)
 	{
 		static int lastFrameTime = 0;
 		if (cg.time != lastFrameTime)

@@ -483,10 +483,7 @@ void CG_ProcessSnapshots(void)
 		if (last_player != cg.snap->ps.clientNum)
 		{
 			last_player = cg.snap->ps.clientNum;
-			if (cg.snap->ps.pm_flags & PMF_FOLLOW)
-			{
-				CG_UpdateAllClientsInfo();
-			}
+			CG_UpdateAllClientsInfo();
 		}
 
 	}
