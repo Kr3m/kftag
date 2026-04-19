@@ -97,8 +97,8 @@ void Persistant_spectator( gentity_t *ent, gclient_t *cl ) {
 
 static void FollowClient( gentity_t *ent, gentity_t *other ) {
 	// Check if g_specLock is enabled and the attacker is on the opposing team
-    if ( g_specLock.integer && ent->target_ent->client->sess.sessionTeam != other->client->sess.sessionTeam ) {
-	   return; // Do not allow spectating the attacker
+	if ( g_specLock.integer && ent->target_ent->client->sess.sessionTeam != other->client->sess.sessionTeam && g_followAttacker.integer == 0 ) {
+		return;
 	}
 
 	if ( ent->target_ent == other ) return;

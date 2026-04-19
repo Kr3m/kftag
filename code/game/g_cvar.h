@@ -196,6 +196,7 @@ G_CVAR( g_healthDown, "g_healthDown", "1", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_randomPU, "g_randomPU", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_qlPlasmaVelocity, "g_qlPlasmaVelocity", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 G_CVAR( g_shotgunRange, "g_shotgunRange", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
+G_CVAR( g_followAttacker, "g_followAttacker", "0", CVAR_ARCHIVE, 0, qfalse, qfalse )
 
 
 #undef G_CVAR
