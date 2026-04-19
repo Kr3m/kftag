@@ -101,7 +101,6 @@ static void FollowClient( gentity_t *ent, gentity_t *other ) {
 		return;
 	}
 
-	if ( ent->target_ent == other ) return;
 	if ( is_spectator( ent->target_ent->client ) ) {
 		ent->target_ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
 		ent->target_ent->client->sess.spectatorClient = other->s.number;
