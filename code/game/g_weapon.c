@@ -1,6 +1,6 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
-// g_weapon.c 
+// g_weapon.c
 // perform the server side effects of a weapon firing
 
 #include "g_local.h"
@@ -76,7 +76,7 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
 	gentity_t	*tent;
 	gentity_t	*traceEnt;
 	int			damage;
-	
+
 	// set aiming directions
 	AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
@@ -157,7 +157,7 @@ SnapVectorTowards
 
 Round a vector to integers for more efficient network
 transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
+rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
@@ -661,7 +661,7 @@ RAIL JUMP
 			points = g_railJumpDamage.integer * ( 1.0 - dist / radius );
 		} else {
 			points = damage * ( 1.0 - dist / radius );
-		}		
+		}
 		if( CanDamage (ent, origin) ) {
 			VectorSubtract (ent->r.currentOrigin, origin, dir);
 			// push the center of mass higher than the origin so players
@@ -686,7 +686,7 @@ void Weapon_GrapplingHook_Fire (gentity_t *ent)
 	gentity_t	*tent;
 	vec3_t		grapple_forward, grapple_right, grapple_up;
 	vec3_t		grapple_muzzle, grapple_muzzle_origin;
-	
+
 //qlone - grapple hook
 	// Calculate fresh direction vectors for grapple to avoid contamination from other weapons
 	AngleVectors( ent->client->ps.viewangles, grapple_forward, grapple_right, grapple_up );
@@ -703,7 +703,7 @@ void Weapon_GrapplingHook_Fire (gentity_t *ent)
 	}
 
 	ent->client->fireHeld = qtrue;
-  
+
   	if (g_grappleHoldTime.integer > 0) {
     	ent->client->grapple_release_time = g_grappleHoldTime.integer + level.time;
   	} else {
@@ -942,16 +942,16 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 
 	if ( attacker && attacker->client ) {
 		weapon = attacker->client->ps.weapon;
-		if ( weapon == WP_GAUNTLET ) {
+		if ( weapon == WP_GAUNTLET || weapon == WP_GRAPPLING_HOOK ) {
 			return qfalse;
 		}
 		if( weapon >= 0 && weapon < WP_NUM_WEAPONS ) {
 			if ( !level.warmupTime ) {
 				attacker->client->pers.stats.weaponStats[weapon].hits++;
-			}			
+			}
 		}
 	}
-	
+
 	return qtrue;
 }
 
@@ -967,8 +967,8 @@ void FireWeapon( gentity_t *ent ) {
 	if ( ent->client->ps.ammo[weapon] <= 0 ) {
 		return; // no ammo
 	}
-	
-	if ( !level.warmupTime ) {
+
+	if ( !level.warmupTime && weapon != WP_GAUNTLET && weapon != WP_GRAPPLING_HOOK ) {
 		ent->client->pers.stats.weaponStats[weapon].attacks++;
 	}
 

@@ -1953,7 +1953,7 @@ void Cmd_GetStatsInfo_f(gentity_t *ent) {
 
 	losses = ent2->client->sess.losses;
 
-    for (i = 1; i < 10; i++) {
+    for (i = 2; i < 10; i++) {
         weaponStats_t *ws = &stats->weaponStats[i];
         if (i == WP_SHOTGUN) {
             sgHits = (float)ws->hits / DEFAULT_SHOTGUN_COUNT;
@@ -2073,6 +2073,10 @@ void ClientCommand( int clientNum ) {
 		Cmd_Score_f (ent);
 		return;
 	}
+	if (Q_stricmp (cmd, "getstatsinfo") == 0) {
+		Cmd_GetStatsInfo_f (ent);
+		return;
+	}
 
 	// ignore all other commands when at intermission
 	if (level.intermissiontime) {
@@ -2123,8 +2127,6 @@ void ClientCommand( int clientNum ) {
 		Cmd_Drop_f( ent );
 	else if ( Q_stricmp( cmd, "ready" ) == 0 )
 		Cmd_Ready_f( ent );
-	else if ( Q_stricmp( cmd, "getstatsinfo" ) == 0 )
-		Cmd_GetStatsInfo_f( ent );
 //qlone - freezetag
 	else
 		trap_SendServerCommand( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );

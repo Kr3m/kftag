@@ -414,7 +414,6 @@ struct gclient_s {
 	qboolean	notifiedLastPlayer; // Tracks spectator notification for last player alive
 
 	//stats
-	qboolean	gauntletHitRegistered; // Tracks if a hit has been registered for the current attack
 	qboolean	statsInitialized; // Tracks if the stats have been initialized
 
 #ifdef MISSIONPACK

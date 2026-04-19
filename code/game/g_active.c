@@ -900,7 +900,6 @@ void ClientThink_real( gentity_t *ent ) {
 	// go through as an attack unless it actually hits something
 	if ( client->ps.weapon == WP_GAUNTLET && !( ucmd->buttons & BUTTON_TALK ) &&
 		( ucmd->buttons & BUTTON_ATTACK ) && client->ps.weaponTime <= 0 ) {
-		client->gauntletHitRegistered = qfalse;
 		pm.gauntletHit = CheckGauntletAttack( ent );
 	}
 
