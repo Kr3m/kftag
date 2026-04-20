@@ -27,6 +27,11 @@ void CG_SHUDElementSpawnProtectRoutine(void* context)
 
 	element->ctx.text = NULL;
 
+	if (!cg_drawSpawnProtection.integer)
+	{
+		return;
+	}
+
 	if (!cg_enableOSPHUD.integer && !cg_shud.integer)
 	{
 		return;
