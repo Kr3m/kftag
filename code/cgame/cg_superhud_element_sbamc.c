@@ -88,7 +88,12 @@ void CG_SHUDElementSBAmCRoutine(void* context)
 	{
 		float iconSize = element->config.fontsize.isSet ? element->config.fontsize.value[1] : 20.0f;
 		float iconX = element->config.rect.value[0] - iconSize * 0.5f;
-		float iconY = element->config.rect.value[1];
+		float iconY = element->ctx.coord.named.y;
+		// Mirror the vertical alignment the text renderer applies via DS_ flags
+		if (element->ctx.flags & DS_VCENTER)
+			iconY -= iconSize * 0.5f;
+		else if (element->ctx.flags & DS_VTOP)
+			iconY -= iconSize;
 
 		memset(&element->infiniteDraw, 0, sizeof(element->infiniteDraw));
 		element->infiniteDraw.coord.named.x = iconX;
