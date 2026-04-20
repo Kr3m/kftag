@@ -978,11 +978,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	============
 	*/
 
-    if ( targ && targ->client && targ->client->ps.eFlags & EF_SPAWNPROTECTION && mod != MOD_TELEFRAG ) {
+    if ( targ && targ->client && targ->client->ps.powerups[PW_SPAWNPROTECTION] > level.time && mod != MOD_TELEFRAG ) {
         return;
     }
 
-    if ( attacker && attacker->client && attacker->client->ps.eFlags & EF_SPAWNPROTECTION && mod != MOD_TELEFRAG) {
+    if ( attacker && attacker->client && attacker->client->ps.powerups[PW_SPAWNPROTECTION] > level.time && mod != MOD_TELEFRAG) {
         return;
     }
 

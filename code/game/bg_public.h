@@ -292,7 +292,7 @@ typedef enum {
 #define	EF_AWARD_GAUNTLET	0x00000040		// draw a gauntlet sprite
 #define	EF_NODRAW			0x00000080		// may have an event, but no model (unspawned items)
 #define	EF_FIRING			0x00000100		// for lightning gun
-#define	EF_KAMIKAZE			0x00000200		// alias for EF_SPAWNPROTECTION (same bit)
+#define	EF_KAMIKAZE			0x00000200		// kamikaze exploding (MISSIONPACK only)
 #define	EF_MOVER_STOP		0x00000400		// will push otherwise
 #define EF_AWARD_CAP		0x00000800		// draw the capture sprite
 #define	EF_TALK				0x00001000		// draw a talk balloon
@@ -303,7 +303,6 @@ typedef enum {
 #define	EF_AWARD_ASSIST		0x00020000		// draw a assist sprite
 #define EF_AWARD_DENIED		0x00040000		// denied
 #define EF_TEAMVOTED		0x00080000		// already cast a team vote
-#define EF_SPAWNPROTECTION	0x00000200		// is the player spawn protected
 
 #define EF_PERSISTANT ( EF_CONNECTION | EF_VOTED | EF_TEAMVOTED )
 #define EF_AWARDS ( EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP )
@@ -330,6 +329,8 @@ typedef enum {
 	PW_DOUBLER,
 	PW_AMMOREGEN,
 	PW_INVULNERABILITY,
+
+	PW_SPAWNPROTECTION,		// spawn protection timer
 
 	PW_NUM_POWERUPS
 

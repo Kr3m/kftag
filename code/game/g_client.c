@@ -1337,8 +1337,7 @@ void ClientSpawn(gentity_t *ent) {
 	}
 
 	if ( g_spawnProtection.integer > 0 ) {
-		ent->client->ps.eFlags |= EF_SPAWNPROTECTION;
-		ent->client->spawnProtectionTime = ent->client->respawnTime + ( g_spawnProtection.integer * 1000 );
+		ent->client->ps.powerups[PW_SPAWNPROTECTION] = ent->client->respawnTime + ( g_spawnProtection.integer * 1000 );
 	}
 
 	if (ent->r.svFlags & SVF_BOT) {

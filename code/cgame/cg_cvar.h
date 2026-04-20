@@ -65,6 +65,7 @@ CG_CVAR( cg_drawIcons,                   "cg_drawIcons",                   "1", 
 CG_CVAR( cg_drawAmmoWarning,             "cg_drawAmmoWarning",             "1",     CVAR_ARCHIVE )
 CG_CVAR( cg_drawAttacker,                "cg_drawAttacker",                "1",     CVAR_ARCHIVE )
 CG_CVAR( cg_drawRewards,                 "cg_drawRewards",                 "1",     CVAR_ARCHIVE )
+CG_CVAR( cg_drawSpawnProtection,         "cg_drawSpawnProtection",         "1",     CVAR_ARCHIVE )
 
 // Crosshair
 CG_CVAR( cg_drawCrosshair,               "cg_drawCrosshair",                "16",   CVAR_ARCHIVE )

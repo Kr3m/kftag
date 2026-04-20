@@ -842,12 +842,6 @@ void ClientThink_real( gentity_t *ent ) {
 		return;
 	}
 
-	if ( client && ( client->ps.eFlags & EF_SPAWNPROTECTION )) {
-		if ( client->spawnProtectionTime <= level.time ) {
-			client->ps.eFlags &= ~EF_SPAWNPROTECTION;
-		}
-	}
-
 	// check for inactivity timer, but never drop the local client of a non-dedicated server
 	if ( !ClientInactivityTimer( client ) ) {
 		return;

@@ -1172,6 +1172,8 @@ static void CG_RegisterGraphics(void)
 	// powerup shaders
 	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");
 	cgs.media.quadWeaponShader = trap_R_RegisterShader("powerups/quadWeapon");
+	cgs.media.spawnProtectionShader = trap_R_RegisterShader("powerups/spawnprotect");
+	cgs.media.spawnProtectionWeaponShader = trap_R_RegisterShader("powerups/spawnProtectWeapon");
 	cgs.media.battleSuitShader = trap_R_RegisterShader("powerups/battleSuit");
 	cgs.media.battleSuitShaderNew = trap_R_RegisterShader("powerups/battleSuitNew");
 	cgs.media.battleWeaponShader = trap_R_RegisterShader("powerups/battleWeapon");

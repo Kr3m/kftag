@@ -406,9 +406,6 @@ struct gclient_s {
 	// like health / armor countdowns and regeneration
 	int			timeResidual;
 
-	//spawn protection
-	int			spawnProtectionTime;
-
 	//freeze
 	gentity_t	*freezeEvent;	// Reference to the EV_FREEZE_TIME temporary entity
 	qboolean	notifiedLastPlayer; // Tracks spectator notification for last player alive
