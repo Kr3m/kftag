@@ -187,6 +187,8 @@ void CG_ParseServerinfo(void)
 	cgs.g_sgPellets = atoi(Info_ValueForKey(info, "g_sgPellets"));
 	cgs.shotgunRange = atoi(Info_ValueForKey(info, "g_shotgunRange"));
 	cgs.autoThawTime = atoi(Info_ValueForKey(info, "g_autoThawTime"));
+	cgs.startArmor = atoi(Info_ValueForKey(info, "g_startArmor"));
+	cgs.startHealth = atoi(Info_ValueForKey(info, "g_startHealth"));
 	CG_OSPConfigFreezeModeSet(atoi(Info_ValueForKey(info, "freezeTag")));
 	mapname = Info_ValueForKey(info, "mapname");
 	Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", mapname);

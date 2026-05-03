@@ -27,6 +27,11 @@ void CG_SHUDElementSBABRoutine(void* context)
 	CG_SHUDFill(&element->config);
 	CG_SHUDDrawBorder(&element->config);
 
+	if (cgs.startArmor > 0)
+	{
+		ap = ap * 200.0f / cgs.startArmor;
+	}
+
 	if (element->config.style.value == 1)
 	{
 		CG_ColorForHealth(element->ctx.color_top, NULL);

@@ -1504,6 +1504,10 @@ typedef struct
 	//fps cap
 	unsigned int    fpsCap;
 
+	//health / armor
+	unsigned int	startArmor;
+	unsigned int	startHealth;
+
 } cgs_t;
 
 //==============================================================================
