@@ -1347,6 +1347,29 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 			break;
 
 		default:
+			// Compatibility: some mismatched qagame/cgame builds emit railtrail as raw id 55.
+#if EV_RAILTRAIL != 55
+			if (event == 55)
+			{
+				DEBUGNAME("EV_RAILTRAIL_COMPAT55");
+				cent->currentState.weapon = WP_RAILGUN;
+				if (es->clientNum == cg.predictedPlayerState.clientNum &&
+				        (cg_delag.integer & 1 || cg_delag.integer & 4))
+				{
+					// do nothing, because it was already predicted
+				}
+				else
+				{
+					CG_RailTrail(ci, es->origin2, es->pos.trBase);
+					if (es->eventParm != 255)
+					{
+						ByteToDir(es->eventParm, dir);
+						CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT);
+					}
+				}
+				break;
+			}
+#endif
 			DEBUGNAME("UNKNOWN");
 			CG_Error("Unknown event: %i", event);
 			break;
