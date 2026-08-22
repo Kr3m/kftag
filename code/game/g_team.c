@@ -667,6 +667,11 @@ void Team_FreeEntity( gentity_t *ent ) {
 
 	if ( g_gametype.integer == GT_RTF ) {
 		RTF_FlagDroppedIntoVoid(ent);
+		/* Remove the dropped entity immediately so clients stop receiving
+		   a stale world position for POI tracking. */
+		if ( ent->inuse ) {
+			G_FreeEntity( ent );
+		}
 	} else {
 		Team_ReturnFlag(flag_team);
 	}
